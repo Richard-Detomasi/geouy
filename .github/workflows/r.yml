@@ -6,40 +6,106 @@
 # See https://github.com/r-lib/actions/tree/master/examples#readme for
 # additional example workflows available for the R community.
 
-name: R
+name: R-CMD-check
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
 
 permissions:
   contents: read
 
 jobs:
-  build:
-    runs-on: macos-latest
+  R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+
     strategy:
+      fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest, r: 'devel' }
-          - { os: ubuntu-latest, r: 'release' }
-          - { os: ubuntu-latest, r: 'oldrel' }
-          - { os: macos-latest, r: 'release' }
+          - { os: ubuntu-latest,  r: 'devel' }
+          - { os: ubuntu-latest,  r: 'release' }
+          - { os: ubuntu-latest,  r: 'oldrel' }
+          - { os: macos-latest,   r: 'release' }
           - { os: windows-latest, r: 'release' }
 
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up R ${{ matrix.r-version }}
-        uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
+
+      # --------------------
+      # 1. Checkout
+      # --------------------
+      - uses: actions/checkout@v4
+
+      # --------------------
+      # 2. Setup R
+      # --------------------
+      - uses: r-lib/actions/setup-r@v2
         with:
-          r-version: ${{ matrix.r-version }}
+          r-version: ${{ matrix.config.r }}
+          use-public-rspm: true   # más rápido y estable
+
+      # --------------------
+      # 3. Setup Pandoc (para vignettes)
+      # --------------------
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      # --------------------
+      # 4. Cache de paquetes R
+      # --------------------
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: ${{ runner.os }}-
+
+      # --------------------
+      # 5. Instalar system dependencies (solo Linux)
+      # --------------------
+      - name: System requirements (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -y
+          while read -r cmd
+          do
+            eval sudo $cmd
+          done < <(Rscript -e 'writeLines(pak::pkg_system_requirements("ubuntu", "22.04"))')
+
+      # --------------------
+      # 6. Instalar dependencias mediante pak (MUY RÁPIDO)
+      # --------------------
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck"))
-          remotes::install_deps(dependencies = TRUE)
+          install.packages("pak", repos = "https://cloud.r-project.org")
+          pak::local_install_deps()
+          pak::pkg_install("rcmdcheck")
         shell: Rscript {0}
+
+      # --------------------
+      # 7. Ejecutar el check completo estilo CRAN
+      # --------------------
       - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
+        run: |
+          rcmdcheck::rcmdcheck(
+            args = c("--no-manual", "--as-cran"),
+            error_on = "warning",
+            check_dir = "check"
+          )
         shell: Rscript {0}
+        env:
+          _R_CHECK_CRAN_INCOMING_REMOTE_: false
+
+      # --------------------
+      # 8. Subir los logs si falla
+      # --------------------
+      - name: Upload check results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-r${{ matrix.config.r }}-results
+          path: check

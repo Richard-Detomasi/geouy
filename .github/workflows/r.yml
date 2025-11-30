@@ -22,7 +22,12 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        r-version: ['3.6.3', '4.1.1']
+        config:
+          - { os: ubuntu-latest, r: 'devel' }
+          - { os: ubuntu-latest, r: 'release' }
+          - { os: ubuntu-latest, r: 'oldrel' }
+          - { os: macos-latest, r: 'release' }
+          - { os: windows-latest, r: 'release' }
 
     steps:
       - uses: actions/checkout@v3

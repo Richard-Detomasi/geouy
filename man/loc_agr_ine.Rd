@@ -18,14 +18,14 @@ A data frame with 615 rows and 8 variables:
 }
 }
 \usage{
-loc_agr_ine
+data(loc_agr_ine)
 }
 \description{
 A dataset containing the cods, names and others attributes of urban locations 
 for Uruguay.
 }
 \seealso{
-Other data: 
+Other data:
 \code{\link{metadata}},
 \code{\link{metadata_tables}},
 \code{\link{metadata_wms}},

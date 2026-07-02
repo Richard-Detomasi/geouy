@@ -8,3 +8,6 @@ CRAN-RELEASE
 dev
 /doc/
 /Meta/
+geouy.Rcheck/
+geouy*.tar.gz
+geouy*.tgz

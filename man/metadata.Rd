@@ -20,14 +20,14 @@ A data frame with 86 rows and 10 variables:
 }
 }
 \usage{
-metadata
+data(metadata)
 }
 \description{
 A dataset containing the urls and other attributes of geoservices 
 for Uruguay.
 }
 \seealso{
-Other data: 
+Other data:
 \code{\link{loc_agr_ine}},
 \code{\link{metadata_tables}},
 \code{\link{metadata_wms}},

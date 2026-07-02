@@ -21,10 +21,10 @@ is.uy5381(load_geouy("CCZ"))
 }
 }
 \seealso{
-Other crs: 
-\code{\link{is.uy32721}()},
-\code{\link{is.uy4326}()},
-\code{\link{is.uy5382}()}
+Other crs:
+\code{\link[=is.uy32721]{is.uy32721()}},
+\code{\link[=is.uy4326]{is.uy4326()}},
+\code{\link[=is.uy5382]{is.uy5382()}}
 }
 \concept{crs}
 \keyword{CRS}

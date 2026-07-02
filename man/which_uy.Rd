@@ -26,13 +26,13 @@ x1 <- which_uy(x, c = "Deptos")
 }
 }
 \seealso{
-Other service: 
-\code{\link{add_geom}()},
-\code{\link{geocode_ide_uy}()},
-\code{\link{load_geouy}()},
-\code{\link{reverse_ide_uy}()},
-\code{\link{tiles_geouy}()},
-\code{\link{where_uy}()}
+Other service:
+\code{\link[=add_geom]{add_geom()}},
+\code{\link[=geocode_ide_uy]{geocode_ide_uy()}},
+\code{\link[=load_geouy]{load_geouy()}},
+\code{\link[=reverse_ide_uy]{reverse_ide_uy()}},
+\code{\link[=tiles_geouy]{tiles_geouy()}},
+\code{\link[=where_uy]{where_uy()}}
 }
 \concept{service}
 \keyword{IDE}

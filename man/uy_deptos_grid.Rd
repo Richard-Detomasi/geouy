@@ -14,13 +14,13 @@ A data frame with 19 rows and 4 variables:
 }
 }
 \usage{
-uy_deptos_grid
+data(uy_deptos_grid)
 }
 \description{
 A dataset containing the cods, names and others attributes as a geofacet grid
 }
 \seealso{
-Other data: 
+Other data:
 \code{\link{loc_agr_ine}},
 \code{\link{metadata}},
 \code{\link{metadata_tables}},

@@ -28,13 +28,13 @@ https://direcciones.ide.uy/swagger-ui.html#/Geocode
 }
 }
 \seealso{
-Other service: 
-\code{\link{add_geom}()},
-\code{\link{geocode_ide_uy}()},
-\code{\link{load_geouy}()},
-\code{\link{tiles_geouy}()},
-\code{\link{where_uy}()},
-\code{\link{which_uy}()}
+Other service:
+\code{\link[=add_geom]{add_geom()}},
+\code{\link[=geocode_ide_uy]{geocode_ide_uy()}},
+\code{\link[=load_geouy]{load_geouy()}},
+\code{\link[=tiles_geouy]{tiles_geouy()}},
+\code{\link[=where_uy]{where_uy()}},
+\code{\link[=which_uy]{which_uy()}}
 }
 \concept{service}
 \keyword{IDE_uy}

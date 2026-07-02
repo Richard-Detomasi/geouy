@@ -21,10 +21,10 @@ is.uy4326(load_geouy("Peajes"))
 }
 }
 \seealso{
-Other crs: 
-\code{\link{is.uy32721}()},
-\code{\link{is.uy5381}()},
-\code{\link{is.uy5382}()}
+Other crs:
+\code{\link[=is.uy32721]{is.uy32721()}},
+\code{\link[=is.uy5381]{is.uy5381()}},
+\code{\link[=is.uy5382]{is.uy5382()}}
 }
 \concept{crs}
 \keyword{CRS}

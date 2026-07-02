@@ -53,9 +53,12 @@ secc <- load_geouy("Secciones")
 |`"Dptos"`| `"DINAMA"` | "MVOTMA"| 2020  | wfs | 
 |`"Limites departamentales"`| `"IGM"` | "IGM" | 2011  | wfs | 
 |`"Departamentos"`| `"IDE"` | "MIDES" | 2011  | wfs |
-|`"Secciones"`| `"INE Censo"` | MIDES | 2011 | wfs |
-|`"Segmentos"`| `"INE Censo"` | MIDES | 2011 | wfs |
-|`"Zonas"`| `"INE Censo"` | MIDES | 2011 | wfs |
+|`"Secciones"`| `"INE Censo"` | MIDES | 2023 | wfs |
+|`"Segmentos"`| `"INE Censo"` | MIDES | 2023 | wfs |
+|`"Zonas"`| `"INE Censo"` | MIDES | 2023 | wfs |
+|`"Secciones11"`| `"INE Censo"` | MIDES | 2011 | wfs |
+|`"Segmentos11"`| `"INE Censo"` | MIDES | 2011 | wfs |
+|`"Zonas11"`| `"INE Censo"` | MIDES | 2011 | wfs |
 |`"Secc MVD 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Segm MVD 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Segm URB INT 2004"`| `"INE"` | MIDES | 2004 | wfs |

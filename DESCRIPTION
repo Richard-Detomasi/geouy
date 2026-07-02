@@ -12,8 +12,7 @@ Authors@R: c(
     person(given = "", family = "Ministerio de Transporte y Obras Públicas, Uruguay (MTOP)", role = "dtc"),
     person(given = "", family = "Instituto Nacional de Estadística, Uruguay (INE)", role = "dtc"),
     person(given = "", family = "Instituto Geográfico Militar, Uruguay (IGM)", role = "dtc"),
-    person(given = "", family = "Ministerio de Vivienda, Ordenamiento Territorial y Medio Ambiente, Uruguay (MVOTMA)", role = "dtc")
-)
+    person(given = "", family = "Ministerio de Vivienda, Ordenamiento Territorial y Medio Ambiente, Uruguay (MVOTMA)", role = "dtc"))
 Maintainer: Richard Detomasi <richard.detomasi@gmail.com>
 Description: The toolbox have functions to load and process geographic
     information for Uruguay.  And extra-function to get address
@@ -54,7 +53,7 @@ ByteCompile: true
 Encoding: UTF-8
 Language: en-US
 LazyData: TRUE
-RoxygenNote: 7.3.2
 SystemRequirements: 'unrar' (Linux/macOS) or '7-Zip' (Windows) to work
     with '.rar' files, C++11, GDAL (>= 2.0.1), GEOS (>= 3.8.0), PROJ (>=
     6.2.1)
+Config/roxygen2/version: 8.0.0

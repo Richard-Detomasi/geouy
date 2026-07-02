@@ -21,10 +21,10 @@ is.uy5382(load_geouy("Uruguay"))
 }
 }
 \seealso{
-Other crs: 
-\code{\link{is.uy32721}()},
-\code{\link{is.uy4326}()},
-\code{\link{is.uy5381}()}
+Other crs:
+\code{\link[=is.uy32721]{is.uy32721()}},
+\code{\link[=is.uy4326]{is.uy4326()}},
+\code{\link[=is.uy5381]{is.uy5381()}}
 }
 \concept{crs}
 \keyword{CRS}

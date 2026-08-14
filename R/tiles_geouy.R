@@ -42,8 +42,14 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
   # orden de las coordenadas y conserva el CRS de origen. Pasarlo como vector
   # invertia los ejes (st_bbox da xmin, ymin, xmax, ymax y raster::extent espera
   # xmin, xmax, ymin, ymax) y el recorte terminaba abarcando el tile entero.
-  bb = x %>% sf::st_transform(5381) %>%
-    sf::st_bbox() %>% sf::st_as_sfc() %>% sf::as_Spatial()
+  bbox <- x %>% sf::st_transform(5381) %>% sf::st_bbox()
+  # Sin superficie no hay nada que recortar: geometrias vacias o degeneradas
+  # (puntos repetidos o alineados, sin buffer) morian mas adelante dentro de
+  # raster, con un mensaje que no le dice nada al usuario.
+  if (any(!is.finite(bbox)) || bbox[["xmin"]] >= bbox[["xmax"]] || bbox[["ymin"]] >= bbox[["ymax"]]) {
+    stop("The geometry you have in x has no area to crop. Set a buffer distance in d.", call. = FALSE)
+  }
+  bb = bbox %>% sf::st_as_sfc() %>% sf::as_Spatial()
   if (urban == FALSE) {
     # Solo un fallo real de descarga produce un objeto "try-error". Los NA que
     # traen algunas columnas de la grilla son datos validos del servicio.

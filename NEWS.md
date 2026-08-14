@@ -2,6 +2,22 @@
 
 -------------------------------------------------------
 
+## geouy v0.2.9
+
+* Fix `tiles_geouy()`, which aborted on every call with a false "IDEuy Server
+  out of service". The grid layers now carry administrative columns with
+  legitimate NA values, so validating the download with `noNA()` always failed;
+  the outcome of the download is checked instead, and the original error is
+  reported along with the message.
+* Fix the urban grid filter in `tiles_geouy()`: `ortofotos:grilla_urbana`
+  identifies localities by code ("MVD") since the urban flight was extended
+  beyond Montevideo.
+* Fix the crop area of `tiles_geouy()`: the bounding box was handed to
+  `raster::extent()` with its axes swapped, so the whole tile was returned
+  instead of the requested area and the `d` parameter had no effect.
+* `tiles_geouy()` now fails with an informative message when the geometry has
+  no area to crop.
+
 ## geouy v0.2.8 (2023-08-22)
 
 * update geouy.R for changes in roxygen2

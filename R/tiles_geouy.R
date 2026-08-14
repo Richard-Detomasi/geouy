@@ -17,7 +17,6 @@
 #' @importFrom utils download.file
 #' @importFrom rlang .data
 #' @importFrom fs dir_ls
-#' @importFrom assertthat noNA
 #' @importFrom curl has_internet
 #' @export
 #' @examples
@@ -44,17 +43,26 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
     raster::extent() %>% as('SpatialPolygons')
   suppressWarnings(raster::crs(bb) <- "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs")
   if (urban == FALSE) {
-    x2 <- NA
-    x2 <- try(geouy::load_geouy("Grilla ortofotos nacional", crs = 5381)) 
-    if (!assertthat::noNA(x2)) stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/")
+    # Solo un fallo real de descarga produce un objeto "try-error". Los NA que
+    # traen algunas columnas de la grilla son datos validos del servicio.
+    x2 <- try(geouy::load_geouy("Grilla ortofotos nacional", crs = 5381), silent = TRUE)
+    if (inherits(x2, "try-error")) {
+      # Se adjunta el error original: no todo fallo es del servidor (puede ser
+      # falta de conexion o un problema de lectura local).
+      stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/\n",
+           "Details: ", conditionMessage(attr(x2, "condition")), call. = FALSE)
+    }
     x2 <- x2 %>% 
       sf::st_join(x %>% sf::st_transform(5381), left = F) %>% 
       dplyr::distinct(.data$nombre, .keep_all = TRUE)
     if (nrow(x2) == 0) stop(glue::glue("The geometry you have in {x} is not in Uruguay. Verify in the metadata file"))
   } else {
-    x2 <- NA
-    x2 <- try(geouy::load_geouy("Grilla ortofotos urbana", crs = 5381)) 
-    if (!assertthat::noNA(x2)) stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/")
+    # Idem grilla nacional: se comprueba el resultado de la descarga, no sus NA.
+    x2 <- try(geouy::load_geouy("Grilla ortofotos urbana", crs = 5381), silent = TRUE)
+    if (inherits(x2, "try-error")) {
+      stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/\n",
+           "Details: ", conditionMessage(attr(x2, "condition")), call. = FALSE)
+    }
     x2 <- x2 %>% 
       dplyr::filter(localidad == "Montevideo") %>% 
       sf::st_join(x %>% sf::st_transform(5381), left = F) %>% 

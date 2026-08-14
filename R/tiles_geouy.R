@@ -63,8 +63,10 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
       stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/\n",
            "Details: ", conditionMessage(attr(x2, "condition")), call. = FALSE)
     }
-    x2 <- x2 %>% 
-      dplyr::filter(localidad == "Montevideo") %>% 
+    x2 <- x2 %>%
+      # La grilla urbana identifica las localidades por codigo ("MVD"), no por
+      # nombre completo, desde que el vuelo urbano se extendio a otras ciudades.
+      dplyr::filter(.data$localidad == "MVD") %>%
       sf::st_join(x %>% sf::st_transform(5381), left = F) %>% 
       dplyr::mutate(nombre = as.character(.data$nombre)) %>% 
       dplyr::distinct(.data$nombre, .keep_all = TRUE)

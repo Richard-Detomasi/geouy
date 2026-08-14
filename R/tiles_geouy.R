@@ -38,10 +38,12 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
   crs = sf::st_crs(x)
   if (nrow(x) == 1 & is.na(d)) x <- sf::st_buffer(x, dist = 100)
   if (!is.na(d)) x <- sf::st_buffer(x, dist = d)
-  bb = x %>% sf::st_transform(5381) %>% 
-    sf::st_bbox() %>% as.vector() %>% 
-    raster::extent() %>% as('SpatialPolygons')
-  suppressWarnings(raster::crs(bb) <- "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs")
+  # El area de recorte se arma pasando el bbox a geometria: asi no depende del
+  # orden de las coordenadas y conserva el CRS de origen. Pasarlo como vector
+  # invertia los ejes (st_bbox da xmin, ymin, xmax, ymax y raster::extent espera
+  # xmin, xmax, ymin, ymax) y el recorte terminaba abarcando el tile entero.
+  bb = x %>% sf::st_transform(5381) %>%
+    sf::st_bbox() %>% sf::st_as_sfc() %>% sf::as_Spatial()
   if (urban == FALSE) {
     # Solo un fallo real de descarga produce un objeto "try-error". Los NA que
     # traen algunas columnas de la grilla son datos validos del servicio.

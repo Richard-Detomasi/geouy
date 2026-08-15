@@ -17,7 +17,6 @@
 #' @importFrom utils download.file
 #' @importFrom rlang .data
 #' @importFrom fs dir_ls
-#' @importFrom assertthat noNA
 #' @importFrom curl has_internet
 #' @export
 #' @examples
@@ -39,24 +38,43 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
   crs = sf::st_crs(x)
   if (nrow(x) == 1 & is.na(d)) x <- sf::st_buffer(x, dist = 100)
   if (!is.na(d)) x <- sf::st_buffer(x, dist = d)
-  bb = x %>% sf::st_transform(5381) %>% 
-    sf::st_bbox() %>% as.vector() %>% 
-    raster::extent() %>% as('SpatialPolygons')
-  suppressWarnings(raster::crs(bb) <- "+proj=longlat +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +no_defs")
+  # El area de recorte se arma pasando el bbox a geometria: asi no depende del
+  # orden de las coordenadas y conserva el CRS de origen. Pasarlo como vector
+  # invertia los ejes (st_bbox da xmin, ymin, xmax, ymax y raster::extent espera
+  # xmin, xmax, ymin, ymax) y el recorte terminaba abarcando el tile entero.
+  bbox <- x %>% sf::st_transform(5381) %>% sf::st_bbox()
+  # Sin superficie no hay nada que recortar: geometrias vacias o degeneradas
+  # (puntos repetidos o alineados, sin buffer) morian mas adelante dentro de
+  # raster, con un mensaje que no le dice nada al usuario.
+  if (any(!is.finite(bbox)) || bbox[["xmin"]] >= bbox[["xmax"]] || bbox[["ymin"]] >= bbox[["ymax"]]) {
+    stop("The geometry you have in x has no area to crop. Set a buffer distance in d.", call. = FALSE)
+  }
+  bb = bbox %>% sf::st_as_sfc() %>% sf::as_Spatial()
   if (urban == FALSE) {
-    x2 <- NA
-    x2 <- try(geouy::load_geouy("Grilla ortofotos nacional", crs = 5381)) 
-    if (!assertthat::noNA(x2)) stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/")
+    # Solo un fallo real de descarga produce un objeto "try-error". Los NA que
+    # traen algunas columnas de la grilla son datos validos del servicio.
+    x2 <- try(geouy::load_geouy("Grilla ortofotos nacional", crs = 5381), silent = TRUE)
+    if (inherits(x2, "try-error")) {
+      # Se adjunta el error original: no todo fallo es del servidor (puede ser
+      # falta de conexion o un problema de lectura local).
+      stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/\n",
+           "Details: ", conditionMessage(attr(x2, "condition")), call. = FALSE)
+    }
     x2 <- x2 %>% 
       sf::st_join(x %>% sf::st_transform(5381), left = F) %>% 
       dplyr::distinct(.data$nombre, .keep_all = TRUE)
     if (nrow(x2) == 0) stop(glue::glue("The geometry you have in {x} is not in Uruguay. Verify in the metadata file"))
   } else {
-    x2 <- NA
-    x2 <- try(geouy::load_geouy("Grilla ortofotos urbana", crs = 5381)) 
-    if (!assertthat::noNA(x2)) stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/")
-    x2 <- x2 %>% 
-      dplyr::filter(localidad == "Montevideo") %>% 
+    # Idem grilla nacional: se comprueba el resultado de la descarga, no sus NA.
+    x2 <- try(geouy::load_geouy("Grilla ortofotos urbana", crs = 5381), silent = TRUE)
+    if (inherits(x2, "try-error")) {
+      stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/\n",
+           "Details: ", conditionMessage(attr(x2, "condition")), call. = FALSE)
+    }
+    x2 <- x2 %>%
+      # La grilla urbana identifica las localidades por codigo ("MVD"), no por
+      # nombre completo, desde que el vuelo urbano se extendio a otras ciudades.
+      dplyr::filter(.data$localidad == "MVD") %>%
       sf::st_join(x %>% sf::st_transform(5381), left = F) %>% 
       dplyr::mutate(nombre = as.character(.data$nombre)) %>% 
       dplyr::distinct(.data$nombre, .keep_all = TRUE)

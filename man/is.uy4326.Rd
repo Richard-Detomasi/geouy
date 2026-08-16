@@ -17,7 +17,8 @@ This function test if an 'sf' object match with Uruguay at crs = 4326.
 }
 \examples{
 \donttest{
-is.uy4326(load_geouy("Peajes"))
+x <- try(load_geouy("Peajes"), silent = TRUE)
+if (!inherits(x, "try-error")) is.uy4326(x)
 }
 }
 \seealso{

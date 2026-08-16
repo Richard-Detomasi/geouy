@@ -16,7 +16,9 @@
 #' \donttest{
 #' pobre_x_dpto <- as.data.frame(cbind(nomdpto = c("ARTIGAS", "DURAZNO", "FLORIDA", "LAVALLEJA"),
 #'                Pobreza = c(0.26, 0.27, 0.07, 0.10)))
-#' pobre_x_dpto_geo <- add_geom(data = pobre_x_dpto, unit = "Deptos", variable = "nomdpto")
+#' pobre_x_dpto_geo <- try(add_geom(data = pobre_x_dpto, unit = "Deptos",
+#'                                  variable = "nomdpto"), silent = TRUE)
+#' if (!inherits(pobre_x_dpto_geo, "try-error")) pobre_x_dpto_geo
 #' }
 
 add_geom <- function(data, unit, variable, crs = 32721){

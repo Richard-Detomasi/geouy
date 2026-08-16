@@ -6,7 +6,8 @@
 #' @export
 #' @examples
 #'\donttest{
-#' is.uy4326(load_geouy("Peajes"))
+#' x <- try(load_geouy("Peajes"), silent = TRUE)
+#' if (!inherits(x, "try-error")) is.uy4326(x)
 #'}
 
 is.uy4326 <- function(x){
@@ -32,7 +33,8 @@ is.uy4326 <- function(x){
 #' @export
 #' @examples
 #'\donttest{
-#' is.uy32721(load_geouy("Uruguay"))
+#' x <- try(load_geouy("Uruguay"), silent = TRUE)
+#' if (!inherits(x, "try-error")) is.uy32721(x)
 #'}
 
 is.uy32721 <- function(x){
@@ -58,7 +60,8 @@ is.uy32721 <- function(x){
 #' @export
 #' @examples
 #'\donttest{
-#' is.uy5381(load_geouy("CCZ"))
+#' x <- try(load_geouy("CCZ"), silent = TRUE)
+#' if (!inherits(x, "try-error")) is.uy5381(x)
 #'}
 
 is.uy5381 <- function(x){
@@ -84,7 +87,8 @@ is.uy5381 <- function(x){
 #' @export
 #' @examples
 #'\donttest{
-#' is.uy5382(load_geouy("Uruguay"))
+#' x <- try(load_geouy("Uruguay"), silent = TRUE)
+#' if (!inherits(x, "try-error")) is.uy5382(x)
 #'}
 
 is.uy5382 <- function(x){

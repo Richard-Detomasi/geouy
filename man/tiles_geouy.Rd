@@ -27,8 +27,9 @@ This function allows to Download .jpg or .tif files from the IDEuy tiles reposit
 \donttest{
 x <- data.frame(x = 577968, y = 6147753, id = 1)
 x <- sf::st_as_sf(x, coords = c("x", "y"), crs = 32721)
-x_tiles <- tiles_geouy(x, urban = TRUE)
-} 
+x_tiles <- try(tiles_geouy(x, urban = TRUE), silent = TRUE)
+if (!inherits(x_tiles, "try-error")) x_tiles
+}
 }
 \seealso{
 Other service:

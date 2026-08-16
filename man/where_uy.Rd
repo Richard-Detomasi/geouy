@@ -23,7 +23,8 @@ This function return an 'sf' object with the geometry of the consult id or group
 }
 \examples{
 \donttest{
-x <- where_uy(c = "Localidades pg", d = "cod", e = c(1020, 2020))
+x <- try(where_uy(c = "Localidades pg", d = "cod", e = c(1020, 2020)), silent = TRUE)
+if (!inherits(x, "try-error")) x
 }
 }
 \seealso{

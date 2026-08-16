@@ -21,7 +21,8 @@ This function allows to take oficial uruguayan geometries, as object "sf", from 
 }
 \examples{
 \donttest{
-secc <- load_geouy(c = "Secciones")
+secc <- try(load_geouy(c = "Secciones"), silent = TRUE)
+if (!inherits(secc, "try-error")) head(secc)
 }
 }
 \seealso{

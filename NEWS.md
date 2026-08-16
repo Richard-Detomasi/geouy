@@ -4,6 +4,13 @@
 
 ## geouy v0.2.9
 
+* Fix a crash in `load_geouy()`: when a zip layer failed to download, the
+  retry used `download.file(..., mode = "a")`, which segfaults and aborts the
+  R session when the server does not answer. The download is now attempted
+  once in `"wb"` mode and reports which layer and server failed.
+* Examples that rely on remote services now check the result of the download
+  before using it, so an unreachable server no longer turns into an error in
+  `R CMD check`.
 * Fix `tiles_geouy()`, which aborted on every call with a false "IDEuy Server
   out of service". The grid layers now carry administrative columns with
   legitimate NA values, so validating the download with `noNA()` always failed;

@@ -17,7 +17,7 @@ Maintainer: Richard Detomasi <richard.detomasi@gmail.com>
 Description: The toolbox have functions to load and process geographic
     information for Uruguay.  And extra-function to get address
     coordinates and orthophotos through the uruguayan 'IDE' API
-    <https://www.gub.uy/infraestructura-datos-espaciales/tramites-y-servicios/servicios/sistema-unico-direcciones-geograficas>.
+    <https://www.gub.uy/infraestructura-datos-espaciales/tramites-y-servicios/servicios/servicio-direcciones-geograficas>.
 License: GPL-3
 BugReports: https://github.com/RichDeto/geouy/issues
 Depends: 

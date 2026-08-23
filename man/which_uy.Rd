@@ -21,8 +21,8 @@ This function allows to add to an 'sf' object its spatial coincidence with one o
 }
 \examples{
 \donttest{
-x <- load_geouy("Peajes")
-x1 <- which_uy(x, c = "Deptos")
+x <- try(load_geouy("Peajes"), silent = TRUE)
+if (!inherits(x, "try-error")) x1 <- which_uy(x, c = "Deptos")
 }
 }
 \seealso{

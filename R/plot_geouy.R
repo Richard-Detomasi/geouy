@@ -16,8 +16,8 @@
 #'
 #' @examples
 #' \donttest{
-#' secc <- load_geouy("Secciones")
-#' plot_geouy(x = secc, col = "pob_tot_23")
+#' secc <- try(load_geouy("Secciones"), silent = TRUE)
+#' if (!inherits(secc, "try-error")) plot_geouy(x = secc, col = "pob_tot_23")
 #' }
 #' 
 

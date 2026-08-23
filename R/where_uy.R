@@ -9,7 +9,8 @@
 #' @export
 #' @examples
 #'\donttest{
-#' x <- where_uy(c = "Localidades pg", d = "cod", e = c(1020, 2020))
+#' x <- try(where_uy(c = "Localidades pg", d = "cod", e = c(1020, 2020)), silent = TRUE)
+#' if (!inherits(x, "try-error")) x
 #'}
 
 where_uy <- function(c = "Localidades pg", d = "cod", e, crs = 32721) {

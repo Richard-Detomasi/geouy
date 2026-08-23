@@ -13,7 +13,8 @@
 #' @export
 #' @examples
 #'\donttest{
-#' secc <- load_geouy(c = "Secciones")
+#' secc <- try(load_geouy(c = "Secciones"), silent = TRUE)
+#' if (!inherits(secc, "try-error")) head(secc)
 #'}
 
 load_geouy <- function(c, crs = 32721, folder = tempdir()){
@@ -34,11 +35,20 @@ load_geouy <- function(c, crs = 32721, folder = tempdir()){
     f = glue::glue("{folder}/{x$capa}.zip")
     if (!file.exists(f)) {
       message(glue::glue("Intentando descargar {x$capa}..."))
-      tryCatch({
-        utils::download.file(x$url, f, mode = "wb", method = "libcurl", extra = '--no-check-certificate')
-      }, error = function(e) {
-        utils::download.file(x$url, f, mode = "a", method = "libcurl", extra = '--no-check-certificate')
-      })
+      # El reintento en modo "a" (append) sobre el mismo archivo no aportaba
+      # nada -pedia otra vez la misma URL- y ademas es peligroso: cuando el
+      # servidor no responde, download.file() con mode = "a" aborta R con un
+      # segfault, que ningun try() del usuario puede recuperar. Con mode = "wb"
+      # el fallo es un error normal, que si se puede manejar.
+      descarga <- tryCatch(
+        utils::download.file(x$url, f, mode = "wb", method = "libcurl"),
+        error = function(e) e)
+      if (inherits(descarga, "error")) {
+        servidor <- sub("^(https?://[^/]+).*", "\\1", x$url)
+        stop(glue::glue("Could not download the layer '{c}' from {servidor}. ",
+                        "The server may be down or the layer may have changed.\n",
+                        "Details: {conditionMessage(descarga)}"), call. = FALSE)
+      }
     }
     invisible(try(utils::unzip(f, exdir = folder)))
       #archive_extract(archive.path = f, dest.path = )))

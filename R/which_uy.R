@@ -8,8 +8,8 @@
 #' @export
 #' @examples
 #'\donttest{
-#' x <- load_geouy("Peajes")
-#' x1 <- which_uy(x, c = "Deptos")
+#' x <- try(load_geouy("Peajes"), silent = TRUE)
+#' if (!inherits(x, "try-error")) x1 <- which_uy(x, c = "Deptos")
 #'}
 
 which_uy <- function(x, c = c("Localidades pg", "Departamentos"), d = c("cod", "name")){

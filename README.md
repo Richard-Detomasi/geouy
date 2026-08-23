@@ -204,10 +204,10 @@ Two datasets to use as `geofacet` grid dataset for departments of Uruguay and ne
 ## History
 
 This package arises from the conjugation of own ideas with an eye on the region. It started as a part of the package where I work with @calcita at [ech](https://github.com/calcita/ech), and some geospatial service packages in the region mainly: 
-[geobr](https://github.com/ipeaGIT/geobr) and 
+[geobr](https://github.com/ipea/geobr) and 
 [chilemapas](https://github.com/pachadotdev/chilemapas)
 
-This walk on the shoulders of giants, allows this package focused on this small country (my beautiful Uruguay), to have its own particularities although it tries to fit especially to [geobr](https://github.com/ipeaGIT/geobr) in its structure and with a view to complementing [ech](https://github.com/calcita/ech).
+This walk on the shoulders of giants, allows this package focused on this small country (my beautiful Uruguay), to have its own particularities although it tries to fit especially to [geobr](https://github.com/ipea/geobr) in its structure and with a view to complementing [ech](https://github.com/calcita/ech).
 
 ## Community contributions [es](https://github.com/RichDeto/geouy/issues/1)
 

@@ -3,13 +3,16 @@
 # estaba pidiendo ni a que servidor, que es justo lo que hace falta para saber
 # si el problema es de uno o es ajeno. Estas dos funciones lo traducen a un
 # mensaje que si lo dice, y dejan el original al final por si el motivo era otro.
-falla_de_servicio <- function(capa, url, accion, detalle) {
+falla_de_servicio <- function(capa, url, accion, detalle = NULL,
+                              causa = "The server may be down or the layer may have changed.") {
   # El prefijo "WFS:" que GDAL necesita en la URL no es parte del servidor.
   servidor <- sub("^WFS:", "", url)
   servidor <- sub("^(https?://[^/?#]+).*", "\\1", servidor)
-  stop(glue::glue("Could not {accion} the layer '{capa}' from {servidor}. ",
-                  "The server may be down or the layer may have changed.\n",
-                  "Details: {detalle}"), call. = FALSE)
+  mensaje <- glue::glue("Could not {accion} the layer '{capa}' from {servidor}. {causa}")
+  # El error original va al final, pero solo cuando lo hay: si el fallo lo
+  # detecto el paquete, la causa ya esta dicha y repetirla no aporta.
+  if (!is.null(detalle)) mensaje <- glue::glue("{mensaje}\nDetails: {detalle}")
+  stop(mensaje, call. = FALSE)
 }
 
 descarga_o_falla <- function(expr, capa, url, accion = "read") {
@@ -30,7 +33,6 @@ descarga_o_falla <- function(expr, capa, url, accion = "read") {
 #' @importFrom sf st_read st_transform
 #' @importFrom glue glue
 #' @importFrom utils download.file unzip
-#' @importFrom fs dir_ls
 #' @keywords IDE MIDES INE
 #' @return sf object with the requested geometries 
 #' @export
@@ -67,14 +69,29 @@ load_geouy <- function(c, crs = 32721, folder = tempdir()){
       descarga_o_falla(utils::download.file(x$url, f, mode = "wb", method = "libcurl"),
                        c, x$url, accion = "download")
     }
-    invisible(try(utils::unzip(f, exdir = folder)))
-      #archive_extract(archive.path = f, dest.path = )))
-    archivo <- fs::dir_ls(folder, regexp = "\\.shp$")
+    # Hay que mirar lo que el unzip extrajo, y no barrer la carpeta entera. Si
+    # lo que se bajo no era un zip -por ejemplo, una pagina de error servida con
+    # codigo 200-, unzip() no da error: avisa con un warning y devuelve NULL.
+    # El barrido entonces encontraba el shapefile de OTRA capa descargada antes
+    # en la misma carpeta, que por omision es tempdir() y se comparte entre
+    # llamadas, y load_geouy() devolvia esos datos como si fueran los pedidos,
+    # sin avisar nada.
+    extraidos <- descarga_o_falla(utils::unzip(f, exdir = folder),
+                                  c, x$url, accion = "unzip")
+    archivo <- extraidos[grepl("\\.shp$", extraidos, ignore.case = TRUE)]
+    if (length(archivo) == 0) {
+      # El archivo que no sirve se borra: si queda, la comprobacion de mas
+      # arriba saltea la descarga y todas las llamadas siguientes fallan igual.
+      unlink(f)
+      falla_de_servicio(c, x$url, "unzip",
+                        causa = "The server answered, but not with a zip containing a shapefile.")
+    }
     archivo <- archivo[which.max(file.info(archivo)$mtime)]
     if(!enco == "UTF-8"){
-      a <- sf::st_read(archivo, crs = x$crs, options = glue::glue("ENCODING=", enco))
+      a <- descarga_o_falla(
+        sf::st_read(archivo, crs = x$crs, options = glue::glue("ENCODING=", enco)), c, x$url)
     } else {
-      a <- sf::st_read(archivo, crs = x$crs)
+      a <- descarga_o_falla(sf::st_read(archivo, crs = x$crs), c, x$url)
     }
   } else {
     if(!enco == "UTF-8"){

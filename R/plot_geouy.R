@@ -12,13 +12,27 @@ listar <- function(v, max = 20) {
   else paste(v, collapse = ", ")
 }
 
+# ggplot2 clasifica factor, character y logical como discretos, y numericos y
+# fechas como continuos. La formula corta -"discreta si no es numerica"- deja
+# las fechas del lado equivocado: se dibujaban bien con la escala continua y
+# pasarian a tratarse como categorias. Lo demas (columnas de lista, geometrias)
+# no tiene escala razonable y conviene decirlo aca y no dejar que falle adentro
+# de ggplot con un mensaje que no menciona ni la variable ni la funcion.
+escala_discreta <- function(v, col) {
+  if (is.factor(v) || is.character(v) || is.logical(v)) return(TRUE)
+  if (is.numeric(v) || inherits(v, c("Date", "POSIXt"))) return(FALSE)
+  stop(glue::glue("The variable '{col}' is of type {class(v)[1]}, which cannot be ",
+                  "used as a fill scale. Use a numeric, date, character, factor ",
+                  "or logical variable."), call. = FALSE)
+}
+
 #' @name plot_geouy
 #' @title plot_geouy
 #' @description This function allows you to set ggplot2 theme in our suggested format.
 #' @family plot
 #' @param x An sf object like load_geouy() results
 #' @param col Variable of "x" to plot (character)
-#' @param viri_opt A character string indicating the colormap option to use. Four options are available: "magma" (or "A"), "inferno" (or "B"), "plasma" (or "C"), "viridis" (or "D", the default option) and "cividis" (or "E")
+#' @param viri_opt A character string indicating the colormap option to use. Five options are available: "magma" (or "A"), "inferno" (or "B"), "plasma" (or "C"), "viridis" (or "D", the default) and "cividis" (or "E")
 #' @param l If NULL none label added, if "\%" porcentage with 1 decimal labels, if "n" the value is the label, if "c" put other variable in other_lab. Default NULL
 #' @param other_lab If l is "c" put here the variable name for the labels.
 #' @param ... All parameters allowed from ggplot2 themes.
@@ -35,7 +49,7 @@ listar <- function(v, max = 20) {
 #' }
 #' 
 
-plot_geouy <- function(x, col, viri_opt = "plasma", l = NULL, other_lab = NULL, ...){
+plot_geouy <- function(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...){
   try(if (!methods::is(x, "sf")) stop("The object you want to process is not class sf"))
   # El mensaje interpolaba {x}, el objeto sf completo. Y glue() vectoriza, asi
   # que no armaba un mensaje largo: armaba uno por cada columna, con todos sus
@@ -67,8 +81,12 @@ plot_geouy <- function(x, col, viri_opt = "plasma", l = NULL, other_lab = NULL, 
   theme_set(theme_bw())
   mapa <- ggplot2::ggplot(data = x) +
     ggplot2::geom_sf(data = x, aes(!!!ensyms(fill = col)))  +
-    viridis::scale_fill_viridis(name = col, option = "D", direction = -1,
-                                discrete = is.numeric(x[,col] %>% sf::st_set_geometry(NULL))) +
+    # x[[col]] devuelve el vector; x[,col] devuelve un sf de una columna, y
+    # is.numeric() de un data.frame es siempre FALSE, con o sin geometria, asi
+    # que discrete quedaba en FALSE para todo. Con numericas acertaba de
+    # casualidad; con categoricas no.
+    viridis::scale_fill_viridis(name = col, option = viri_opt, direction = -1,
+                                discrete = escala_discreta(x[[col]], col)) +
     ggplot2::xlab(NULL) + ggplot2::ylab(NULL) +
     labs(title = glue::glue("Mapa de variable: {tolower(col)}")) +
     theme_light() +

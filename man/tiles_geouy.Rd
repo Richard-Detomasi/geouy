@@ -15,7 +15,7 @@ tiles_geouy(x, d = NA, format = "rgb", folder = tempdir(), urban = FALSE)
 
 \item{folder}{Folder where are the files or be download}
 
-\item{urban}{logical; If FALSE take orthophotos of national flight with 32cm per pixel, if TRUE take urban flight with 10cm per pixel (avaible only Montevideo at the moment)}
+\item{urban}{logical; If FALSE take orthophotos of national flight with 32cm per pixel, if TRUE take urban flight with 10cm per pixel (available for every locality covered by the urban flight)}
 }
 \value{
 raster::stack object with th cropped tif corresponding to x bbox

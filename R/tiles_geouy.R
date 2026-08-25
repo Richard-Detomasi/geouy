@@ -4,7 +4,7 @@
 #' @param d numeric; buffer distance for all, or for each of the elements in x; in case dist is a units object, it should be convertible to arc_degree if x has geographic coordinates, and to st_crs(x)$units otherwise. Default NA, but if x is a only one point buffer default is 100.
 #' @param format Format of the archives to download (avaiable: "rgb" and "rgbi") Default "rgb"
 #' @param folder Folder where are the files or be download
-#' @param urban logical; If FALSE take orthophotos of national flight with 32cm per pixel, if TRUE take urban flight with 10cm per pixel (avaible only Montevideo at the moment)
+#' @param urban logical; If FALSE take orthophotos of national flight with 32cm per pixel, if TRUE take urban flight with 10cm per pixel (available for every locality covered by the urban flight)
 #' @keywords IDE orthophotos Uruguay
 #' @return raster::stack object with th cropped tif corresponding to x bbox
 #' @importFrom sf st_join st_crs st_bbox st_transform
@@ -34,9 +34,7 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
   if (!format %in% c("rgb", "rgbi")) stop("The format you want to download is not avaiable")
   if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
    # download ----
-  start_time <- Sys.time()
   suppressWarnings(try(dir.create(folder)))
-  crs = sf::st_crs(x)
   if (nrow(x) == 1 & is.na(d)) x <- sf::st_buffer(x, dist = 100)
   if (!is.na(d)) x <- sf::st_buffer(x, dist = d)
   # El area de recorte se arma pasando el bbox a geometria: asi no depende del
@@ -64,7 +62,10 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
     x2 <- x2 %>% 
       sf::st_join(x %>% sf::st_transform(5381), left = F) %>% 
       dplyr::distinct(.data$nombre, .keep_all = TRUE)
-    if (nrow(x2) == 0) stop(glue::glue("The geometry you have in {x} is not in Uruguay. Verify in the metadata file"))
+    if (nrow(x2) == 0) {
+      stop("The geometry in x is not in Uruguay, or its crs is not the one it ",
+           "declares.", call. = FALSE)
+    }
   } else {
     # Idem grilla nacional: se comprueba el resultado de la descarga, no sus NA.
     x2 <- try(geouy::load_geouy("Grilla ortofotos urbana", crs = 5381), silent = TRUE)
@@ -72,55 +73,55 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
       stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/\n",
            "Details: ", conditionMessage(attr(x2, "condition")), call. = FALSE)
     }
+    # Ya no se filtra por localidad: el vuelo urbano cubre 86 y el st_join con la
+    # geometria del usuario alcanza para quedarse con los tiles que le sirven.
     x2 <- x2 %>%
-      # La grilla urbana identifica las localidades por codigo ("MVD"), no por
-      # nombre completo, desde que el vuelo urbano se extendio a otras ciudades.
-      dplyr::filter(.data$localidad == "MVD") %>%
-      sf::st_join(x %>% sf::st_transform(5381), left = F) %>% 
-      dplyr::mutate(nombre = as.character(.data$nombre)) %>% 
+      sf::st_join(x %>% sf::st_transform(5381), left = F) %>%
       dplyr::distinct(.data$nombre, .keep_all = TRUE)
-    if (nrow(x2) == 0) stop(glue::glue("The geometry you have in {x} is not in Montevideo. Verify in the metadata file"))
+    if (nrow(x2) == 0) {
+      stop("No urban-flight orthophotos cover the geometry in x. ",
+           "Use urban = FALSE for the national flight, which covers the whole ",
+           "country at 32 cm per pixel, or check the crs of x.", call. = FALSE)
+    }
   }
   
-  # Para formato rgb ----
+  # Descarga ----
+  # Las URLs vienen en la propia capa, una columna por formato. Antes se armaban
+  # con glue(), lo que obligaba a escribir fija la carpeta de la ciudad
+  # ("01_Ciudad_MVD"): ese numero es correlativo dentro de cada remesa y no se
+  # puede deducir del codigo de localidad, y por eso el vuelo urbano estaba
+  # limitado a Montevideo. Tomandolas de la capa quedan disponibles las 86
+  # localidades, y ademas deja de importar como reordene la IDE sus carpetas.
   if (format == "rgb") {
-    if (urban == FALSE) {
-      a <- glue::glue("https://visualizador.ide.uy/descargas/datos/CN_Remesa_{stringr::str_pad(x2$remesa, 2, pad = '0')}/02_Ortoimagenes/03_RGB_8bits/{as.character(x2$nombre)}_RGB_8_Remesa_{stringr::str_pad(x2$remesa, 2, pad = '0')}")
-    } else {
-      a <- glue::glue("https://visualizador.ide.uy/descargas/datos/CU_Remesa_{stringr::str_pad(x2$remesa, 2, pad = '0')}/02_Ortoimagenes/01_Ciudad_MVD/03_RGB_8bits/{as.character(x2$nombre)}_RGB_8_Remesa_{stringr::str_pad(x2$remesa, 2, pad = '0')}_MVD")
+    # El .jgw es el world file. Sin el, el .jpg no queda georreferenciado y el
+    # recorte posterior trabajaria sobre coordenadas de pixel: hay que bajarlo,
+    # aunque el que se lee despues sea el .jpg.
+    rasters <- as.character(x2$rgb_jpg)
+    urls <- c(rasters, as.character(x2$rgb_jgw))
+  } else {
+    rasters <- as.character(x2$rgbi_8bits)
+    urls <- rasters
+  }
+  destinos <- file.path(folder, basename(urls))
+  for (i in seq_along(urls)) {
+    message(glue::glue("Trying to download {basename(urls[i])}..."))
+    # De a una URL por vez. download.file() con un vector devuelve 0 si al menos
+    # una de las descargas anduvo, asi que el par .jpg/.jgw se bajaba junto y un
+    # world file faltante pasaba inadvertido: el raster quedaba sin georreferenciar.
+    estado <- tryCatch(
+      utils::download.file(urls[i], destinos[i], mode = "wb", method = "libcurl"),
+      error = function(e) e)
+    if (inherits(estado, "error") || !identical(as.integer(estado), 0L)) {
+      stop(glue::glue("Could not download '{basename(urls[i])}' from the IDEuy tiles ",
+                      "repository. The server may be out of service, try in ",
+                      "https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/"),
+           call. = FALSE)
     }
-    for (i in 1:length(a)) {
-      if (!file.exists(a[i])) {
-        message(glue::glue("Trying to download..."))
-        try(utils::download.file(glue::glue("{a[i]}{c('.jpg','.jgw')}"), 
-                                 glue::glue("{folder}//{basename(a[i])}{c('.jpg','.jgw')}"), 
-                                 mode = "wb", method = "libcurl",
-                                 extra = '--no-check-certificate'))
-      } 
-    }
-    # read brick
-    ar <- fs::dir_ls(folder,  regexp = "\\.jpg$")
-    ar <- ar[file.info(ar)$mtime > start_time]
-  } 
-  # Para formato rgbi ----
-  if (format == "rgbi") {
-    if (urban == FALSE) {
-      a <- glue::glue("https://visualizador.ide.uy/descargas/datos/CN_Remesa_{stringr::str_pad(x2$remesa, 2, pad = '0')}/02_Ortoimagenes/02_RGBI_8bits/{as.character(x2$nombre)}_RGBI_8_Remesa_{stringr::str_pad(x2$remesa, 2, pad = '0')}.tif")
-    } else {
-      a <- glue::glue("https://visualizador.ide.uy/descargas/datos/CU_Remesa_{stringr::str_pad(x2$remesa, 2, pad = '0')}/02_Ortoimagenes/01_Ciudad_MVD/02_RGBI_8bits/{as.character(x2$nombre)}_RGBI_8_Remesa_{stringr::str_pad(x2$remesa, 2, pad = '0')}_MVD.tif")
-    }
-    for (i in 1:length(a)) {
-      if (!file.exists(a[i])) {
-        message(glue::glue("Trying to download..."))
-        try(utils::download.file(a[i], glue::glue("{folder}//{basename(a[i])}"), 
-                                 mode = "wb", method = "libcurl",
-                                 extra = '--no-check-certificate'))
-      } 
-    }
-    # read brick ----
-    ar <- fs::dir_ls(folder, regexp = "\\.tif$")
-    ar <- ar[file.info(ar)$mtime > start_time]
-  } 
+  }
+  # Se leen exactamente los archivos de esta consulta. Antes se barria la carpeta
+  # buscando cualquier .jpg y se filtraba por fecha de modificacion, lo que tomaba
+  # archivos ajenos y a la vez dejaba fuera los que ya estuvieran descargados.
+  ar <- file.path(folder, basename(rasters))
   # Return ----
   if (length(ar) == 1) {
     a3 <- raster::brick(ar)

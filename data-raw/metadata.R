@@ -90,7 +90,7 @@ metadata <- tibble::tribble(
   "Padrones urbanos", "DNC", "MVOTMA", 4326, "zip", 2014, "https://www.ambiente.gub.uy/geoservicios/shapes_pesadas/PaisUrbano_06_17.zip", "PADRON", NA, "UTF-8",
   "Secciones policiales", "MI", "MVOTMA", 4326, "zip", 2017, "https://www.ambiente.gub.uy/geoserver/u19600217/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=u19600217:c377&outputFormat=SHAPE-ZIP", NA, NA, "UTF-8",
   "Playas", "DINAMA", "MVOTMA", 4326, "zip", 2007, "https://www.ambiente.gub.uy/geoserver/u19600217/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=u19600217:c388&outputFormat=SHAPE-ZIP", NA, NA, "UTF-8",
-  "CONEAT", "RENARE", "RENARE", 32721, "wfs", NA, "WFS:http://web.renare.gub.uy/arcgis/services/CONEAT/IndicesConeat/MapServer/WFSServer", "OBJECTID", "gml_id", "UTF-8",
+  "CONEAT", "RENARE", "RENARE", 32721, "wfs", NA, "WFS:https://dgrn.mgap.gub.uy/arcgis/services/CONEAT/IndicesConeat/MapServer/WFSServer", "OBJECTID", "gml_id", "UTF-8",
   "Cuencas hidro N1", "DINAGUA", "MVOTMA", 4326, "zip", 2020, "https://www.ambiente.gub.uy/geoserver/u19600217/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=u19600217:c097&outputFormat=SHAPE-ZIP", NA, NA, "UTF-8",
   "Cuencas hidro N2", "DINAGUA", "MVOTMA", 4326, "zip", 2020, "https://www.ambiente.gub.uy/geoserver/u19600217/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=u19600217:c098&outputFormat=SHAPE-ZIP", NA, NA, "UTF-8",
   "Cuencas hidro N3", "DINAGUA", "MVOTMA", 4326, "zip", 2020, "https://www.ambiente.gub.uy/geoserver/u19600217/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=u19600217:c099&outputFormat=SHAPE-ZIP", NA, NA, "UTF-8",

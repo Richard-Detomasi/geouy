@@ -77,8 +77,7 @@ plot_geouy <- function(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...){
   if (!is.null(l) && l %in% "%" & is.numeric(x[[col]]) & sum(x[[col]] > 1, na.rm = T) == 0) {
       x[[col]] <- x[[col]] * 100
     }
-  
-  theme_set(theme_bw())
+
   mapa <- ggplot2::ggplot(data = x) +
     ggplot2::geom_sf(data = x, aes(!!!ensyms(fill = col)))  +
     # x[[col]] devuelve el vector; x[,col] devuelve un sf de una columna, y

@@ -4,6 +4,21 @@
 
 ## geouy v0.2.9
 
+* Fix `load_geouy()` returning a different layer than the one requested. After
+  downloading, the code picked the most recent `.shp` in the whole folder,
+  which defaults to `tempdir()` and is shared between calls. `unzip()` does not
+  raise an error when the file is not a zip -it warns and returns `NULL`, and
+  the warning was swallowed by a `try()`- so a server answering with an error
+  page left the previous layer's shapefile as the newest one, and it was read
+  and returned with no warning at all. Only the files `unzip()` reports as
+  extracted are considered now, and the unusable download is removed so a
+  retry can succeed.
+* `load_geouy()` now reports which layer and which server failed for every
+  remote read, not only for the zip downloads. Layers read over WFS used to
+  surface the raw GDAL error, which names neither.
+* The example of `which_uy()` now shields both downloads. It covered only the
+  first one, and the two layers come from different servers, so one of them
+  being unreachable was enough to turn `R CMD check` into an ERROR.
 * Fix a crash in `load_geouy()`: when a zip layer failed to download, the
   retry used `download.file(..., mode = "a")`, which segfaults and aborts the
   R session when the server does not answer. The download is now attempted

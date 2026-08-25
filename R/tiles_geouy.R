@@ -1,3 +1,34 @@
+# Bajar directamente al destino deja un archivo a medias si la descarga se corta,
+# y ese archivo despues se toma por bueno: probado con un .jpg recortado al 40%,
+# la funcion devuelve un raster sin avisar nada. Bajando a un temporal en la misma
+# carpeta y renombrando solo al terminar bien, una interrupcion deja un ".part"
+# que nadie mira, y el destino solo existe si esta completo.
+descarga_tile <- function(url, destino) {
+  temporal <- tempfile(paste0(basename(destino), ".part-"), tmpdir = dirname(destino))
+  on.exit(unlink(temporal), add = TRUE)
+  estado <- tryCatch(
+    utils::download.file(url, temporal, mode = "wb", method = "libcurl"),
+    error = function(e) e)
+  detalle <- if (inherits(estado, "error")) {
+    conditionMessage(estado)
+  } else if (!identical(as.integer(estado), 0L)) {
+    glue::glue("download.file() returned status {as.integer(estado)}")
+  } else if (!isTRUE(file.size(temporal) > 0)) {
+    "the downloaded file is empty"
+  }
+  if (!is.null(detalle)) {
+    stop(glue::glue("Could not download '{basename(url)}' from the IDEuy tiles ",
+                    "repository. The server may be out of service, try in ",
+                    "https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/\n",
+                    "Details: {detalle}"), call. = FALSE)
+  }
+  if (!file.rename(temporal, destino)) {
+    stop(glue::glue("Downloaded '{basename(url)}' but could not move it into {dirname(destino)}."),
+         call. = FALSE)
+  }
+  invisible(destino)
+}
+
 #' This function allows to Download .jpg or .tif files from the IDEuy tiles repository, according to a 'sf' object bbox.
 #' @family service
 #' @param x An 'sf' object with the same crs as the homonym parameter
@@ -103,20 +134,29 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
     urls <- rasters
   }
   destinos <- file.path(folder, basename(urls))
+  # Dos tiles distintos que compartieran nombre de archivo se pisarian en la
+  # carpeta, y el segundo ni siquiera se bajaria porque el primero ya existe.
+  # Hoy no pasa -37.400 nombres entre las dos grillas y los cuatro formatos, sin
+  # una sola repeticion-, pero si la IDE cambiara el esquema conviene que se note
+  # aca y no en un raster con un tile repetido y otro faltante.
+  if (anyNA(urls) || anyDuplicated(destinos)) {
+    stop("The IDEuy tile layer returned unusable download URLs (missing, or ",
+         "different tiles sharing one file name). Please report this.", call. = FALSE)
+  }
   for (i in seq_along(urls)) {
+    # Aca habia un `if (!file.exists(a[i]))` sobre la URL, que nunca es un
+    # archivo: siempre daba FALSE, asi que la funcion se rebajaba todo en cada
+    # llamada. Se saca por ser codigo muerto, pero no se lo reemplaza por la
+    # comprobacion sobre el archivo local, que seria lo obvio: un archivo a
+    # medias de un intento anterior tiene tamano mayor que cero y se daria por
+    # bueno. Probado con un .jpg recortado al 40%: la funcion devuelve un raster
+    # sin avisar. Un cache de verdad tiene que validar lo que ya esta en disco
+    # contra el servidor, y eso va con el issue de no rebajar 70 MB cada vez.
     message(glue::glue("Trying to download {basename(urls[i])}..."))
     # De a una URL por vez. download.file() con un vector devuelve 0 si al menos
     # una de las descargas anduvo, asi que el par .jpg/.jgw se bajaba junto y un
     # world file faltante pasaba inadvertido: el raster quedaba sin georreferenciar.
-    estado <- tryCatch(
-      utils::download.file(urls[i], destinos[i], mode = "wb", method = "libcurl"),
-      error = function(e) e)
-    if (inherits(estado, "error") || !identical(as.integer(estado), 0L)) {
-      stop(glue::glue("Could not download '{basename(urls[i])}' from the IDEuy tiles ",
-                      "repository. The server may be out of service, try in ",
-                      "https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/"),
-           call. = FALSE)
-    }
+    descarga_tile(urls[i], destinos[i])
   }
   # Se leen exactamente los archivos de esta consulta. Antes se barria la carpeta
   # buscando cualquier .jpg y se filtraba por fecha de modificacion, lo que tomaba

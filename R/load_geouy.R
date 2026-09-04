@@ -8,7 +8,11 @@ falla_de_servicio <- function(capa, url, accion, detalle = NULL,
   # El prefijo "WFS:" que GDAL necesita en la URL no es parte del servidor.
   servidor <- sub("^WFS:", "", url)
   servidor <- sub("^(https?://[^/?#]+).*", "\\1", servidor)
-  mensaje <- glue::glue("Could not {accion} the layer '{capa}' from {servidor}. {causa}")
+  mensaje <- glue::glue("Could not {accion} the layer '{capa}' from {servidor}.")
+  # La especulacion sirve cuando no hay nada mejor, pero estorba cuando si lo
+  # hay: quien la pasa en NULL es porque ya tiene la causa real y no quiere que
+  # el mensaje diga "puede estar caido" arriba de un detalle que dice otra cosa.
+  if (!is.null(causa)) mensaje <- glue::glue("{mensaje} {causa}")
   # El error original va al final, pero solo cuando lo hay: si el fallo lo
   # detecto el paquete, la causa ya esta dicha y repetirla no aporta.
   if (!is.null(detalle)) mensaje <- glue::glue("{mensaje}\nDetails: {detalle}")
@@ -16,12 +20,54 @@ falla_de_servicio <- function(capa, url, accion, detalle = NULL,
 }
 
 descarga_o_falla <- function(expr, capa, url, accion = "read") {
+  # GDAL y download.file suelen decir la causa real en un warning -"SSL
+  # certificate problem: unable to get local issuer certificate", "Timeout of N
+  # seconds was reached"- y recien despues tirar un error generico que no la
+  # menciona: "Cannot open ...; Check connection parameters". Quedarse solo con
+  # el error deja al usuario buscando un servidor caido cuando el problema
+  # puede ser, por ejemplo, que a ese servidor le falta la cadena de
+  # certificados. Por eso los avisos se copian y se suman al detalle.
+  avisos <- character()
   # expr llega sin evaluar y se fuerza aca adentro, de modo que el fallo ocurra
   # dentro del tryCatch. Se atrapan errores y no warnings: los handlers de
   # tryCatch son de salida, asi que un warning recuperable de GDAL abortaria la
-  # lectura y perderia un objeto valido.
-  tryCatch(force(expr),
-           error = function(e) falla_de_servicio(capa, url, accion, conditionMessage(e)))
+  # lectura y perderia un objeto valido. withCallingHandlers no tiene ese
+  # problema, y aca ademas no se llama a invokeRestart("muffleWarning"): el
+  # aviso se copia y sigue su camino, para que la lectura que igual funciona no
+  # pierda los avisos que el usuario tendria que ver.
+  tryCatch(
+    withCallingHandlers(force(expr),
+                        warning = function(w) avisos <<- c(avisos, conditionMessage(w))),
+    error = function(e) {
+      original <- conditionMessage(e)
+      # Con options(warn = 2) el aviso ya viene adentro del error, y GDAL a
+      # veces repite el suyo palabra por palabra: se descarta lo que ya este
+      # dicho. La comparacion es literal a proposito, porque los mensajes traen
+      # rutas y comillas que como expresion regular no significarian lo mismo.
+      avisos <- unique(avisos)
+      avisos <- avisos[!vapply(avisos, grepl, logical(1), x = original, fixed = TRUE)]
+      # Un fallo puede venir detras de cientos de avisos distintos, y volcarlos
+      # todos convierte el error en algo que nadie lee. Con los primeros alcanza
+      # para saber que paso; el resto se cuenta.
+      # Un fallo puede venir detras de muchos avisos distintos, y volcarlos todos
+      # convierte el error en algo que nadie lee; ademas stop() corta el mensaje
+      # a 8190 caracteres, asi que de nada sirve pasarse. En los fallos reales
+      # medidos -certificado, capa inexistente, host que no resuelve- GDAL emite
+      # uno solo, de modo que este tope casi nunca entra en juego.
+      tope <- 5L
+      if (length(avisos) > tope) {
+        avisos <- c(avisos[seq_len(tope)],
+                    glue::glue("... and {length(avisos) - tope} more warnings"))
+      }
+      detalle <- paste(c(original, avisos), collapse = "\n")
+      # Si hay aviso, hay causa dicha, y la frase generica sobra: pasarla igual
+      # deja el mensaje contradiciendose solo -"el servidor puede estar caido"
+      # arriba de "SSL certificate problem"-. La decision es por si hay aviso o
+      # no, no por lo que el aviso diga: los textos cambian entre versiones de
+      # GDAL y entre idiomas, y no se puede colgar de ahi el comportamiento.
+      if (length(avisos)) falla_de_servicio(capa, url, accion, detalle, causa = NULL)
+      else falla_de_servicio(capa, url, accion, detalle)
+    })
 }
 
 #' This function allows to take oficial uruguayan geometries, as object "sf", from various servers.

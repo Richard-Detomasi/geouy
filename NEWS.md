@@ -16,6 +16,15 @@
 * `load_geouy()` now reports which layer and which server failed for every
   remote read, not only for the zip downloads. Layers read over WFS used to
   surface the raw GDAL error, which names neither.
+* Failures of `load_geouy()` now carry the reason the server or the client
+  actually reported. GDAL names the cause in a warning -"SSL certificate
+  problem: unable to get local issuer certificate", "Could not resolve host"-
+  and then raises a generic error that does not, so the message kept only the
+  generic half. The warnings are now collected and added to the details without
+  being muffled, so a read that still succeeds does not lose them. When a cause
+  is known the message no longer guesses that the server may be down, which had
+  it contradicting its own details.
+
 * The example of `which_uy()` now shields both downloads. It covered only the
   first one, and the two layers come from different servers, so one of them
   being unreachable was enough to turn `R CMD check` into an ERROR.

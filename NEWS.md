@@ -57,6 +57,21 @@
 * `tiles_geouy()` now fails with an informative message when the geometry has
   no area to crop.
 
+* `tiles_geouy(urban = TRUE)` now works for the whole country. The urban flight
+  covers 86 localities across ten deliveries, but only Montevideo was reachable:
+  the download URLs were built by hand and the per-city folder in the path
+  ("01_Ciudad_MVD") is sequential within each delivery, so it could not be
+  derived from the locality code. The layer already ships the complete URLs, so
+  they are taken from it and the locality filter is gone.
+* `tiles_geouy()` no longer leaves a half-downloaded file under its final name.
+  Each file is downloaded to a temporary name in the same folder and renamed
+  only once it is complete, so an interrupted download can no longer be read
+  back as if it were valid.
+* `tiles_geouy()` now reports which file failed to download. The `.jpg` and its
+  world file used to be requested in a single call, and `download.file()`
+  returns 0 when at least one of several URLs succeeds, so a missing world file
+  went unnoticed and the raster was left ungeoreferenced.
+
 ## geouy v0.2.8 (2023-08-22)
 
 * update geouy.R for changes in roxygen2

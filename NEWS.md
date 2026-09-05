@@ -71,8 +71,12 @@
   reorganised its services under a `Limites/` folder and publishes the
   1:1,000,000 national chart -the same product the package used to request as
   `wfsPCN1000.cgi`- as `Millon`, so the five layers are read from there.
-  `repositor` for the three SGM layers becomes `"IGM"`, which also means
-  `load_geouy()` no longer takes its SGM-specific branch.
+  `repositor` for the three SGM layers becomes `"IGM"`; `productor` stays as
+  `"SGM"`, which is who made the data.
+* Remove the SGM branch of `load_geouy()`. It built its own URL against
+  `geoservicios.sgm.gub.uy` and ignored the one in `metadata`, so it could not
+  reach the layers anywhere else. With the three layers now served by the IGM
+  no row has `repositor == "SGM"` and the branch was unreachable.
 
 * Fix the urban grid filter in `tiles_geouy()`: `ortofotos:grilla_urbana`
   identifies localities by code ("MVD") since the urban flight was extended

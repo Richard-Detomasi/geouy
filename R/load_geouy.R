@@ -95,10 +95,7 @@ load_geouy <- function(c, crs = 32721, folder = tempdir()){
   if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
   x <- x[x$capa == c,]
   enco <- x$enc
-  if (x$repositor %in% "SGM") {
-    wfs_sgm <- "WFS:http://geoservicios.sgm.gub.uy/wfsPCN1000.cgi?"
-    a <- descarga_o_falla(sf::st_read(wfs_sgm, x$url, crs = x$crs), c, wfs_sgm)
-  } else if (x$formato %in% c("zip", "zip a")) {
+  if (x$formato %in% c("zip", "zip a")) {
     if (!is.character(folder) | length(folder) != 1) {
       stop(glue::glue("You must enter a valid directory..."))
     }

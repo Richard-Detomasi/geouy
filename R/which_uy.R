@@ -8,8 +8,12 @@
 #' @export
 #' @examples
 #'\donttest{
-#' x <- try(load_geouy("Peajes"), silent = TRUE)
-#' if (!inherits(x, "try-error")) x1 <- which_uy(x, c = "Deptos")
+#' # Needs two external services: MTOP for the tolls and IDE for the departments.
+#' peajes_x_dpto <- try({
+#'   peajes <- load_geouy("Peajes")
+#'   which_uy(peajes, c = "Deptos")
+#' }, silent = TRUE)
+#' if (!inherits(peajes_x_dpto, "try-error")) head(peajes_x_dpto)
 #'}
 
 which_uy <- function(x, c = c("Localidades pg", "Departamentos"), d = c("cod", "name")){

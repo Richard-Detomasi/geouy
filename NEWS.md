@@ -63,6 +63,21 @@
   the four candidate school layers, `IDE:Escuelas_UY`, `IDE:escuelas` and
   `IDE:escuelaspublicas` turned out to be the same 2267 records, while
   `IDE:anep_escuelas_ceip_2015_ei` only covers CEIP 2015 with 989.
+* Five more layers work again, this time from the IGM server. Three of them
+  (`Areas administrativas`, `Centros poblados pg` and `Centros poblados pt`)
+  were read from the SGM service at `geoservicios.sgm.gub.uy`, whose host no
+  longer resolves; the other two (`Limites departamentales` and `Municipios`)
+  pointed at IGM paths that now answer with an ArcGIS error. The IGM has
+  reorganised its services under a `Limites/` folder and publishes the
+  1:1,000,000 national chart -the same product the package used to request as
+  `wfsPCN1000.cgi`- as `Millon`, so the five layers are read from there.
+  `repositor` for the three SGM layers becomes `"IGM"`; `productor` stays as
+  `"SGM"`, which is who made the data.
+* Remove the SGM branch of `load_geouy()`. It built its own URL against
+  `geoservicios.sgm.gub.uy` and ignored the one in `metadata`, so it could not
+  reach the layers anywhere else. With the three layers now served by the IGM
+  no row has `repositor == "SGM"` and the branch was unreachable.
+
 * Fix the urban grid filter in `tiles_geouy()`: `ortofotos:grilla_urbana`
   identifies localities by code ("MVD") since the urban flight was extended
   beyond Montevideo.

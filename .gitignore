@@ -11,3 +11,8 @@ dev
 geouy.Rcheck/
 geouy*.tar.gz
 geouy*.tgz
+
+# Salida del chequeo semanal de capas
+chequeo-capas.md
+chequeo-capas.rds
+chequeo-capas.estado

@@ -22,3 +22,6 @@
 ^geouy\.Rcheck$
 ^geouy.*\.tar\.gz$
 ^geouy.*\.tgz$
+^chequeo-capas\.md$
+^chequeo-capas\.rds$
+^chequeo-capas\.estado$

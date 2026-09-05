@@ -1,0 +1,103 @@
+# Comprueba cada semana que los servicios de las capas del metadata sigan en pie,
+# y avisa por un issue cuando alguno deja de responder. La idea es enterarnos por
+# el repositorio y no porque a alguien se le rompa justo la capa que quería usar.
+name: chequeo-capas
+
+on:
+  schedule:
+    # Lunes a las 9:17 UTC, o sea 6:17 en Montevideo. El minuto 0 concentra la
+    # cola de trabajos de GitHub y el disparo se atrasa.
+    - cron: "17 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+# El cron y un disparo manual a la vez podrían abrir dos issues.
+concurrency:
+  group: chequeo-capas
+  cancel-in-progress: false
+
+jobs:
+  chequeo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # Solo R base: el chequeo lee data/metadata.rda y consulta con curl, así que
+      # no hace falta compilar sf ni instalar el paquete. Un fallo de instalación
+      # no es lo que este workflow quiere detectar.
+      - uses: r-lib/actions/setup-r@v2
+
+      - name: Consultar los servicios
+        id: chequeo
+        shell: bash
+        run: |
+          set +e
+          Rscript .github/scripts/chequeo-capas.R
+          rc=$?
+          set -e
+          echo "codigo=$rc" >> "$GITHUB_OUTPUT"
+          # 2 es el hallazgo esperado: hay capas caídas. Cualquier otro código
+          # distinto de cero significa que se rompió el chequeador, y eso sí tiene
+          # que dejar el workflow en rojo.
+          if [ "$rc" -ne 0 ] && [ "$rc" -ne 2 ]; then exit "$rc"; fi
+
+      - name: Guardar el detalle
+        uses: actions/upload-artifact@v4
+        with:
+          name: chequeo-capas
+          retention-days: 30
+          path: |
+            chequeo-capas.md
+            chequeo-capas.rds
+            chequeo-capas.estado
+
+      # Un issue por vez, y sólo se comenta cuando cambia QUÉ está caído. Si no,
+      # con 30 capas caídas desde hace meses llegaría un comentario idéntico todos
+      # los lunes.
+      - name: Avisar si alguna capa no responde
+        if: steps.chequeo.outputs.codigo == '2'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          huella=$(sha256sum chequeo-capas.estado | cut -d' ' -f1)
+          cuerpo=$(mktemp)
+          cat chequeo-capas.md > "$cuerpo"
+          printf '\n<!-- huella:%s -->\n' "$huella" >> "$cuerpo"
+          numero=$(gh issue list --label "capas-caidas" --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [ -z "$numero" ]; then
+            gh label create "capas-caidas" --color B60205 --description "Capas cuyo servicio dejó de responder" 2>/dev/null || true
+            gh issue create --title "Hay capas que no responden" --label "capas-caidas" --body-file "$cuerpo"
+          elif gh issue view "$numero" --json body --jq .body | grep -qF "huella:$huella"; then
+            echo "Sigue igual que la semana pasada; no comento."
+          else
+            gh issue edit "$numero" --body-file "$cuerpo"
+            gh issue comment "$numero" --body "Cambió la lista de capas caídas. El detalle actualizado quedó arriba."
+          fi
+          # La label sobra mientras haya algo caído.
+          gh issue edit "$numero" --remove-label "recuperacion-pendiente" 2>/dev/null || true
+
+      # Se cierra recién con dos chequeos verdes seguidos, para no cerrar y reabrir
+      # ante un servicio que parpadea.
+      - name: Cerrar el aviso si ya está todo en pie
+        if: steps.chequeo.outputs.codigo == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          numero=$(gh issue list --label "capas-caidas" --state open --limit 1 --json number --jq '.[0].number // empty')
+          [ -z "$numero" ] && exit 0
+          if gh issue view "$numero" --json labels --jq '.labels[].name' | grep -qx "recuperacion-pendiente"; then
+            gh issue comment "$numero" --body "Segundo chequeo seguido con todas las capas respondiendo. Se cierra; si algo se cae de nuevo, el chequeo vuelve a abrir un aviso."
+            gh issue close "$numero"
+          else
+            gh label create "recuperacion-pendiente" --color 0E8A16 --description "Un chequeo verde; se cierra al segundo" 2>/dev/null || true
+            gh issue edit "$numero" --add-label "recuperacion-pendiente"
+            gh issue comment "$numero" --body "Todas las capas respondieron en este chequeo. Se cierra si el próximo también sale limpio."
+          fi

@@ -4,14 +4,14 @@
 \alias{plot_geouy}
 \title{plot_geouy}
 \usage{
-plot_geouy(x, col, viri_opt = "plasma", l = NULL, other_lab = NULL, ...)
+plot_geouy(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...)
 }
 \arguments{
 \item{x}{An sf object like load_geouy() results}
 
 \item{col}{Variable of "x" to plot (character)}
 
-\item{viri_opt}{A character string indicating the colormap option to use. Four options are available: "magma" (or "A"), "inferno" (or "B"), "plasma" (or "C"), "viridis" (or "D", the default option) and "cividis" (or "E")}
+\item{viri_opt}{A character string indicating the colormap option to use. Five options are available: "magma" (or "A"), "inferno" (or "B"), "plasma" (or "C"), "viridis" (or "D", the default) and "cividis" (or "E")}
 
 \item{l}{If NULL none label added, if "\%" porcentage with 1 decimal labels, if "n" the value is the label, if "c" put other variable in other_lab. Default NULL}
 

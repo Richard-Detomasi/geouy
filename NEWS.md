@@ -35,6 +35,21 @@
 * Examples that rely on remote services now check the result of the download
   before using it, so an unreachable server no longer turns into an error in
   `R CMD check`.
+* `plot_geouy()` now says which variable is missing instead of printing the
+  whole object. The message interpolated the `sf` object, and since `glue()` is
+  vectorised it produced one message per column, each carrying all its values.
+  This is what reached CRAN's check in 2025, when the "Secciones" layer stopped
+  shipping the variable the example asked for.
+* `plot_geouy()` now picks the colour scale from the type of the variable.
+  `discrete` was computed with `is.numeric()` on a one-column data frame, which
+  is always FALSE, so categorical variables were drawn on a continuous scale.
+* `plot_geouy()` now honours `viri_opt`, which was documented but ignored: the
+  scale had `option = "D"` hardcoded. The default stays viridis, so existing
+  maps keep their colours.
+* `plot_geouy()` no longer calls `theme_set()`, which changed the default
+  ggplot2 theme for the whole R session. The returned plot is unchanged.
+* `plot_geouy()` reports missing or invalid `other_lab` and `l` combinations up
+  front, instead of failing later while drawing.
 * Fix `tiles_geouy()`, which aborted on every call with a false "IDEuy Server
   out of service". The grid layers now carry administrative columns with
   legitimate NA values, so validating the download with `noNA()` always failed;

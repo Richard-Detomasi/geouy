@@ -16,6 +16,14 @@
   legitimate NA values, so validating the download with `noNA()` always failed;
   the outcome of the download is checked instead, and the original error is
   reported along with the message.
+* Five layers point at a service that works again. `Municipios10` and
+  `Municipios15` moved with the SIT to `sit.mvot.gub.uy` after the ministry was
+  split in 2020; `CONEAT` is now served by DGRN over https, which also removes
+  the last plain-http URL in the package; and `OTs` and `Escuelas` no longer
+  download a zip, since the same MIDES geoserver publishes them over WFS. Of
+  the four candidate school layers, `IDE:Escuelas_UY`, `IDE:escuelas` and
+  `IDE:escuelaspublicas` turned out to be the same 2267 records, while
+  `IDE:anep_escuelas_ceip_2015_ei` only covers CEIP 2015 with 989.
 * Fix the urban grid filter in `tiles_geouy()`: `ortofotos:grilla_urbana`
   identifies localities by code ("MVD") since the urban flight was extended
   beyond Montevideo.

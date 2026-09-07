@@ -47,7 +47,7 @@ secc <- load_geouy("Secciones")
 | Layer | Productor | Source | Year | Format |
 |-----|-----|-----|-----|-----|
 |`"Uruguay"`| `"INE"` | MIDES | 2011 | wfs |
-|`"Areas administrativas"`| `"SGM"` | SGM | 2011 | wfs |
+|`"Areas administrativas"`| `"SGM"` | IGM | 2011 | wfs |
 |`"Deptos"`| `"INE"` | IDE | 2011 | wfs |
 |`"Dptos"`| `"DINAMA"` | "MVOTMA"| 2020  | wfs | 
 |`"Limites departamentales"`| `"IGM"` | "IGM" | 2011  | wfs | 
@@ -65,8 +65,8 @@ secc <- load_geouy("Secciones")
 |`"Zonas URB INT 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Localidades pg"`| `"INE Censo"` | MIDES | 2011 | wfs |
 |`"Localidades pt"`| `"INE Censo"` | MIDES | 2011 | wfs |
-|`"Centros poblados pg"`| `"SGM"` | SGM | 2011 | wfs |
-|`"Centros poblados pt"`| `"SGM"` | SGM | 2011 | wfs |
+|`"Centros poblados pg"`| `"SGM"` | IGM | 2011 | wfs |
+|`"Centros poblados pt"`| `"SGM"` | IGM | 2011 | wfs |
 |`"Municipios10"`| `"DINOT-IM-IC"` | MVOTMA | 2010 | zip |
 |`"Municipios15"`| `"DINOT-IM-IC"` | MVOTMA | 2015 | zip |
 |`"CCZ"`| `"INE"` | MIDES | 2011 | wfs |

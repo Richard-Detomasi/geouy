@@ -4,6 +4,17 @@
 
 ## geouy v0.2.9
 
+* Fix the layer name of `Zonas11`, which asked for `INECenso2011:Zona_2011`
+  while the MIDES geoserver publishes it as `zona_2011`. The failure was hard
+  to spot: the server answers HTTP 200 with a `ServiceException` inside, so
+  there is no 404 and no network error, and `st_read()` complains about
+  something else. The layer returns 69,752 zones.
+* Fix the `cod` and `name` columns declared for the three 2011 census layers.
+  `Secciones11`, `Segmentos11` and `Zonas11` named them in upper case, but the
+  layers return them in lower case, so `where_uy()` failed on all three with
+  "Can't extract columns that don't exist". The 2023 layers do return upper
+  case names and were already correct.
+
 * Fix `load_geouy()` returning a different layer than the one requested. After
   downloading, the code picked the most recent `.shp` in the whole folder,
   which defaults to `tempdir()` and is shared between calls. `unzip()` does not

@@ -4,6 +4,16 @@
 
 ## geouy v0.2.9
 
+* Fix `Localidades pt` returning polygons. Both `Localidades` rows asked the
+  server for the same layer, `INECenso:Localidades_pg`, so the one meant to be
+  points quietly returned the polygons. The server does publish
+  `INECenso:Localidades_pt`, which is what the row asks for now. Its name
+  column is `NOMLOC`, not `NOMBLOC`, so that is corrected too.
+* Fix the year of both `Localidades` rows, which said 2011 while the layers
+  carry the 2023 census: they come from the same workspace as `Secciones`,
+  `Segmentos` and `Zonas` and share their `viv_tot_23` and `pob_tot_23`
+  columns.
+
 * Fix the layer name of `Zonas11`, which asked for `INECenso2011:Zona_2011`
   while the MIDES geoserver publishes it as `zona_2011`. The failure was hard
   to spot: the server answers HTTP 200 with a `ServiceException` inside, so

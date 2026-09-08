@@ -23,6 +23,12 @@
   does not download less: the tile in the example weighs 66.7 MB. The sizes are
   now documented in the `format` argument, where an "rgbi" tile of the national
   flight reaches 1.3 GB.
+* Fix the `cod` and `name` columns declared for six more layers. The five
+  `Secc*11` ones named `codsecc`, with one `c` too many, when the layers carry
+  `codsec`; and `Rutas` named `numero` and `nombre` in lower case when the layer
+  returns `NUMERO` and `NOMBRE`. `where_uy()` failed on all six with "Can't
+  extract columns that don't exist".
+
 * Fix `Localidades pt` returning polygons. Both `Localidades` rows asked the
   server for the same layer, `INECenso:Localidades_pg`, so the one meant to be
   points quietly returned the polygons. The server does publish

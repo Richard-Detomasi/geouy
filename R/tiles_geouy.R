@@ -29,6 +29,35 @@ descarga_tile <- function(url, destino) {
   invisible(destino)
 }
 
+# Los tiles de un mosaico tienen que compartir cantidad de bandas, resolucion,
+# origen de grilla y CRS. Se compara cada uno contra el primero, que es lo que
+# hace raster::mosaic() por dentro: no hace falta compararlos todos entre si.
+incompatible_o_falla <- function(primero, otro, nombre_primero, nombre_otro) {
+  redondear <- function(x) round(x, 9)
+  difs <- character()
+  if (raster::nlayers(primero) != raster::nlayers(otro)) {
+    difs <- c(difs, glue::glue("bands: {raster::nlayers(primero)} vs {raster::nlayers(otro)}"))
+  }
+  if (!isTRUE(all.equal(redondear(raster::res(primero)), redondear(raster::res(otro))))) {
+    difs <- c(difs, glue::glue("resolution: {paste(raster::res(primero), collapse = 'x')} vs ",
+                               "{paste(raster::res(otro), collapse = 'x')}"))
+  }
+  if (!isTRUE(all.equal(redondear(raster::origin(primero)), redondear(raster::origin(otro))))) {
+    difs <- c(difs, glue::glue("grid origin: {paste(round(raster::origin(primero), 3), collapse = ',')} vs ",
+                               "{paste(round(raster::origin(otro), 3), collapse = ',')}"))
+  }
+  crs_primero <- as.character(raster::crs(primero))
+  crs_otro <- as.character(raster::crs(otro))
+  if (!identical(crs_primero, crs_otro)) {
+    difs <- c(difs, "coordinate reference system")
+  }
+  if (length(difs) == 0) return(invisible(TRUE))
+  stop(glue::glue("The tiles cannot be mosaicked together: '{nombre_otro}' differs ",
+                  "from '{nombre_primero}' in {paste(difs, collapse = '; ')}. ",
+                  "This is a problem with the IDEuy tiles, not with x. ",
+                  "Please report it."), call. = FALSE)
+}
+
 #' This function allows to Download .jpg or .tif files from the IDEuy tiles repository, according to a 'sf' object bbox.
 #' @family service
 #' @param x An 'sf' object with the same crs as the homonym parameter
@@ -191,7 +220,21 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
     # "implicit list embedding of S4 objects is deprecated". Hoy es un warning;
     # esta anunciado que pasa a error.
     rast.list <- vector("list", length(ar))
-    for (i in seq_along(ar)) rast.list[[i]] <- raster::brick(ar[i])
+    for (i in seq_along(ar)) {
+      rast.list[[i]] <- raster::brick(ar[i])
+      # raster::mosaic() no comprueba que los tiles sean combinables, y el caso
+      # peligroso es la cantidad de bandas: no da error, calcula el maximo y
+      # RECICLA el que tiene menos. Un tile de una banda junto a otro de tres
+      # vuelve como tres bandas, con la unica repetida en las tres -o sea, un
+      # raster con datos inventados y sin un solo aviso-. Cuando las cantidades
+      # no son divisores entre si el error existe pero no dice nada: "number of
+      # items to replace is not a multiple of replacement length".
+      # La resolucion, el origen de grilla y el CRS si los rechaza, pero con
+      # mensajes que tampoco nombran al tile. Comprobar es gratis: brick() lee
+      # la cabecera y no los pixeles, unos milisegundos por archivo.
+      if (i > 1) incompatible_o_falla(rast.list[[1]], rast.list[[i]],
+                                      basename(ar[1]), basename(ar[i]))
+    }
     rast.list$fun <- mean
     # El mosaico es lo mas caro de la funcion y estaba calculado dos veces
     # seguidas, la primera para nada.

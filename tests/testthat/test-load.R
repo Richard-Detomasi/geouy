@@ -4,8 +4,13 @@ test_that("connections working", {
   skip_if_offline()
   skip_on_cran()
   
+  # Una capa de cada rama de load_geouy(): "Secciones" viene por WFS y "Deptos"
+  # por zip. Antes la del zip salia del servidor de Ambiente, que no manda la
+  # cadena de certificados: ninguna herramienta que los verifique puede entrar,
+  # asi que el test fallaba por algo ajeno al paquete y ademas no cubria lo que
+  # queria cubrir.
   testthat::expect_is(load_geouy("Secciones"), "sf")
-  testthat::expect_is(load_geouy("Playas"), "sf")
+  testthat::expect_is(load_geouy("Deptos"), "sf")
   # testthat::expect_is(load_geouy("Centros poblados pg"), "sf")
 })
 
@@ -13,8 +18,8 @@ test_that("crs parameter working", {
   skip_if_offline()
   skip_on_cran()
   
-  testthat::expect_error(load_geouy("Playas", folder = 1))
-  testthat::expect_error(load_geouy("Playas", folder = c("c://", "c://")))
+  testthat::expect_error(load_geouy("Deptos", folder = 1))
+  testthat::expect_error(load_geouy("Deptos", folder = c("c://", "c://")))
   
   a <- load_geouy("Secciones", crs = 4326)
   a1 <- sf::st_crs(a)

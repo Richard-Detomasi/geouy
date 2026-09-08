@@ -11,7 +11,7 @@ tiles_geouy(x, d = NA, format = "rgb", folder = tempdir(), urban = FALSE)
 
 \item{d}{numeric; buffer distance for all, or for each of the elements in x; in case dist is a units object, it should be convertible to arc_degree if x has geographic coordinates, and to st_crs(x)$units otherwise. Default NA, but if x is a only one point buffer default is 100.}
 
-\item{format}{Format of the archives to download (avaiable: "rgb" and "rgbi") Default "rgb"}
+\item{format}{Format of the archives to download (avaiable: "rgb" and "rgbi"). Default "rgb". Mind the size before asking: one "rgb" tile weighs 3 to 67 MB in the urban flight and around 250 MB in the national one, and one "rgbi" tile weighs about 380 MB and 1.3 GB respectively. The whole tile is downloaded and only then cropped to x.}
 
 \item{folder}{Folder where are the files or be download}
 
@@ -24,11 +24,16 @@ raster::stack object with th cropped tif corresponding to x bbox
 This function allows to Download .jpg or .tif files from the IDEuy tiles repository, according to a 'sf' object bbox.
 }
 \examples{
-\donttest{
+\dontrun{
+# Not run because a whole tile is downloaded, and the tile is the unit: the
+# crop to the requested area happens after the download, so asking for a
+# small area does not download less. The tile covering this point weighs
+# 66.7 MB, and that is not the worst case: an urban .jpg ranges from 3 to
+# 67 MB depending on the tile -a twentyfold spread inside one locality-
+# and a national one is around 250 MB.
 x <- data.frame(x = 577968, y = 6147753, id = 1)
 x <- sf::st_as_sf(x, coords = c("x", "y"), crs = 32721)
-x_tiles <- try(tiles_geouy(x, urban = TRUE), silent = TRUE)
-if (!inherits(x_tiles, "try-error")) x_tiles
+tiles_geouy(x, urban = TRUE)
 }
 }
 \seealso{

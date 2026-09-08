@@ -33,7 +33,7 @@ descarga_tile <- function(url, destino) {
 #' @family service
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @param d numeric; buffer distance for all, or for each of the elements in x; in case dist is a units object, it should be convertible to arc_degree if x has geographic coordinates, and to st_crs(x)$units otherwise. Default NA, but if x is a only one point buffer default is 100.
-#' @param format Format of the archives to download (avaiable: "rgb" and "rgbi") Default "rgb"
+#' @param format Format of the archives to download (avaiable: "rgb" and "rgbi"). Default "rgb". Mind the size before asking: one "rgb" tile weighs 3 to 67 MB in the urban flight and around 250 MB in the national one, and one "rgbi" tile weighs about 380 MB and 1.3 GB respectively. The whole tile is downloaded and only then cropped to x.
 #' @param folder Folder where are the files or be download
 #' @param urban logical; If FALSE take orthophotos of national flight with 32cm per pixel, if TRUE take urban flight with 10cm per pixel (available for every locality covered by the urban flight)
 #' @keywords IDE orthophotos Uruguay
@@ -51,11 +51,16 @@ descarga_tile <- function(url, destino) {
 #' @importFrom curl has_internet
 #' @export
 #' @examples
-#'\donttest{
+#'\dontrun{
+#' # Not run because a whole tile is downloaded, and the tile is the unit: the
+#' # crop to the requested area happens after the download, so asking for a
+#' # small area does not download less. The tile covering this point weighs
+#' # 66.7 MB, and that is not the worst case: an urban .jpg ranges from 3 to
+#' # 67 MB depending on the tile -a twentyfold spread inside one locality-
+#' # and a national one is around 250 MB.
 #' x <- data.frame(x = 577968, y = 6147753, id = 1)
 #' x <- sf::st_as_sf(x, coords = c("x", "y"), crs = 32721)
-#' x_tiles <- try(tiles_geouy(x, urban = TRUE), silent = TRUE)
-#' if (!inherits(x_tiles, "try-error")) x_tiles
+#' tiles_geouy(x, urban = TRUE)
 #'}
 
 tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = FALSE){
@@ -90,6 +95,16 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
       stop("IDEuy Server out of service, try in https://visualizador.ide.uy/ideuy/core/load_public_project/ideuy/\n",
            "Details: ", conditionMessage(attr(x2, "condition")), call. = FALSE)
     }
+    # Un servicio que responde 200 sin features devuelve un sf valido y vacio,
+    # asi que no hay error y el codigo seguia de largo: el st_join no encontraba
+    # nada y al usuario se le decia que su punto estaba mal cuando el problema
+    # era del servicio. La comprobacion va ANTES del join, porque despues un
+    # cero significa las dos cosas a la vez.
+    if (nrow(x2) == 0) {
+      stop("The IDEuy national tile layer came back with no tiles at all, so ",
+           "the service is not returning data right now. This is not a problem ",
+           "with x.", call. = FALSE)
+    }
     x2 <- x2 %>% 
       sf::st_join(x %>% sf::st_transform(5381), left = F) %>% 
       dplyr::distinct(.data$nombre, .keep_all = TRUE)
@@ -106,6 +121,12 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
     }
     # Ya no se filtra por localidad: el vuelo urbano cubre 86 y el st_join con la
     # geometria del usuario alcanza para quedarse con los tiles que le sirven.
+    # Idem grilla nacional: capa vacia es problema del servicio, no de x.
+    if (nrow(x2) == 0) {
+      stop("The IDEuy urban tile layer came back with no tiles at all, so the ",
+           "service is not returning data right now. This is not a problem ",
+           "with x.", call. = FALSE)
+    }
     x2 <- x2 %>%
       sf::st_join(x %>% sf::st_transform(5381), left = F) %>%
       dplyr::distinct(.data$nombre, .keep_all = TRUE)
@@ -165,17 +186,35 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
   # Return ----
   if (length(ar) == 1) {
     a3 <- raster::brick(ar)
-    suppressWarnings(raster::crs(a3) <- "+proj=utm +zone=21 +south +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")
-    bb <- sf::st_transform(bb %>% sf::st_as_sf(), raster::crs(a3))
-    suppressWarnings(a3 <- raster::crop(a3, bb))
   } else {
-    rast.list <- list()
-    for (i in 1:length(ar)) { rast.list[i] <- raster::brick(ar[i]) }
-    # And then use do.call on the list of raster objects
+    # Con `[` en vez de `[[` se guarda una lista adentro de la lista, y R avisa
+    # "implicit list embedding of S4 objects is deprecated". Hoy es un warning;
+    # esta anunciado que pasa a error.
+    rast.list <- vector("list", length(ar))
+    for (i in seq_along(ar)) rast.list[[i]] <- raster::brick(ar[i])
     rast.list$fun <- mean
-    a3 <- do.call(raster::mosaic,rast.list)
+    # El mosaico es lo mas caro de la funcion y estaba calculado dos veces
+    # seguidas, la primera para nada.
     a3 <- do.call(raster::mosaic, rast.list)
   }
+  # El CRS y el recorte van despues del if/else, para los dos caminos. Estaban
+  # solo en la rama de un tile: con dos o mas, el resultado salia sin CRS -y por
+  # lo tanto sin georreferenciar- y sin recortar, devolviendo la union entera de
+  # los tiles en vez del area pedida. Pidiendo 300 m alrededor de un punto se
+  # bajan 3 tiles y volvia un raster de 17713 x 19436 pixeles para un area de
+  # unos 6000 de lado.
+  # Los .jpg del formato "rgb" vienen con world file y sin CRS declarado, asi
+  # que hay que ponerselo. Los .tif de "rgbi" en cambio SI lo declaran, y no es
+  # el mismo: dicen SIRGAS-ROU98_UTM_Zone_21S, no WGS84. Pisarlo sin mirar le
+  # cambiaba el datum al raster en silencio, asi que solo se asigna cuando el
+  # archivo no trajo ninguno.
+  if (is.na(raster::crs(a3))) {
+    suppressWarnings(raster::crs(a3) <- "+proj=utm +zone=21 +south +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")
+  }
+  # La transformacion de bb va despues de tener el CRS del raster: al reves, sf
+  # no tiene destino al que transformar y falla con "crs not found".
+  bb <- sf::st_transform(bb %>% sf::st_as_sf(), raster::crs(a3))
+  suppressWarnings(a3 <- raster::crop(a3, bb))
   # raster::plotRGB(a3)
   return(a3)
 }

@@ -57,10 +57,12 @@ jobs:
             chequeo-capas.rds
             chequeo-capas.estado
 
-      # Un issue por vez, y sólo se comenta cuando cambia QUÉ está caído. Si no,
-      # con 30 capas caídas desde hace meses llegaría un comentario idéntico todos
-      # los lunes.
-      - name: Avisar si alguna capa no responde
+      # Un issue por vez, y sólo se comenta cuando cambia QUÉ está mal. Si no, con
+      # veinte capas caídas desde hace meses llegaría un comentario idéntico todos
+      # los lunes. El título no habla de capas caídas porque el aviso puede ser
+      # sólo de fichas: que una fila declare una columna que no existe no tiene
+      # nada que ver con que el servicio responda.
+      - name: Avisar si hay algo para revisar
         if: steps.chequeo.outputs.codigo == '2'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,8 +74,8 @@ jobs:
           printf '\n<!-- huella:%s -->\n' "$huella" >> "$cuerpo"
           numero=$(gh issue list --label "capas-caidas" --state open --limit 1 --json number --jq '.[0].number // empty')
           if [ -z "$numero" ]; then
-            gh label create "capas-caidas" --color B60205 --description "Capas cuyo servicio dejó de responder" 2>/dev/null || true
-            gh issue create --title "Hay capas que no responden" --label "capas-caidas" --body-file "$cuerpo"
+            gh label create "capas-caidas" --color B60205 --description "Capas caídas o con el metadata desactualizado" 2>/dev/null || true
+            gh issue create --title "Revisión semanal de las capas" --label "capas-caidas" --body-file "$cuerpo"
           elif gh issue view "$numero" --json body --jq .body | grep -qF "huella:$huella"; then
             echo "Sigue igual que la semana pasada; no comento."
           else

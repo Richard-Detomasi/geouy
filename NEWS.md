@@ -4,6 +4,26 @@
 
 ## geouy v0.2.9
 
+* Fix `tiles_geouy()` returning the whole union of the tiles when the area
+  spans more than one. The crop to the requested area, and the CRS, were only
+  applied on the single-tile path; asking for 300 m around a point came back as
+  a 1200x2400 raster with `crs` NA instead of the 600 metres of side that were
+  asked for. Both are now applied on either path.
+* `tiles_geouy()` keeps the CRS the file declares, and only sets one when the
+  file brought none. The `.jpg` of the "rgb" format come with a world file and
+  no CRS, so there it is needed; the `.tif` of "rgbi" do declare one, and it
+  says SIRGAS-ROU98 UTM 21S rather than WGS84, so overwriting it was silently
+  changing the datum of the raster.
+* `tiles_geouy()` tells apart a service returning no tiles at all from a
+  geometry that falls outside the covered area. A WFS answering 200 with no
+  features comes back as a valid empty `sf`, and the message the user got said
+  their geometry was not in Uruguay when the problem was the service.
+* The example of `tiles_geouy()` no longer downloads a tile. The tile is the
+  unit of download -the crop happens afterwards- so asking for a small area
+  does not download less: the tile in the example weighs 66.7 MB. The sizes are
+  now documented in the `format` argument, where an "rgbi" tile of the national
+  flight reaches 1.3 GB.
+
 * Fix the layer name of `Zonas11`, which asked for `INECenso2011:Zona_2011`
   while the MIDES geoserver publishes it as `zona_2011`. The failure was hard
   to spot: the server answers HTTP 200 with a `ServiceException` inside, so

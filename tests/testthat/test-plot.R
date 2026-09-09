@@ -4,15 +4,22 @@ test_that("output is a ggplot", {
   skip_if_offline()
   
   secc <- load_geouy("Secciones")
-  aaa <- plot_geouy(x = secc, col = "AREA")  
+  # El test pedia la columna "AREA", que la capa dejo de traer cuando se
+  # republico con el censo 2023. En vez de cambiarla por otro nombre fijo -que
+  # va a quedar viejo igual la proxima vez- se toma la primera columna numerica
+  # que la capa traiga: lo que se esta probando es que plot_geouy() devuelva un
+  # ggplot con una variable continua, no como se llama esa variable.
+  num <- names(secc)[vapply(sf::st_drop_geometry(secc), is.numeric, logical(1))][1]
+  testthat::expect_false(is.na(num))
+  aaa <- plot_geouy(x = secc, col = num)  
   testthat::expect_is(aaa, "ggplot")
-  aaa <- plot_geouy(x = secc, col = "AREA", l = "%")  
+  aaa <- plot_geouy(x = secc, col = num, l = "%")  
   testthat::expect_is(aaa, "ggplot")
-  aaa <- plot_geouy(x = secc, col = "AREA", l = "n")  
+  aaa <- plot_geouy(x = secc, col = num, l = "n")  
   testthat::expect_is(aaa, "ggplot")
-  aaa <- plot_geouy(x = secc, col = "AREA", l = "c", other_lab = "CODSEC")  
+  aaa <- plot_geouy(x = secc, col = num, l = "c", other_lab = "CODSEC")  
   testthat::expect_is(aaa, "ggplot")
-  expect_error(plot_geouy(x = secc, col = "AREA", l = "c", other_lab = "zapallitos"))
+  expect_error(plot_geouy(x = secc, col = num, l = "c", other_lab = "zapallitos"))
   
   pobre_x_dpto <- structure(list(nomdpto = c("ARTIGAS", "DURAZNO", "FLORIDA", "LAVALLEJA", "MONTEVIDEO", "PAYSANDU", "SALTO"), 
                                  pobre06 = structure(c(2L, 2L, 2L, 2L, 2L, 2L, 2L), .Label = c("No pobre", "Pobre"), class = "factor"), 
@@ -39,6 +46,7 @@ test_that("Plot uses correct data", {
   skip_if_offline()
   
   secc <- load_geouy("Secciones")
-  p <- plot_geouy(secc, col = "AREA")
+  num <- names(secc)[vapply(sf::st_drop_geometry(secc), is.numeric, logical(1))][1]
+  p <- plot_geouy(secc, col = num)
   testthat::expect_equal(secc, p$data)
 })

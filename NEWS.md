@@ -4,6 +4,11 @@
 
 ## geouy v0.2.9
 
+* `add_geom()` no longer uses an external vector inside a selection, which
+  `tidyselect` deprecated in 1.1.0 and has announced will become an error. The
+  `rename()` in the middle was not needed either: `select()` can rename while
+  selecting, so it is now a single call.
+
 * Fix `tiles_geouy()` returning the whole union of the tiles when the area
   spans more than one. The crop to the requested area, and the CRS, were only
   applied on the single-tile path; asking for 300 m around a point came back as

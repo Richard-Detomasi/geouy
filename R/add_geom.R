@@ -6,7 +6,7 @@
 #' @param crs Coordinates Refence Sistem, usually in region 32721 or 4326 (default 32721)
 #' @importFrom glue glue
 #' @importFrom rlang .data
-#' @importFrom dplyr left_join select rename mutate
+#' @importFrom dplyr left_join select mutate
 #' @return data.frame
 #' @details
 #' Disclaimer: This script is not an official INE product.
@@ -36,17 +36,22 @@ add_geom <- function(data, unit, variable, crs = 32721){
   
   if (is.character(data[[variable]])) {
     name <- as.character(md[md$capa == unit, "name"])
-    g2 <- g %>% dplyr::select(all_of(name)) %>%
-      dplyr::rename("link" = name) %>% 
+    # select() puede renombrar mientras selecciona, asi que el rename() de por
+    # medio no hacia falta. Y ese rename usaba `name`, que es un vector de
+    # caracteres que viene del metadata: usarlo asi adentro de una seleccion es
+    # lo que tidyselect deprecó en su 1.1.0. Hoy avisa; esta anunciado que pasa
+    # a error, y ahi add_geom() dejaria de andar sin que toquemos nada.
+    g2 <- g %>% dplyr::select(link = all_of(name)) %>%
       dplyr::mutate(link = as.character(link))
     data <- dplyr::left_join(g2, data, by = c("link" = variable))
   } else {
     cod <- as.character(md[md$capa == unit, "cod"])
-    g2 <- g %>% dplyr::select(all_of(cod)) %>%
-      dplyr::rename("link" = cod) %>% 
+    g2 <- g %>% dplyr::select(link = all_of(cod)) %>%
       dplyr::mutate(link = as.numeric(link))
-    data <- dplyr::left_join(g2, data %>% 
-                               mutate(link = as.numeric(!!!rlang::syms(variable))), by = "link")
+    # !!! sobre un solo simbolo es rebuscado para lo que hace; .data[[ ]] dice
+    # lo mismo y se entiende.
+    data <- dplyr::left_join(g2, data %>%
+                               dplyr::mutate(link = as.numeric(.data[[variable]])), by = "link")
   }
   return(data)
 }

@@ -1,0 +1,14 @@
+# NEWS.md acumula lineas: cuando dos ramas agregan la suya en el mismo punto, no
+# hay nada que elegir entre una y otra, van las dos. Con merge=union git las deja
+# a las dos en vez de marcar un conflicto que despues se resuelve siempre igual.
+# Probado: sin esto, dos ramas que agregan al principio chocan; con esto, no.
+NEWS.md merge=union
+
+# Los datos del paquete son binarios generados por data-raw/metadata.R. Git no
+# los puede fusionar y no hay que intentarlo: cuando dos ramas los tocan, la
+# salida es REGENERARLOS desde ese archivo -que si se fusiona solo, porque es
+# texto- y no elegir una de las dos versiones. Marcarlos como binarios evita
+# ademas que git intente un merge por lineas sobre bytes comprimidos.
+*.rda binary
+*.Rds binary
+*.rds binary

@@ -23,6 +23,15 @@
   does not download less: the tile in the example weighs 66.7 MB. The sizes are
   now documented in the `format` argument, where an "rgbi" tile of the national
   flight reaches 1.3 GB.
+* `tiles_geouy()` checks that the tiles can be mosaicked before trying. The
+  dangerous case is the number of bands: `raster::mosaic()` does not reject it,
+  it takes the maximum and recycles the tile that has fewer, so a one-band tile
+  next to a three-band one comes back as three bands with the single one
+  repeated -a raster carrying made-up values, with no warning at all. When the
+  counts are not divisors of each other the error does exist, but reads
+  "number of items to replace is not a multiple of replacement length", which
+  names neither the tile nor the layer. Resolution, grid origin and CRS are
+  checked too, and the message now says which tile differs and in what.
 * The test suite passes again. Four tests asserted values from remote layers
   that changed: `test-plot.R` and `test-which.R` named columns of `Secciones`
   that the 2023 census replaced, `test-where_uy.R` looked up a locality code

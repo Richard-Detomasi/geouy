@@ -1,5 +1,8 @@
 destination: docs
 reference:
+- title: Package
+  contents:
+  - geouy
 - title: Services
   contents:
   - has_concept("service")

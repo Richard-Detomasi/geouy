@@ -23,6 +23,17 @@
   does not download less: the tile in the example weighs 66.7 MB. The sizes are
   now documented in the `format` argument, where an "rgbi" tile of the national
   flight reaches 1.3 GB.
+* The test suite passes again. Four tests asserted values from remote layers
+  that changed: `test-plot.R` and `test-which.R` named columns of `Secciones`
+  that the 2023 census replaced, `test-where_uy.R` looked up a locality code
+  that no longer exists, and `test-load.R` downloaded a layer from the Ambiente
+  server, which cannot be read at all. They now assert what each function
+  promises -an `sf` back, the columns it adds, one row per input- instead of
+  the schema of a service we do not control.
+* Two test blocks that reach the network gained `skip_if_offline()`, which also
+  covers `skip_on_cran()`. Every example was already inside `\donttest{}` or
+  `\dontrun{}`, and the vignette does not evaluate its chunks.
+
 * Fix `Localidades pt` returning polygons. Both `Localidades` rows asked the
   server for the same layer, `INECenso:Localidades_pg`, so the one meant to be
   points quietly returned the polygons. The server does publish

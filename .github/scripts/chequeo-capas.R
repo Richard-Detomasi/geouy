@@ -30,16 +30,7 @@ acotar <- function(url) {
   }
 }
 
-endpoint <- function(url, repositor) {
-  # Las capas del SGM no traen URL: el campo guarda el nombre de la capa y la URL
-  # la arma load_geouy(). Se pide la capa concreta y no el GetCapabilities, porque
-  # si no las tres darian OK con que el servidor este vivo.
-  if (identical(repositor, "SGM")) {
-    return(paste0("http://geoservicios.sgm.gub.uy/wfsPCN1000.cgi",
-                  "?service=WFS&version=1.0.0&request=GetFeature",
-                  "&typeName=", utils::URLencode(url, reserved = TRUE),
-                  "&maxFeatures=1"))
-  }
+endpoint <- function(url) {
   url <- sub("^WFS:", "", url)
   if (!grepl("^https?://", url, ignore.case = TRUE)) {
     return(NA_character_)
@@ -91,10 +82,51 @@ clasificar <- function(r, solo_cabecera) {
   "respondio algo que no son datos"
 }
 
+# El servicio puede responder perfecto y la ficha estar mintiendo igual: si el
+# cod o el name que declara no existen en la capa, where_uy() falla con "Can't
+# extract columns that don't exist". Nos paso con diez capas, y todas menos las
+# ultimas seis apareceron de casualidad mirando otra cosa.
+#
+# Se pregunta por DescribeFeatureType y no por una feature: devuelve el esquema
+# sin datos, 1.7 KB contra 210 KB, y da los nombres en atributos name="...".
+# Buscar el nombre de la columna adentro del cuerpo de una feature no sirve:
+# "depto" matchea dentro de "coddepto", el nombre de la capa aparece en la URL
+# que el propio XML incluye, y sobre todo <gml:name> es parte del estandar GML,
+# asi que casi toda capa lo trae exista o no la columna.
+esquema <- function(url) {
+  if (!grepl("[tT]ype[nN]ames?=", url)) return(NULL)
+  tn <- sub(".*[tT]ype[nN]ames?=([^&#]*).*", "\\1", url)
+  # Dos capas separadas por coma no tienen un esquema unico.
+  if (grepl(",", tn, fixed = TRUE)) return(NULL)
+  base <- sub("\\?.*", "", sub("^WFS:", "", url))
+  r <- consultar(paste0(base, "?service=WFS&version=1.0.0",
+                        "&request=DescribeFeatureType&typeName=", tn), FALSE)
+  if (r$curl != 0L || !identical(r$codigo, "200")) return(NULL)
+  if (grepl("ExceptionReport|ServiceException", r$texto, ignore.case = TRUE)) return(NULL)
+  campos <- regmatches(r$texto, gregexpr('name="[A-Za-z_0-9]+"', r$texto))[[1]]
+  campos <- unique(sub('name="', "", sub('"$', "", campos)))
+  if (length(campos) == 0) NULL else campos
+}
+
+# gml_id no figura en ningun esquema porque no es un campo de la capa: es el
+# identificador de la feature. Pero sf lo agrega como columna al leer, asi que
+# las nueve capas que lo declaran estan bien y no hay que avisar por ellas.
+# Comprobado en Peajes y en Lagunas publicas: las dos lo traen.
+columnas_declaradas_faltantes <- function(fila) {
+  declaradas <- c(cod = fila$cod, name = fila$name)
+  declaradas <- declaradas[!is.na(declaradas) & declaradas != "gml_id"]
+  if (length(declaradas) == 0) return(NULL)
+  campos <- esquema(fila$url)
+  if (is.null(campos)) return(NULL)   # sin esquema consultable, no se opina
+  faltan <- declaradas[!declaradas %in% campos]
+  if (length(faltan) == 0) return(NULL)
+  sprintf("%s='%s'", names(faltan), faltan)
+}
+
 filas <- vector("list", nrow(metadata))
 for (i in seq_len(nrow(metadata))) {
   capa <- metadata$capa[i]
-  url  <- endpoint(metadata$url[i], metadata$repositor[i])
+  url  <- endpoint(metadata$url[i])
   if (is.na(url)) {
     filas[[i]] <- data.frame(capa = capa, servidor = "-", motivo = "URL invalida en el metadata", ok = FALSE)
     cat(sprintf("%-5s %-32s %s\n", "FALLA", capa, "URL invalida")); next
@@ -102,34 +134,64 @@ for (i in seq_len(nrow(metadata))) {
   cab <- es_archivo(metadata$url[i], metadata$formato[i])
   r <- consultar(url, cab)
   motivo <- clasificar(r, cab)
+  # Las columnas solo se miran si la capa respondio: si el servicio esta caido,
+  # avisar ademas que no se pudo verificar la ficha es ruido sobre ruido.
+  faltan <- if (motivo == "ok") columnas_declaradas_faltantes(metadata[i, ]) else NULL
   filas[[i]] <- data.frame(capa = capa, servidor = sub("^(https?://[^/?]+).*", "\\1", r$url),
-                           motivo = motivo, ok = motivo == "ok")
-  cat(sprintf("%-5s %-32s %s\n", if (motivo == "ok") "ok" else "FALLA", capa, motivo))
+                           motivo = motivo, ok = motivo == "ok",
+                           columnas = if (is.null(faltan)) NA_character_ else paste(faltan, collapse = " "))
+  estado <- if (motivo != "ok") "FALLA" else if (!is.null(faltan)) "FICHA" else "ok"
+  cat(sprintf("%-5s %-32s %s\n", estado, capa,
+              if (motivo != "ok") motivo else if (!is.null(faltan))
+                paste("declara una columna que no existe:", paste(faltan, collapse = " ")) else ""))
 }
 res <- do.call(rbind, filas)
 caidas <- res[!res$ok, ]
+# Dos problemas distintos y con urgencias distintas: que un servicio no responda
+# no depende de nosotros y suele arreglarse solo; que la ficha declare una
+# columna que no existe es nuestro y rompe where_uy() todos los dias.
+fichas <- res[res$ok & !is.na(res$columnas), ]
 cat("\n==== ", nrow(res) - nrow(caidas), " de ", nrow(res), " capas responden ====\n", sep = "")
+if (nrow(fichas) > 0)
+  cat("==== ", nrow(fichas), " declaran una columna que no existe ====\n", sep = "")
 
 saveRDS(res, "chequeo-capas.rds")
-# Una huella de QUE esta caido, sin fecha: el workflow la usa para no repetir el
-# mismo aviso cada semana cuando no cambio nada.
-writeLines(sort(sprintf("%s\t%s", caidas$capa, caidas$motivo)), "chequeo-capas.estado")
+# Una huella de QUE esta mal, sin fecha: el workflow la usa para no repetir el
+# mismo aviso cada semana cuando no cambio nada. Incluye las dos clases, asi que
+# si una capa vuelve pero otra estrena un problema de ficha, el aviso se
+# actualiza igual.
+writeLines(sort(c(sprintf("%s\t%s", caidas$capa, caidas$motivo),
+                  sprintf("%s\tficha: %s", fichas$capa, fichas$columnas))),
+           "chequeo-capas.estado")
 
+limpiar <- function(x) gsub("[|`\r\n]", " ", x)
 con <- file("chequeo-capas.md", "w", encoding = "UTF-8")
-if (nrow(caidas) == 0) {
-  writeLines(sprintf("Las %d capas del metadata responden.", nrow(res)), con)
-} else {
-  limpiar <- function(x) gsub("[|`\r\n]", " ", x)
-  writeLines(c(
+partes <- character()
+if (nrow(caidas) > 0) {
+  partes <- c(partes,
     sprintf("**%d de %d capas no responden.**", nrow(caidas), nrow(res)), "",
     "| Capa | Servidor | Qué pasa |", "|---|---|---|",
     sprintf("| `%s` | %s | %s |", limpiar(caidas$capa), limpiar(caidas$servidor), limpiar(caidas$motivo)), "",
     "Se pide una sola feature por capa, o la cabecera si es un archivo: esto dice",
-    "si el servicio está y la capa existe, no que los datos sigan siendo los mismos."), con)
+    "si el servicio está y la capa existe, no que los datos sigan siendo los mismos.", "")
 }
+if (nrow(fichas) > 0) {
+  partes <- c(partes,
+    sprintf("**%d capas responden, pero declaran una columna que no existe.**", nrow(fichas)), "",
+    "| Capa | Columna declarada |", "|---|---|",
+    sprintf("| `%s` | %s |", limpiar(fichas$capa), limpiar(fichas$columnas)), "",
+    "Estas son nuestras y rompen `where_uy()`: el servicio responde bien, lo que",
+    "está mal es lo que el metadata dice de él. Se comparan las columnas que la",
+    "fila declara en `cod` y `name` contra el esquema que el servicio publica por",
+    "`DescribeFeatureType`.", "")
+}
+if (length(partes) == 0) {
+  partes <- sprintf("Las %d capas del metadata responden, y las columnas que declaran existen.", nrow(res))
+}
+writeLines(partes, con)
 close(con)
 
-# 2 es el hallazgo esperado, o sea que hay capas caidas. Cualquier otro codigo
-# distinto de cero significa que se rompio el chequeador, que es otra cosa y tiene
-# que dejar el workflow en rojo.
-quit(status = if (nrow(caidas) > 0) 2L else 0L)
+# 2 es el hallazgo esperado: hay algo para avisar. Cualquier otro codigo distinto
+# de cero significa que se rompio el chequeador, que es otra cosa y tiene que
+# dejar el workflow en rojo.
+quit(status = if (nrow(caidas) > 0 || nrow(fichas) > 0) 2L else 0L)

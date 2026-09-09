@@ -1,16 +1,24 @@
 citHeader("To cite geouy in publications use:")
 
-year <- sub("-.*", "", meta$Date)
+# El DESCRIPTION no trae campo Date, asi que meta$Date es NULL y el ano salia
+# vacio: la cita imprimia "(????)". Lo que si traen los paquetes instalados
+# desde CRAN es Date/Publication, que lo agrega CRAN al publicar. Si no esta
+# ninguno de los dos (instalado desde el repo), queda el ano en curso.
+year <- meta$`Date/Publication`
+if (is.null(year)) year <- meta$Date
+year <- if (is.null(year)) format(Sys.Date(), "%Y") else sub("-.*", "", year)
+
 note <- sprintf("R package version %s", meta$Version)
+url <- "https://github.com/RichDeto/geouy"
 
 bibentry(bibtype = "Misc",
          title = "{geouy}: Geographic Information of Uruguay",
          author = c(person("Richard", "Detomasi")),
          year = year,
          note = note,
-	       url = "https://github.com/RichDeto/geouy")
-
-textVersion = paste0("Detomasi, Richard, (", year, ").",
-  "geouy: Geographic Information of Uruguay. ",
-  note, ".",
-  " https://github.com/RichDeto/geouy")
+         url = url,
+         # Iba con "=" fuera de la llamada, asi que era una variable suelta y
+         # bibentry nunca la recibia.
+         textVersion = paste0("Detomasi, Richard, (", year, "). ",
+                              "geouy: Geographic Information of Uruguay. ",
+                              note, ". ", url))

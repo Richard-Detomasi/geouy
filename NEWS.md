@@ -4,12 +4,6 @@
 
 ## geouy v0.2.9
 
-* The weekly layer check no longer reports a static file as down on a single
-  404. Those files are regenerated periodically, and while they are being
-  recreated they answer 404 even though the service is fine. The check now
-  looks at the directory index first: if the file is still listed there, it is
-  most likely being regenerated rather than withdrawn.
-
 * Fix `tiles_geouy()` returning the whole union of the tiles when the area
   spans more than one. The crop to the requested area, and the CRS, were only
   applied on the single-tile path; asking for 300 m around a point came back as

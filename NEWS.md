@@ -23,6 +23,12 @@
   does not download less: the tile in the example weighs 66.7 MB. The sizes are
   now documented in the `format` argument, where an "rgbi" tile of the national
   flight reaches 1.3 GB.
+* The examples of `is.uy4326()`, `is.uy32721()`, `is.uy5381()` and
+  `is.uy5382()` now shield both downloads. They wrapped only the first one, but
+  each of these functions fetches the `Uruguay` layer internally to compare
+  against, so one unreachable service was enough to turn `R CMD check
+  --run-donttest` into an ERROR. It happened on Windows, where the TLS
+  revocation check failed on that second download.
 * Fix the `cod` and `name` columns declared for six more layers. The five
   `Secc*11` ones named `codsecc`, with one `c` too many, when the layers carry
   `codsec`; and `Rutas` named `numero` and `nombre` in lower case when the layer

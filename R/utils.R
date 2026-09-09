@@ -6,8 +6,14 @@
 #' @export
 #' @examples
 #'\donttest{
-#' x <- try(load_geouy("Peajes"), silent = TRUE)
-#' if (!inherits(x, "try-error")) is.uy4326(x)
+#' # Two downloads from different services: the one for x, and "Uruguay", which
+#' # is.uy4326() fetches internally to compare against. The try() has to cover
+#' # both, since one of them failing is enough to break the example.
+#' resultado <- try({
+#'   x <- load_geouy("Peajes")
+#'   is.uy4326(x)
+#' }, silent = TRUE)
+#' if (!inherits(resultado, "try-error")) resultado
 #'}
 
 is.uy4326 <- function(x){
@@ -33,8 +39,14 @@ is.uy4326 <- function(x){
 #' @export
 #' @examples
 #'\donttest{
-#' x <- try(load_geouy("Uruguay"), silent = TRUE)
-#' if (!inherits(x, "try-error")) is.uy32721(x)
+#' # Two downloads from different services: the one for x, and "Uruguay", which
+#' # is.uy32721() fetches internally to compare against. The try() has to cover
+#' # both, since one of them failing is enough to break the example.
+#' resultado <- try({
+#'   x <- load_geouy("Uruguay")
+#'   is.uy32721(x)
+#' }, silent = TRUE)
+#' if (!inherits(resultado, "try-error")) resultado
 #'}
 
 is.uy32721 <- function(x){
@@ -60,8 +72,14 @@ is.uy32721 <- function(x){
 #' @export
 #' @examples
 #'\donttest{
-#' x <- try(load_geouy("CCZ"), silent = TRUE)
-#' if (!inherits(x, "try-error")) is.uy5381(x)
+#' # Two downloads from different services: the one for x, and "Uruguay", which
+#' # is.uy5381() fetches internally to compare against. The try() has to cover
+#' # both, since one of them failing is enough to break the example.
+#' resultado <- try({
+#'   x <- load_geouy("CCZ")
+#'   is.uy5381(x)
+#' }, silent = TRUE)
+#' if (!inherits(resultado, "try-error")) resultado
 #'}
 
 is.uy5381 <- function(x){
@@ -87,8 +105,14 @@ is.uy5381 <- function(x){
 #' @export
 #' @examples
 #'\donttest{
-#' x <- try(load_geouy("Uruguay"), silent = TRUE)
-#' if (!inherits(x, "try-error")) is.uy5382(x)
+#' # Two downloads from different services: the one for x, and "Uruguay", which
+#' # is.uy5382() fetches internally to compare against. The try() has to cover
+#' # both, since one of them failing is enough to break the example.
+#' resultado <- try({
+#'   x <- load_geouy("Uruguay")
+#'   is.uy5382(x)
+#' }, silent = TRUE)
+#' if (!inherits(resultado, "try-error")) resultado
 #'}
 
 is.uy5382 <- function(x){

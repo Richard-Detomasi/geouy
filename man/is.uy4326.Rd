@@ -17,8 +17,14 @@ This function test if an 'sf' object match with Uruguay at crs = 4326.
 }
 \examples{
 \donttest{
-x <- try(load_geouy("Peajes"), silent = TRUE)
-if (!inherits(x, "try-error")) is.uy4326(x)
+# Two downloads from different services: the one for x, and "Uruguay", which
+# is.uy4326() fetches internally to compare against. The try() has to cover
+# both, since one of them failing is enough to break the example.
+resultado <- try({
+  x <- load_geouy("Peajes")
+  is.uy4326(x)
+}, silent = TRUE)
+if (!inherits(resultado, "try-error")) resultado
 }
 }
 \seealso{

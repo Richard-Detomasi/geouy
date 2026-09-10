@@ -25,5 +25,8 @@
 ^chequeo-capas\.md$
 ^chequeo-capas\.rds$
 ^chequeo-capas\.estado$
+^catalogo-capas\.md$
+^catalogo-capas\.rds$
+^catalogo-capas\.estado$
 ^\.gitattributes$
 ^news$

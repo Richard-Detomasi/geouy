@@ -2,11 +2,15 @@
 # distintas -que se rompio contra que aparecio- pero salen a la red igual, y no
 # conviene que una consulte con timeouts o reintentos distintos de la otra.
 
-# tope: cuantos bytes del cuerpo se leen. 64 KB alcanzan de sobra para reconocer
-# un GML, un JSON o un zip por su primer bloque, y evitan cargar una capa entera
-# en memoria. Un indice de directorio o un GetCapabilities son otra cosa: el
-# indice de MIDES pesa 118 KB y el GetCapabilities del IDE casi 400 KB, asi que
-# ahi hay que pedir mas.
+# tope: cuantos bytes del cuerpo se LEEN A MEMORIA. Ojo con lo que no hace:
+# curl baja el cuerpo entero a un archivo temporal igual, y recien despues se
+# lee el principio. Lo que acota la descarga en si es otra cosa -maxFeatures=1
+# en las consultas WFS, y pedir solo la cabecera en los archivos estaticos-.
+#
+# 64 KB alcanzan de sobra para reconocer un GML, un JSON o un zip por su primer
+# bloque. Un indice de directorio o un GetCapabilities son otra cosa: el indice
+# de MIDES pesa 118 KB y el GetCapabilities del IDE casi 400 KB, asi que ahi hay
+# que pedir mas.
 consultar <- function(url, solo_cabecera, tope = 65536L) {
   cuerpo <- tempfile()
   on.exit(unlink(cuerpo), add = TRUE)

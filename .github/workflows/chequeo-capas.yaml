@@ -126,8 +126,12 @@ jobs:
           fi
           # Si la corrida anterior es de antes de que existiera el catálogo, no
           # tiene ese artifact y no pasa nada: se guarda la foto de hoy.
-          gh run download "$previa" --name catalogo-capas --dir . \
-            || echo "La corrida $previa no dejó foto del catálogo."
+          if ! gh run download "$previa" --name catalogo-capas --dir . 2>/dev/null; then
+            # No distinguimos "todavía no existía" de un error de red o de la API,
+            # pero sí queremos verlo: sin foto anterior, la corrida arranca de
+            # cero y lo que haya aparecido en el medio no se reporta.
+            echo "::warning::No se pudo traer la foto del catálogo de la corrida $previa; esta corrida arranca de cero."
+          fi
 
       - name: Mirar qué publican los organismos
         id: catalogo
@@ -139,6 +143,12 @@ jobs:
           rc=$?
           set -e
           echo "codigo=$rc" >> "$GITHUB_OUTPUT"
+          # 0 es sin novedades y 2 es que hay algo nuevo. Cualquier otro codigo
+          # es que el script se rompio, y eso hay que verlo: un catalogo roto en
+          # silencio se ve igual que un catalogo sin novedades, para siempre.
+          if [ "$rc" -ne 0 ] && [ "$rc" -ne 2 ]; then
+            echo "::warning::El chequeo del catálogo terminó con código $rc; revisá el log de este paso."
+          fi
 
       - name: Guardar la foto del catálogo
         if: always()

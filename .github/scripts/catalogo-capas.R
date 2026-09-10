@@ -34,9 +34,9 @@ es_archivo <- function(url, formato) formato %in% c("zip", "zip a") & !es_wfs(ur
 # Vectorizada: se la llama tanto sobre una URL suelta como sobre la columna.
 tipo_de_capa <- function(url) {
   tn <- rep(NA_character_, length(url))
-  hay <- grepl("[tT]ype[nN]ames?=", url)
+  hay <- !is.na(url) & grepl("typenames?=", url, ignore.case = TRUE)
   if (any(hay)) {
-    tn[hay] <- vapply(sub(".*[tT]ype[nN]ames?=([^&#]*).*", "\\1", url[hay]),
+    tn[hay] <- vapply(sub(".*[?&]typenames?=([^&#]*).*", "\\1", url[hay], ignore.case = TRUE),
                       utils::URLdecode, "", USE.NAMES = FALSE)
   }
   tn
@@ -68,22 +68,25 @@ catalogo_de <- function(url) {
     return(list(servicio = base, workspace = NA_character_, id = base, en_la_ruta = FALSE))
   }
 
-  # El id se arma con servidor + workspace y NO con la URL, porque el mismo
-  # catalogo se escribe de dos formas: unas filas piden /geoserver/IDE/ows y
-  # otras /geoserver/ows con typeName "IDE:algo". Son las mismas 119 capas.
-  servidor <- sub("^(https?://[^/]+)/.*$", "\\1", base)
+  # El id se arma con la raiz del geoserver + el workspace, y NO con la URL
+  # entera, porque el mismo catalogo se escribe de dos formas: unas filas piden
+  # /geoserver/IDE/ows y otras /geoserver/ows con typeName "IDE:algo". Son las
+  # mismas 119 capas. La raiz va incluida y no solo el servidor: un mismo host
+  # puede tener /geoserver-vectorial y /geoserver-raster, y un workspace que se
+  # llame igual en los dos no es el mismo catalogo.
 
   # Lo que hay entre /geoserver.../ y el /ows o /wfs final.
   m <- regmatches(base, regexec("^(.*/geoserver[^/]*)/(.*)/(ows|wfs)$", base, ignore.case = TRUE))[[1]]
   if (length(m) == 4) {
     ws <- strsplit(m[3], "/", fixed = TRUE)[[1]][1]
     return(list(servicio = paste0(m[2], "/", ws, "/", m[4]), workspace = ws,
-                id = paste0(servidor, "|", ws), en_la_ruta = TRUE))
+                id = paste0(m[2], "|", ws), en_la_ruta = TRUE))
   }
 
   # Servicio global: el workspace sale del prefijo del typeName, si lo hay.
+  raiz <- sub("/(ows|wfs)$", "", base, ignore.case = TRUE)
   list(servicio = base, workspace = prefijo, en_la_ruta = FALSE,
-       id = if (is.na(prefijo)) base else paste0(servidor, "|", prefijo))
+       id = if (is.na(prefijo)) base else paste0(raiz, "|", prefijo))
 }
 
 # Las capas que declara un GetCapabilities. Se pide 1.1.0 y no 2.0.0 a
@@ -107,7 +110,7 @@ capas_publicadas <- function(servicio) {
 
 # ---- Los catalogos que hay que mirar, sacados del metadata ------------------
 
-wfs <- metadata[es_wfs(metadata$url), , drop = FALSE]
+wfs <- metadata[!is.na(metadata$url) & es_wfs(metadata$url), , drop = FALSE]
 fuentes <- list()
 for (u in unique(wfs$url)) {
   c1 <- catalogo_de(u)
@@ -118,46 +121,43 @@ for (u in unique(wfs$url)) {
   }
 }
 
-indices <- unique(directorio_de(metadata$url[es_archivo(metadata$url, metadata$formato)]))
+indices <- unique(directorio_de(metadata$url[!is.na(metadata$url) &
+                                             es_archivo(metadata$url, metadata$formato)]))
 
-# ---- La foto de hoy ---------------------------------------------------------
+# ---- Lo que se lee hoy ------------------------------------------------------
 
-# Si una fuente no contesta se ARRASTRA lo que tenia en la foto anterior. Sin
-# esto, un servidor caido dejaria la fuente vacia hoy y la semana que viene
-# reportaria todo su catalogo como novedad.
-anterior <- if (file.exists("catalogo-capas.rds")) readRDS("catalogo-capas.rds") else NULL
-
-# Una fuente que hoy viene vacia pero antes tenia cosas es casi seguro un
-# hipo del servidor, no que hayan borrado el catalogo entero. Si se guardara
-# vacia, la semana que viene todo su contenido volveria como novedad. Si de
-# verdad borraron todo, el chequeo de capas caidas lo grita igual.
-guardar <- function(id, capas) {
-  previas <- anterior[[id]]
-  if (!length(capas) && length(previas)) previas else capas
+anterior <- NULL
+if (file.exists("catalogo-capas.rds")) {
+  # Una foto ilegible no es lo mismo que no tener foto, pero tratarla igual es
+  # preferible a que el script muera: se rearma y se pierde una corrida.
+  anterior <- tryCatch(readRDS("catalogo-capas.rds"), error = function(e) {
+    message("La foto anterior no se pudo leer: ", conditionMessage(e))
+    NULL
+  })
 }
 
-foto <- list()
+visto <- list()
 fallaron <- character()
+sin_indice <- character()
 
 for (f in fuentes) {
   capas <- capas_publicadas(f$servicio)
   if (!is.null(capas) && !is.na(f$workspace)) {
-    # Un servicio global devuelve todo; nos quedamos con el workspace nuestro.
-    propias <- grep(paste0("^", f$workspace, ":"), capas, value = TRUE)
-    if (length(propias)) capas <- propias
+    # startsWith y no grep: un workspace con un punto o un corchete en el
+    # nombre seria una expresion regular y no un prefijo literal.
+    propias <- capas[startsWith(capas, paste0(f$workspace, ":"))]
+    # Los servicios acotados al workspace tambien devuelven los nombres con
+    # prefijo, asi que si el filtro no deja nada es que lo que vino no es el
+    # catalogo que esperabamos. Vale mas darlo por lectura fallida que guardar
+    # las 135 capas del servidor entero bajo el id de un workspace.
+    capas <- if (length(propias)) propias else NULL
   }
-  if (is.null(capas)) {
-    fallaron <- c(fallaron, f$id)
-    if (!is.null(anterior[[f$id]])) foto[[f$id]] <- anterior[[f$id]]
-  } else {
-    foto[[f$id]] <- sort(guardar(f$id, capas))
-  }
+  if (is.null(capas)) fallaron <- c(fallaron, f$id) else visto[[f$id]] <- capas
 }
 
 # De un indice de directorio solo interesan los archivos que el paquete podria
 # llegar a bajar. El de MIDES lista 493 entradas y 83 son zip: seguir las otras
 # 410 -xml y txt de acompanamiento- seria ruido garantizado.
-sin_indice <- character()
 for (i in indices) {
   r <- listado_del_indice(i)
   if (identical(r$estado, "sin indice")) {
@@ -167,13 +167,27 @@ for (i in indices) {
   }
   if (identical(r$estado, "sin respuesta")) {
     fallaron <- c(fallaron, i)
-    if (!is.null(anterior[[i]])) foto[[i]] <- anterior[[i]]
     next
   }
-  foto[[i]] <- sort(guardar(i, grep("\\.(zip|rar|7z)$", r$archivos, value = TRUE, ignore.case = TRUE)))
+  visto[[i]] <- grep("\\.(zip|rar|7z)$", r$archivos, value = TRUE, ignore.case = TRUE)
 }
 
-saveRDS(foto, "catalogo-capas.rds")
+# ---- La foto ----------------------------------------------------------------
+
+# La foto NO es "lo que hay publicado hoy" sino "todo lo que vimos alguna vez":
+# la union de la anterior con la de hoy. Asi ninguna lectura incompleta puede
+# sacar entradas de la foto, que es justo lo que la semana siguiente las
+# devolveria como novedad. Y de paso hace innecesario cualquier cuidado
+# especial con las fuentes que fallan o que vuelven vacias: si no aportan nada,
+# la foto queda como estaba.
+#
+# El precio es que una capa dada de baja se queda en la foto para siempre, y si
+# vuelve no se avisa. Es barato: las bajas no son lo que esto reporta, de eso ya
+# se ocupa el chequeo de capas caidas.
+foto <- list()
+for (id in union(names(anterior), names(visto))) {
+  foto[[id]] <- sort(union(anterior[[id]], visto[[id]]))
+}
 
 # ---- El diff ----------------------------------------------------------------
 
@@ -184,9 +198,9 @@ ya_la_tenemos <- function(x) sin_prefijo(x) %in% sin_prefijo(usadas)
 
 novedades <- list()
 if (!is.null(anterior)) {
-  for (id in names(foto)) {
+  for (id in names(visto)) {
     if (is.null(anterior[[id]])) next   # fuente nueva: no es novedad del organismo
-    nuevas <- setdiff(foto[[id]], anterior[[id]])
+    nuevas <- setdiff(visto[[id]], anterior[[id]])
     if (length(nuevas)) novedades[[id]] <- nuevas
   }
 }
@@ -235,6 +249,11 @@ close(con)
 # semana. Vacia cuando no hay novedades.
 estado <- unlist(lapply(names(novedades), function(id) paste0(id, "|", novedades[[id]])))
 writeLines(sort(as.character(estado)), "catalogo-capas.estado")
+
+# La foto se guarda al final a proposito. Si se guardara antes y el script se
+# rompiera armando el informe, la novedad quedaria absorbida por la foto nueva y
+# no se reportaria nunca.
+saveRDS(foto, "catalogo-capas.rds")
 
 cat(readLines("catalogo-capas.md"), sep = "\n")
 cat("\n")

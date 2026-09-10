@@ -26,3 +26,4 @@
 ^chequeo-capas\.rds$
 ^chequeo-capas\.estado$
 ^\.gitattributes$
+^news$

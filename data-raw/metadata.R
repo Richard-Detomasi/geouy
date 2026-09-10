@@ -102,11 +102,16 @@ metadata <- tibble::tribble(
   "Cobertura suelo 2015", "DINAGUA", "MVOTMA", 4326, "zip", 2015, "https://www.ambiente.gub.uy/geoservicios/shapes_pesadas/cobertura_2015_4326.zip", NA, NA, "UTF-8"
 ) %>% as.data.frame()
 
-for (i in names(metadata)) {
-  if (is.character(metadata[,i])) {
-    metadata[,i] <- iconv(metadata[,i], "latin1", "UTF-8")
-  }
-}
+# Este archivo esta en UTF-8, asi que los textos del tribble ya vienen en UTF-8.
+# Aca habia un iconv(x, "latin1", "UTF-8") que los volvia a convertir: leia los
+# dos bytes de la "o" con tilde como si fueran dos caracteres latin1 y los
+# codificaba de nuevo, dejando c3 83 c2 b3 donde va c3 b3. El unico nombre con
+# acento del metadata es "Educacion en Primera Infancia e Inicial", y quedaba
+# con dos caracteres raros en lugar de la o con tilde: nadie podia pedir esa
+# capa con el nombre que dice el README.
+#
+# Si lo corres en una sesion cuya codificacion por defecto no es UTF-8, usa
+# source("data-raw/metadata.R", encoding = "UTF-8").
 
 saveRDS(metadata,"data-raw/metadata.Rds")
 usethis::use_data(metadata, overwrite = TRUE)

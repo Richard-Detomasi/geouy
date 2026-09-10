@@ -44,7 +44,12 @@ endpoint <- function(url) {
   url
 }
 
-consultar <- function(url, solo_cabecera) {
+# tope: cuantos bytes del cuerpo se leen. 64 KB alcanzan de sobra para
+# reconocer un GML, un JSON o un zip por su primer bloque, y evitan cargar una
+# capa entera en memoria. El indice de un directorio es otra cosa: el de MIDES
+# pesa 118 KB y el archivo que se busca puede estar en cualquier parte, asi que
+# ahi se pide mas.
+consultar <- function(url, solo_cabecera, tope = 65536L) {
   cuerpo <- tempfile()
   on.exit(unlink(cuerpo), add = TRUE)
   args <- c("-sS", "-o", shQuote(cuerpo),
@@ -60,10 +65,39 @@ consultar <- function(url, solo_cabecera) {
     return(list(codigo = "000", bytes = 0, url = url, curl = estado, texto = ""))
   }
   p <- strsplit(sub("^GEOUY:", "", linea[length(linea)]), ":", fixed = TRUE)[[1]]
-  n <- suppressWarnings(min(file.info(cuerpo)$size, 65536L))
+  n <- suppressWarnings(min(file.info(cuerpo)$size, tope))
   texto <- if (!is.na(n) && n > 0) readChar(cuerpo, n, useBytes = TRUE) else ""
   list(codigo = p[1], bytes = as.numeric(p[2]),
        url = paste(p[-(1:2)], collapse = ":"), curl = 0L, texto = texto)
+}
+
+# Los archivos estaticos de algunos servidores se regeneran: se borran y se
+# vuelven a crear, y mientras tanto devuelven 404 aunque el servicio este
+# perfecto. Nos paso con "Educacion especial", que estuvo casi veinte horas asi
+# y volvio sola: el chequeo la reporto caida y no lo estaba.
+#
+# Antes de darla por caida se mira el indice del directorio. Si el archivo sigue
+# listado ahi, lo mas probable es que se este regenerando y no que lo hayan dado
+# de baja. De los tres servidores que sirven archivos estaticos solo uno publica
+# indice, asi que cuando no hay se reporta como antes.
+#
+# Ojo: uno de esos servidores contesta HTTP 200 con una pagina de error en vez
+# de 404, asi que mirar el codigo no alcanza. Se exige que el cuerpo tenga
+# varias entradas de archivo, que es lo que distingue un listado de una pagina
+# cualquiera servida con 200.
+figura_en_el_indice <- function(url) {
+  archivo <- basename(sub("[?#].*", "", url))
+  if (!nzchar(archivo)) return(FALSE)
+  indice <- sub("[^/]*$", "", sub("[?#].*", "", url))
+  # El indice se lee entero: el archivo buscado puede estar al final. Se pone un
+  # techo igual, para que un servidor que devuelva algo enorme no llene la
+  # memoria del runner.
+  r <- consultar(indice, FALSE, tope = 4194304L)
+  if (r$curl != 0L || !identical(r$codigo, "200")) return(FALSE)
+  listados <- regmatches(r$texto, gregexpr('href="[^"?/][^"]*"', r$texto))[[1]]
+  listados <- sub('href="', "", sub('"$', "", listados))
+  if (length(listados) < 2) return(FALSE)
+  archivo %in% listados
 }
 
 # Un 200 no alcanza: los geoserver contestan las excepciones con codigo 200 y un
@@ -134,6 +168,10 @@ for (i in seq_len(nrow(metadata))) {
   cab <- es_archivo(metadata$url[i], metadata$formato[i])
   r <- consultar(url, cab)
   motivo <- clasificar(r, cab)
+  # Un 404 en un archivo estatico puede ser una regeneracion en curso.
+  if (cab && identical(r$codigo, "404") && figura_en_el_indice(url)) {
+    motivo <- "no se puede bajar ahora, pero sigue listado en el directorio"
+  }
   # Las columnas solo se miran si la capa respondio: si el servicio esta caido,
   # avisar ademas que no se pudo verificar la ficha es ruido sobre ruido.
   faltan <- if (motivo == "ok") columnas_declaradas_faltantes(metadata[i, ]) else NULL

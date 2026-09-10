@@ -1,6 +1,4 @@
-# log history of geouy package development
-
--------------------------------------------------------
+*log history of geouy package development*
 
 ## geouy v0.2.9
 

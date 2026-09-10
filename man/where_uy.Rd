@@ -11,7 +11,10 @@ where_uy(c = "Localidades pg", d = "cod", e, crs = 32721)
 
 \item{d}{A vector who determines the variables to be consult, with two options: "cod" or "name". Default "cod".}
 
-\item{e}{A vector who determines the ids or names to identify.}
+\item{e}{A vector who determines the ids or names to identify. It is matched
+against the column the metadata declares, using that column's own type: a
+numeric code is compared as a number and a textual one, such as `gml_id` or
+the INE codes like "UY-MO", as text.}
 
 \item{crs}{Define the Coordinate Reference Systems you want the output, default 32721}
 }

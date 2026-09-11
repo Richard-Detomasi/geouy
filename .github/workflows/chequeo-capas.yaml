@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
   issues: write
+  # Para bajar el artifact de la corrida anterior, que es donde vive la foto del
+  # catalogo. actions/cache seria lo natural pero no sirve: GitHub descarta las
+  # entradas que no se tocan en 7 dias y este workflow corre justo cada 7.
+  actions: read
 
 # El cron y un disparo manual a la vez podrían abrir dos issues.
 concurrency:
@@ -103,3 +107,80 @@ jobs:
             gh issue edit "$numero" --add-label "recuperacion-pendiente"
             gh issue comment "$numero" --body "Todas las capas respondieron en este chequeo. Se cierra si el próximo también sale limpio."
           fi
+
+      # ---- Segunda parte: que publican los organismos --------------------------
+      # Va despues del chequeo y con continue-on-error, para que un problema del
+      # catalogo nunca impida enterarse de una capa caida, que es lo urgente.
+
+      - name: Traer la foto del catálogo de la corrida anterior
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          previa=$(gh run list --workflow chequeo-capas.yaml --status success \
+                     --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+          if [ -z "$previa" ]; then
+            echo "No hay corrida anterior exitosa; el catálogo arranca de cero."
+            exit 0
+          fi
+          # Si la corrida anterior es de antes de que existiera el catálogo, no
+          # tiene ese artifact y no pasa nada: se guarda la foto de hoy.
+          if ! gh run download "$previa" --name catalogo-capas --dir . 2>/dev/null; then
+            # No distinguimos "todavía no existía" de un error de red o de la API,
+            # pero sí queremos verlo: sin foto anterior, la corrida arranca de
+            # cero y lo que haya aparecido en el medio no se reporta.
+            echo "::warning::No se pudo traer la foto del catálogo de la corrida $previa; esta corrida arranca de cero."
+          fi
+
+      - name: Mirar qué publican los organismos
+        id: catalogo
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          Rscript .github/scripts/catalogo-capas.R
+          rc=$?
+          set -e
+          echo "codigo=$rc" >> "$GITHUB_OUTPUT"
+          # 0 es sin novedades y 2 es que hay algo nuevo. Cualquier otro codigo
+          # es que el script se rompio, y eso hay que verlo: un catalogo roto en
+          # silencio se ve igual que un catalogo sin novedades, para siempre.
+          if [ "$rc" -ne 0 ] && [ "$rc" -ne 2 ]; then
+            echo "::warning::El chequeo del catálogo terminó con código $rc; revisá el log de este paso."
+          fi
+
+      - name: Guardar la foto del catálogo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: catalogo-capas
+          retention-days: 30
+          if-no-files-found: ignore
+          path: |
+            catalogo-capas.md
+            catalogo-capas.rds
+            catalogo-capas.estado
+
+      # Un issue aparte del de capas caídas: son cosas distintas y se resuelven
+      # distinto. Este no se cierra solo; lo cierra quien decida si la capa nueva
+      # entra al paquete o no.
+      - name: Avisar si apareció algo nuevo
+        if: steps.catalogo.outputs.codigo == '2'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          huella=$(sha256sum catalogo-capas.estado | cut -d' ' -f1)
+          if gh issue list --label "capas-nuevas" --state open --limit 20 --json body \
+               --jq '.[].body' | grep -qF "huella:$huella"; then
+            echo "Ya hay un issue abierto con esta misma novedad."
+            exit 0
+          fi
+          cuerpo=$(mktemp)
+          cat catalogo-capas.md > "$cuerpo"
+          printf '\n<!-- huella:%s -->\n' "$huella" >> "$cuerpo"
+          gh label create "capas-nuevas" --color 1D76DB \
+            --description "Los organismos publicaron capas que el paquete no tiene" 2>/dev/null || true
+          gh issue create --title "Capas nuevas en los servicios ($(date -u +%Y-%m-%d))" \
+            --label "capas-nuevas" --body-file "$cuerpo"

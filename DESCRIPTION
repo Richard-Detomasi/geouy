@@ -6,6 +6,8 @@ Authors@R: c(
     person("Richard", "Detomasi", email = "richard.detomasi@gmail.com",
            role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-6725-0261")),
+    person("Sebastián", "Lucas", email = "sablucas@gmail.com",
+           role = c("aut")),
     person(given = "", family = "Ministerio de Desarrollo Social, Uruguay (MIDES)", role = "dtc"),
     person(given = "", family = "Infraestructura de Datos Espaciales, Uruguay (IDE)", role = "dtc"),
     person(given = "", family = "Servicio Geográfico Militar, Uruguay (SGM)", role = "dtc"),

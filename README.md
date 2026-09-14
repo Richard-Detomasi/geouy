@@ -7,7 +7,7 @@
 [![CRAN/METACRAN downloads per month](https://cranlogs.r-pkg.org/badges/geouy?color=orange)](https://CRAN.R-project.org/package=geouy)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![R build status](https://github.com/Richard-Detomasi/geouy/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Richard-Detomasi/geouy/actions/workflows/R-CMD-check.yaml)
-[![Codecov test coverage](https://codecov.io/gh/RichDeto/geouy/branch/master/graph/badge.svg)]( https://app.codecov.io/gh/RichDeto/geouy?branch=master)
+[![Codecov test coverage](https://codecov.io/gh/Richard-Detomasi/geouy/branch/master/graph/badge.svg)]( https://app.codecov.io/gh/Richard-Detomasi/geouy?branch=master)
 [![DOI](https://zenodo.org/badge/229800365.svg)](https://zenodo.org/badge/latestdoi/229800365)
 
 <!-- badges: end -->
@@ -23,7 +23,7 @@
   
 # Use the development version with latest features
   utils::remove.packages('geouy')
-  devtools::install_github("RichDeto/geouy")
+  devtools::install_github("Richard-Detomasi/geouy")
   library(geouy)
 ```
 obs. If you use **Linux**, you need to install a couple dependencies before installing the libraries `sf` and `geouy`. [More info here](https://github.com/r-spatial/sf#linux). 
@@ -208,7 +208,7 @@ This package arises from the conjugation of own ideas with an eye on the region.
 
 This walk on the shoulders of giants, allows this package focused on this small country (my beautiful Uruguay), to have its own particularities although it tries to fit especially to [geobr](https://github.com/ipea/geobr) in its structure and with a view to complementing [ech](https://github.com/calcita/ech).
 
-## Community contributions [es](https://github.com/RichDeto/geouy/issues/1)
+## Community contributions [es](https://github.com/Richard-Detomasi/geouy/issues/1)
 
 This package intends to incorporate any function of general requirements that use the geographic data of Uruguay as a base. All contributions in this regard are welcome.
 
@@ -237,18 +237,18 @@ If you work with geographic data of Uruguay and want to add your function or dat
 
 To cite `geouy` in publications, please use:
 
-Detomasi, Richard (2021) "geouy: Geographic Information of Uruguay". R package version 0.2.5
-   URL: https://github.com/RichDeto/geouy. 
+Detomasi, Richard and Lucas, Sebastián (2026). "geouy: Geographic Information of Uruguay". R package version 0.3.0.
+URL: https://github.com/Richard-Detomasi/geouy.
   
 A BibTeX entry for LaTeX users is:
 
 ```
 @Misc{geouy,
   title = {geouy: Geographic Information of Uruguay},
-  author = {Richard Detomasi},
-  note = {R package version 0.2.5},
-  year = {2021},
-  url  = {https://github.com/RichDeto/geouy},
+  author = {Richard Detomasi and Sebastián Lucas},
+  year = {2026},
+  version = {0.3.0},
+  url = {https://github.com/Richard-Detomasi/geouy}
 }
 
 ```

@@ -23,3 +23,14 @@ test_that("crs parameter working", {
                               "full_Secciones") %in% names(c)))
   testthat::expect_equal(nrow(c), nrow(a))
 })
+test_that("which_uy corta con una entrada que no es sf o una capa que no existe", {
+  # Sin el try(), el objeto que no es sf daba "entrada en evaluacion: recursivo
+  # por defecto o problemas anteriores?": el argumento se llama c y su valor por
+  # defecto llama a c(), asi que interrumpir esa promesa dejaba a R en un estado
+  # del que el mensaje no dice nada.
+  expect_error(which_uy(x = data.frame(a = 1:3)), "not class sf")
+
+  punto <- sf::st_sf(a = 1, geometry = sf::st_sfc(sf::st_point(c(0, 0)), crs = 32721))
+  expect_error(which_uy(x = punto, c = "capa que no existe"),
+               "name of the geometry you will load is not correct")
+})

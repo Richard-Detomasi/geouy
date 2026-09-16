@@ -50,7 +50,10 @@ escala_discreta <- function(v, col) {
 #' 
 
 plot_geouy <- function(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...){
-  try(if (!methods::is(x, "sf")) stop("The object you want to process is not class sf"))
+  # Sin try(). Este era el peor de los cuatro: con el try(), pasarle un
+  # data.frame comun imprimia el mensaje y despues devolvia un ggplot igual,
+  # o sea que no fallaba, devolvia un grafico de algo que no es una capa.
+  if (!methods::is(x, "sf")) stop("The object you want to process is not class sf")
   # El mensaje interpolaba {x}, el objeto sf completo. Y glue() vectoriza, asi
   # que no armaba un mensaje largo: armaba uno por cada columna, con todos sus
   # valores adentro. Cuando una capa cambia y deja de traer la variable pedida

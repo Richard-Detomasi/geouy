@@ -50,3 +50,9 @@ test_that("Plot uses correct data", {
   p <- plot_geouy(secc, col = num)
   testthat::expect_equal(secc, p$data)
 })
+
+test_that("plot_geouy corta con una entrada que no es sf", {
+  # Era el peor de los cuatro try(): imprimia el mensaje y despues devolvia un
+  # ggplot igual, o sea que no fallaba nunca y graficaba algo que no es una capa.
+  expect_error(plot_geouy(x = data.frame(a = 1:3), col = "a"), "not class sf")
+})

@@ -91,7 +91,18 @@ descarga_o_falla <- function(expr, capa, url, accion = "read") {
 load_geouy <- function(c, crs = 32721, folder = tempdir()){
   x <- geouy::metadata 
   folder <- normalizePath(folder,"/")
-  try(if (!c %in% x$capa) stop("The name of the geometry you will load is not correct. Verify in the metadata file"))
+  # Sin try(): envolver un stop() propio en try() lo atrapa, la funcion sigue
+  # con el nombre equivocado y el usuario termina viendo "argumento tiene
+  # longitud cero" unas lineas mas abajo, cuando el filtro no deja ninguna fila.
+  #
+  # El length(c) != 1 entra en la misma guarda y con el mismo mensaje, sin
+  # agregar uno nuevo. Es por un caso peor que el nombre equivocado: con dos
+  # capas, la condicion del if fallaba por longitud, el try() se tragaba ese
+  # error tambien, y el filtro de abajo reciclaba y dejaba UNA de las dos. O
+  # sea que load_geouy(c("Peajes", "Rutas")) bajaba Rutas sin avisar nada.
+  if (length(c) != 1 || !c %in% x$capa) {
+    stop("The name of the geometry you will load is not correct. Verify in the metadata file")
+  }
   if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
   x <- x[x$capa == c,]
   enco <- x$enc

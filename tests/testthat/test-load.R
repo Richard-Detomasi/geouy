@@ -28,3 +28,20 @@ test_that("crs parameter working", {
   a1 <- sf::st_crs(a)
   testthat::expect_equal(a1[1], list(input = "EPSG:32721"))
   })
+test_that("load_geouy corta con el nombre de capa equivocado", {
+  # El stop() estaba envuelto en try(), asi que se imprimia el mensaje pero la
+  # funcion seguia, el filtro no dejaba ninguna fila y el error que llegaba al
+  # usuario era "argumento tiene longitud cero". No hace falta conexion: la
+  # validacion corre antes de salir a la red.
+  expect_error(load_geouy("No existe esta capa"),
+               "name of the geometry you will load is not correct")
+})
+
+test_that("load_geouy no baja una capa distinta de la pedida", {
+  # Con dos capas, la condicion del if fallaba por longitud, el try() se tragaba
+  # ese error tambien, y el filtro de abajo reciclaba: load_geouy(c("Peajes",
+  # "Rutas")) devolvia Rutas sin avisar nada. Entra en la misma guarda que el
+  # nombre equivocado, con el mismo mensaje.
+  expect_error(load_geouy(c("Peajes", "Rutas")),
+               "name of the geometry you will load is not correct")
+})

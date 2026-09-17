@@ -45,3 +45,13 @@ test_that("load_geouy no baja una capa distinta de la pedida", {
   expect_error(load_geouy(c("Peajes", "Rutas")),
                "name of the geometry you will load is not correct")
 })
+
+test_that("load_geouy culpa al directorio y no al servidor cuando el folder no sirve", {
+  # dir.create() estaba envuelto en try(), que tapaba tanto "ya existe" -que es
+  # lo que se queria tapar- como "no se puede crear". Pasandole un archivo en
+  # lugar de un directorio, la descarga fallaba despues y el mensaje decia que
+  # el servidor no habia devuelto un zip, que es exactamente al reves.
+  archivo <- tempfile()
+  file.create(archivo)
+  expect_error(load_geouy("Deptos", folder = archivo), "valid directory")
+})

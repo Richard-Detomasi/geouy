@@ -94,12 +94,25 @@ incompatible_o_falla <- function(primero, otro, nombre_primero, nombre_otro) {
 
 tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = FALSE){
   # checks ----
-  if (!is(x, "sf")) stop(glue::glue("The object {x} you want to process is not class sf"))
+  # El mensaje interpolaba {x}, el objeto entero, y glue() vectoriza: armaba un
+  # mensaje por cada columna y los pegaba uno atras de otro. Es la misma forma
+  # que produjo el "bad error message" que nos archivo de CRAN. El nombre de la
+  # clase no aporta nada que el usuario no sepa, asi que va la misma frase que
+  # usan plot_geouy() y which_uy().
+  if (!is(x, "sf")) stop("The object you want to process is not class sf")
   if (!is.character(folder) | length(folder) != 1) stop("You must enter a valid directory...")
   if (!format %in% c("rgb", "rgbi")) stop("The format you want to download is not avaiable")
   if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
    # download ----
-  suppressWarnings(try(dir.create(folder)))
+  # dir.create() no falla solo cuando el directorio ya existe -que es el caso que
+  # el try() queria tapar- sino tambien cuando la ruta existe y es un archivo, o
+  # cuando no hay permiso. El try() se tragaba esos dos igual, y la descarga
+  # terminaba escribiendo a ningun lado: el usuario recibia un error que culpaba
+  # al servidor por algo que estaba de su lado. Se reusa el mensaje de arriba.
+  if (!dir.exists(folder)) {
+    suppressWarnings(dir.create(folder, recursive = TRUE))
+    if (!dir.exists(folder)) stop("You must enter a valid directory...")
+  }
   if (nrow(x) == 1 & is.na(d)) x <- sf::st_buffer(x, dist = 100)
   if (!is.na(d)) x <- sf::st_buffer(x, dist = d)
   # El area de recorte se arma pasando el bbox a geometria: asi no depende del

@@ -111,7 +111,14 @@ load_geouy <- function(c, crs = 32721, folder = tempdir()){
       stop(glue::glue("You must enter a valid directory..."))
     }
     # download ----
-    suppressWarnings(try(dir.create(folder)))
+    # Mismo caso que en tiles_geouy(): el try() tapaba tanto "ya existe" como
+    # "no se puede crear". Pasandole un archivo en vez de un directorio, la
+    # descarga fallaba despues y el mensaje culpaba al servidor. Se reusa el
+    # mensaje de la guarda de arriba, sin agregar uno nuevo.
+    if (!dir.exists(folder)) {
+      suppressWarnings(dir.create(folder, recursive = TRUE))
+      if (!dir.exists(folder)) stop(glue::glue("You must enter a valid directory..."))
+    }
     f = glue::glue("{folder}/{x$capa}.zip")
     if (!file.exists(f)) {
       message(glue::glue("Intentando descargar {x$capa}..."))

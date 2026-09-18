@@ -18,8 +18,14 @@
 
 which_uy <- function(x, c = c("Localidades pg", "Departamentos"), d = c("cod", "name")){
   md <- geouy::metadata 
-  try(if (!methods::is(x, "sf")) stop("The object you want to process is not class sf"))
-  try(if (sum(!c %in% md$capa) > 0) stop("The name of the geometry you will load is not correct. Verify in the metadata file"))
+  # Sin try(), por dos razones. La obvia: atrapa el stop() propio y la funcion
+  # sigue con una entrada que ya se sabe mala. La que sorprende: el argumento
+  # se llama c y su valor por defecto llama a c(), asi que cuando el try()
+  # interrumpe la evaluacion de esa promesa, R queda con la promesa a medias y
+  # el usuario recibe "entrada en evaluacion: recursivo por defecto o problemas
+  # anteriores?", que no dice absolutamente nada del problema real.
+  if (!methods::is(x, "sf")) stop("The object you want to process is not class sf")
+  if (sum(!c %in% md$capa) > 0) stop("The name of the geometry you will load is not correct. Verify in the metadata file")
   crs = sf::st_crs(x)
   md <- md[md$capa %in% c,]
   for (i in c) {

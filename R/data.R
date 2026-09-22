@@ -3,13 +3,13 @@
 #' A dataset containing the urls and other attributes of geoservices 
 #' for Uruguay.
 #' @family data
-#' @format A data frame with 86 rows and 10 variables:
+#' @format A data frame with one row per layer and 10 variables:
 #' \describe{
 #'   \item{capa}{name of the geoservice}
 #'   \item{productor}{name of the institution produced the data}
 #'   \item{repositor}{name of the institution that serves the data}
 #'   \item{crs}{Coordinate Reference Systems of data}
-#'   \item{formato}{name of the institution producing the data}
+#'   \item{formato}{format in which the layer is served: \code{wfs}, \code{zip} or \code{zip a}}
 #'   \item{anio}{year of data production}
 #'   \item{url}{url of the service}
 #'   \item{cod}{name of the variable that contains the cod value of the geometries}
@@ -26,7 +26,7 @@
 #' @format A data frame with 7 rows and 3 variables:
 #' \describe{
 #'   \item{capa}{name of the geoservice}
-#'   \item{formato}{name of the institution producing the data}
+#'   \item{formato}{format of the map service: \code{WMS} or \code{WMTS}}
 #'   \item{url}{url of the service}
 #' }
 "metadata_wms"
@@ -39,7 +39,7 @@
 #' @format A data frame with 3 rows and 3 variables:
 #' \describe{
 #'   \item{tabla}{name of the geoservice}
-#'   \item{formato}{name of the institution producing the data}
+#'   \item{formato}{format of the table: \code{dbf}}
 #'   \item{url}{url of the service}
 #' }
 "metadata_tables"

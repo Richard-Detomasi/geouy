@@ -8,7 +8,7 @@
 A data frame with 7 rows and 3 variables:
 \describe{
   \item{capa}{name of the geoservice}
-  \item{formato}{name of the institution producing the data}
+  \item{formato}{format of the map service: \code{WMS} or \code{WMTS}}
   \item{url}{url of the service}
 }
 }

@@ -1,20 +1,24 @@
 #' A function to reverse geocoding from coordinates (EPSG 4326) using IDE_uy
 #' @family service
 #' @param x Dataframe with unless 2 variables: lat = latitud in EPSG:4326 & longitud in EPSG:4326.
-#' @param details Logical value, default FALSE for X and Y variables only, if TRUE keep all variables of the service. 
+#' @param details Logical. With \code{FALSE}, the default, the address fields listed
+#'   under Value are added; with \code{TRUE}, the identifiers and status fields the
+#'   service returns are added as well.
 #' @keywords reverse geocoding IDE_uy
 #' @importFrom  rjson fromJSON
-#' @return The DafaFrame x with the direction variables append (address, nomVia, tip_via, portalNumber, letra, 
+#' @return The data frame \code{x}, without the rows whose coordinates are missing,
+#'   with the address variables appended (address, nomVia, tip_via, portalNumber, letra, 
 #' postalCode, localidad, departamento, manzana, solar and km)
 #' @export
 #' @details https://direcciones.ide.uy/swagger-ui.html#/Geocode
 #' @examples
 #'\donttest{
-#' # x <- data.frame(cbind(lat = -34.77882, lon = -56.06476))
-#' # reverse_ide_uy(x)
+#' x <- data.frame(lat = -34.77882, lon = -56.06476)
+#' direccion <- try(reverse_ide_uy(x), silent = TRUE)
+#' if (!inherits(direccion, "try-error")) direccion
 #'}
 
-reverse_ide_uy <- function(x, details = F) {
+reverse_ide_uy <- function(x, details = FALSE) {
   stopifnot(is.data.frame(x))
   stopifnot(is.numeric(x$lat), "lat" %in% colnames(x), length(x$lat) >= 1)
   stopifnot(is.numeric(x$lon), "lon" %in% colnames(x))
@@ -22,7 +26,9 @@ reverse_ide_uy <- function(x, details = F) {
   x <- x %>% dplyr::mutate(lat = stringr::str_trim(lat),
                            lon = stringr::str_trim(lon)) %>% 
     dplyr::filter(nchar(lat) > 0 & nchar(lon) > 0)
-  for (i in 1:nrow(x)) {
+  # seq_len() y no 1:nrow(x), por lo mismo que en geocode_ide_uy(): con cero
+  # filas, 1:0 recorre 1 y 0.
+  for (i in seq_len(nrow(x))) {
     p <- glue::glue("https://direcciones.ide.uy/api/v1/geocode/reverse?latitud={x[i,'lat']}&limit=1&longitud={x[i,'lon']}") %>% 
       stringr::str_replace_all(" ", "%20") 
     p <- suppressWarnings(fromJSON(paste(readLines(p), collapse=""))[[1]])
@@ -38,7 +44,7 @@ reverse_ide_uy <- function(x, details = F) {
     x[i,"solar"] <- ifelse(is.null(p$solar), NA, p$solar)              
     x[i,"km"] <- ifelse(is.null(p$km), NA,p$km)             
                          
-    if (details == T) {
+    if (details == TRUE) {
       x[i, "type"] <- ifelse(is.null(p$type), NA, p$type)
       x[i, "id_ide"] <- ifelse(is.null(p$id), NA, p$id)
       x[i, "idCalle"] <- ifelse(is.null(p$idCalle), NA, p$idCalle) 
@@ -51,7 +57,8 @@ reverse_ide_uy <- function(x, details = F) {
       x[i, "source"] <- ifelse(is.null(p$source), NA, p$source)   
     }
     p <- NULL
-    if (nrow(x) > 10){
+    # Espacia los pedidos en tandas grandes; despues del ultimo no hace falta.
+    if (nrow(x) > 10 && i < nrow(x)){
       Sys.sleep(10)
     }
   }

@@ -10,7 +10,8 @@ is.uy5382(x)
 \item{x}{An 'sf' object with the same crs as the homonym parameter}
 }
 \value{
-logical value based in crs parameter of the sf object
+A character string. If \code{x} is not in the CRS being tested it says so;
+  otherwise it gives the percentage of its geometries that fall in Uruguay.
 }
 \description{
 This function test if an 'sf' object match with Uruguay at crs = 5382.

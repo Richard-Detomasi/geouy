@@ -8,7 +8,7 @@
 A data frame with 3 rows and 3 variables:
 \describe{
   \item{tabla}{name of the geoservice}
-  \item{formato}{name of the institution producing the data}
+  \item{formato}{format of the table: \code{dbf}}
   \item{url}{url of the service}
 }
 }

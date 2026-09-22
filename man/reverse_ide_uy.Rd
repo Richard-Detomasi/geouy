@@ -4,15 +4,18 @@
 \alias{reverse_ide_uy}
 \title{A function to reverse geocoding from coordinates (EPSG 4326) using IDE_uy}
 \usage{
-reverse_ide_uy(x, details = F)
+reverse_ide_uy(x, details = FALSE)
 }
 \arguments{
 \item{x}{Dataframe with unless 2 variables: lat = latitud in EPSG:4326 & longitud in EPSG:4326.}
 
-\item{details}{Logical value, default FALSE for X and Y variables only, if TRUE keep all variables of the service.}
+\item{details}{Logical. With \code{FALSE}, the default, the address fields listed
+under Value are added; with \code{TRUE}, the identifiers and status fields the
+service returns are added as well.}
 }
 \value{
-The DafaFrame x with the direction variables append (address, nomVia, tip_via, portalNumber, letra, 
+The data frame \code{x}, without the rows whose coordinates are missing,
+  with the address variables appended (address, nomVia, tip_via, portalNumber, letra, 
 postalCode, localidad, departamento, manzana, solar and km)
 }
 \description{
@@ -23,8 +26,9 @@ https://direcciones.ide.uy/swagger-ui.html#/Geocode
 }
 \examples{
 \donttest{
-# x <- data.frame(cbind(lat = -34.77882, lon = -56.06476))
-# reverse_ide_uy(x)
+x <- data.frame(lat = -34.77882, lon = -56.06476)
+direccion <- try(reverse_ide_uy(x), silent = TRUE)
+if (!inherits(direccion, "try-error")) direccion
 }
 }
 \seealso{

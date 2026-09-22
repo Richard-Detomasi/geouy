@@ -49,8 +49,9 @@
   promises -an `sf` back, the columns it adds, one row per input- instead of
   the schema of a service we do not control.
 * Two test blocks that reach the network gained `skip_if_offline()`, which also
-  covers `skip_on_cran()`. Every example was already inside `\donttest{}` or
-  `\dontrun{}`, and the vignette does not evaluate its chunks.
+  covers `skip_on_cran()`. Every example that reaches the network was already
+  inside `\donttest{}` or `\dontrun{}`, and the vignette does not evaluate its
+  chunks.
 
 * Fix `Localidades pt` returning polygons. Both `Localidades` rows asked the
   server for the same layer, `INECenso:Localidades_pg`, so the one meant to be

@@ -17,7 +17,7 @@ plot_geouy(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...)
 
 \item{other_lab}{If l is "c" put here the variable name for the labels.}
 
-\item{...}{All parameters allowed from ggplot2 themes.}
+\item{...}{Further arguments passed to \code{ggplot2::theme()}, applied after the default theme so they override it.}
 }
 \value{
 ggplot object of a choropleth map with x geometries and col values.
@@ -26,10 +26,19 @@ ggplot object of a choropleth map with x geometries and col values.
 This function allows you to set ggplot2 theme in our suggested format.
 }
 \examples{
-\donttest{
-secc <- try(load_geouy("Secciones"), silent = TRUE)
-if (!inherits(secc, "try-error")) plot_geouy(x = secc, col = "pob_tot_23")
-}
+# Six zones built by hand, so the example does not depend on any remote
+# service. Any sf object works the same way, for instance one returned by
+# load_geouy().
+zonas <- sf::st_make_grid(
+  sf::st_as_sfc(sf::st_bbox(c(xmin = 500000, ymin = 6100000,
+                              xmax = 600000, ymax = 6200000),
+                            crs = sf::st_crs(32721))),
+  n = c(3, 2))
+x <- sf::st_sf(population = c(120, 340, 90, 560, 210, 430), geometry = zonas)
+plot_geouy(x, col = "population")
+
+# Arguments in ... go to ggplot2::theme().
+plot_geouy(x, col = "population", legend.position = "bottom")
 
 }
 \concept{plot}

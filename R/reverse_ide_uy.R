@@ -1,10 +1,13 @@
 #' A function to reverse geocoding from coordinates (EPSG 4326) using IDE_uy
 #' @family service
 #' @param x Dataframe with unless 2 variables: lat = latitud in EPSG:4326 & longitud in EPSG:4326.
-#' @param details Logical value, default FALSE for X and Y variables only, if TRUE keep all variables of the service. 
+#' @param details Logical. With \code{FALSE}, the default, the address fields listed
+#'   under Value are added; with \code{TRUE}, the identifiers and status fields the
+#'   service returns are added as well.
 #' @keywords reverse geocoding IDE_uy
 #' @importFrom  rjson fromJSON
-#' @return The DafaFrame x with the direction variables append (address, nomVia, tip_via, portalNumber, letra, 
+#' @return The data frame \code{x}, without the rows whose coordinates are missing,
+#'   with the address variables appended (address, nomVia, tip_via, portalNumber, letra, 
 #' postalCode, localidad, departamento, manzana, solar and km)
 #' @export
 #' @details https://direcciones.ide.uy/swagger-ui.html#/Geocode

@@ -2,7 +2,8 @@
 #' @family crs
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @keywords CRS sf Uruguay
-#' @return logical value based in crs parameter of the sf object
+#' @return A character string. If \code{x} is not in the CRS being tested it says so;
+#'   otherwise it gives the percentage of its geometries that fall in Uruguay.
 #' @export
 #' @examples
 #'\donttest{
@@ -26,8 +27,8 @@ is.uy4326 <- function(x){
   y$geometry <- NULL
   x1 <- sf::st_join(x, y, left = FALSE)
   x2 <- (nrow(x1) / nrow(x)) * 100
-  return(ifelse(x2 == 0, "Your object have not any geometry in Uruguay... Try 5381, 5382 or 32721",
-                glue::glue("Your object have {x2}% of matches with Ururguay CRS 4326")))
+  return(ifelse(x2 == 0, "Your object has no geometry in Uruguay... Try 5381, 5382 or 32721",
+                glue::glue("Your object has {x2}% of matches with Uruguay CRS 4326")))
   }
 }
 
@@ -35,7 +36,8 @@ is.uy4326 <- function(x){
 #' @family crs
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @keywords CRS sf Uruguay
-#' @return logical value based in crs parameter of the sf object
+#' @return A character string. If \code{x} is not in the CRS being tested it says so;
+#'   otherwise it gives the percentage of its geometries that fall in Uruguay.
 #' @export
 #' @examples
 #'\donttest{
@@ -59,8 +61,8 @@ is.uy32721 <- function(x){
     y$geometry <- NULL
     x1 <- sf::st_join(x, y, left = FALSE)
     x2 <- (nrow(x1) / nrow(x)) * 100
-    return(ifelse(x2 == 0, "Your object have not any geometry in Uruguay... Try 4326, 5381 or 5382",
-                  glue::glue("Your object have {x2}% of matches with Ururguay CRS 32721")))
+    return(ifelse(x2 == 0, "Your object has no geometry in Uruguay... Try 4326, 5381 or 5382",
+                  glue::glue("Your object has {x2}% of matches with Uruguay CRS 32721")))
   }
 }
 
@@ -68,7 +70,8 @@ is.uy32721 <- function(x){
 #' @family crs
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @keywords CRS sf Uruguay
-#' @return logical value based in crs parameter of the sf object
+#' @return A character string. If \code{x} is not in the CRS being tested it says so;
+#'   otherwise it gives the percentage of its geometries that fall in Uruguay.
 #' @export
 #' @examples
 #'\donttest{
@@ -92,8 +95,8 @@ is.uy5381 <- function(x){
   y$geometry <- NULL
   x1 <- sf::st_join(x, y, left = FALSE)
   x2 <- (nrow(x1) / nrow(x)) * 100
-  return(ifelse(x2 == 0, "Your object have not any geometry in Uruguay... Try 4326, 5382 or 32721",
-                glue::glue("Your object have {x2}% of matches with Ururguay CRS 5381")))
+  return(ifelse(x2 == 0, "Your object has no geometry in Uruguay... Try 4326, 5382 or 32721",
+                glue::glue("Your object has {x2}% of matches with Uruguay CRS 5381")))
   }
 }
 
@@ -101,7 +104,8 @@ is.uy5381 <- function(x){
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @family crs
 #' @keywords CRS sf Uruguay
-#' @return logical value based in crs parameter of the sf object
+#' @return A character string. If \code{x} is not in the CRS being tested it says so;
+#'   otherwise it gives the percentage of its geometries that fall in Uruguay.
 #' @export
 #' @examples
 #'\donttest{
@@ -125,8 +129,8 @@ is.uy5382 <- function(x){
   y$geometry <- NULL
   x1 <- sf::st_join(x, y, left = FALSE)
   x2 <- (nrow(x1) / nrow(x)) * 100
-  return(ifelse(x2 == 0, "Your object have not any geometry in Uruguay... Try 4326, 5381 or 32721",
-                glue::glue("Your object have {x2}% of matches with Ururguay CRS 5382")))
+  return(ifelse(x2 == 0, "Your object has no geometry in Uruguay... Try 4326, 5381 or 32721",
+                glue::glue("Your object has {x2}% of matches with Uruguay CRS 5382")))
   }
 }
 

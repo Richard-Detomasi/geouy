@@ -1,10 +1,13 @@
 #' A function to geocoding directions using IDE_uy
 #' @family service
 #' @param x Dataframe with unless 3 variables: dpto = corresponding to the department, loc = city / location, dir = to the address.
-#' @param details Logical value, default FALSE for X and Y variables only, if TRUE keep all variables of the service. 
+#' @param details Logical. With \code{FALSE}, the default, only the \code{x} and
+#'   \code{y} coordinates are added; with \code{TRUE}, also \code{idTipoClasificacion}
+#'   and \code{error}.
 #' @keywords geocoding IDE_uy
 #' @importFrom  rjson fromJSON
-#' @return The DafaFrame x with the coordinates variables append (x and y)
+#' @return The data frame \code{x} with the coordinates appended (\code{x} and
+#'   \code{y}). Rows whose address is empty are dropped before querying the service.
 #' @export
 #' @details https://direcciones.ide.uy/swagger-ui.html#/geocode,_reverse,_inversa
 #' @examples

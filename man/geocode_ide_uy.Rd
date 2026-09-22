@@ -9,10 +9,13 @@ geocode_ide_uy(x, details = FALSE)
 \arguments{
 \item{x}{Dataframe with unless 3 variables: dpto = corresponding to the department, loc = city / location, dir = to the address.}
 
-\item{details}{Logical value, default FALSE for X and Y variables only, if TRUE keep all variables of the service.}
+\item{details}{Logical. With \code{FALSE}, the default, only the \code{x} and
+\code{y} coordinates are added; with \code{TRUE}, also \code{idTipoClasificacion}
+and \code{error}.}
 }
 \value{
-The DafaFrame x with the coordinates variables append (x and y)
+The data frame \code{x} with the coordinates appended (\code{x} and
+  \code{y}). Rows whose address is empty are dropped before querying the service.
 }
 \description{
 A function to geocoding directions using IDE_uy

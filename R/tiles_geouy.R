@@ -61,12 +61,15 @@ incompatible_o_falla <- function(primero, otro, nombre_primero, nombre_otro) {
 #' This function allows to Download .jpg or .tif files from the IDEuy tiles repository, according to a 'sf' object bbox.
 #' @family service
 #' @param x An 'sf' object with the same crs as the homonym parameter
-#' @param d numeric; buffer distance for all, or for each of the elements in x; in case dist is a units object, it should be convertible to arc_degree if x has geographic coordinates, and to st_crs(x)$units otherwise. Default NA, but if x is a only one point buffer default is 100.
+#' @param d A single buffer distance around \code{x}, in meters, as
+#'   \code{sf::st_buffer()} interprets it both for projected and for geographic
+#'   coordinates; a \code{units} object is also accepted. Default \code{NA}, which
+#'   means no buffer, except when \code{x} is a single feature, where it defaults to 100.
 #' @param format Format of the archives to download (avaiable: "rgb" and "rgbi"). Default "rgb". Mind the size before asking: one "rgb" tile weighs 3 to 67 MB in the urban flight and around 250 MB in the national one, and one "rgbi" tile weighs about 380 MB and 1.3 GB respectively. The whole tile is downloaded and only then cropped to x.
 #' @param folder Folder where are the files or be download
 #' @param urban logical; If FALSE take orthophotos of national flight with 32cm per pixel, if TRUE take urban flight with 10cm per pixel (available for every locality covered by the urban flight)
 #' @keywords IDE orthophotos Uruguay
-#' @return raster::stack object with th cropped tif corresponding to x bbox
+#' @return A \code{RasterBrick} with the tiles covering \code{x}, cropped to its bounding box.
 #' @importFrom sf st_join st_crs st_bbox st_transform
 #' @importFrom dplyr filter %>% distinct
 #' @importFrom methods is as

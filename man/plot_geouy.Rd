@@ -17,7 +17,7 @@ plot_geouy(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...)
 
 \item{other_lab}{If l is "c" put here the variable name for the labels.}
 
-\item{...}{All parameters allowed from ggplot2 themes.}
+\item{...}{Further arguments passed to \code{ggplot2::theme()}, applied after the default theme so they override it.}
 }
 \value{
 ggplot object of a choropleth map with x geometries and col values.
@@ -36,6 +36,9 @@ zonas <- sf::st_make_grid(
   n = c(3, 2))
 x <- sf::st_sf(population = c(120, 340, 90, 560, 210, 430), geometry = zonas)
 plot_geouy(x, col = "population")
+
+# Arguments in ... go to ggplot2::theme().
+plot_geouy(x, col = "population", legend.position = "bottom")
 
 }
 \concept{plot}

@@ -35,7 +35,7 @@ escala_discreta <- function(v, col) {
 #' @param viri_opt A character string indicating the colormap option to use. Five options are available: "magma" (or "A"), "inferno" (or "B"), "plasma" (or "C"), "viridis" (or "D", the default) and "cividis" (or "E")
 #' @param l If NULL none label added, if "\%" porcentage with 1 decimal labels, if "n" the value is the label, if "c" put other variable in other_lab. Default NULL
 #' @param other_lab If l is "c" put here the variable name for the labels.
-#' @param ... All parameters allowed from ggplot2 themes.
+#' @param ... Further arguments passed to \code{ggplot2::theme()}, applied after the default theme so they override it.
 #'
 #' @keywords ggplot2 sf maps
 #' @import ggplot2 ggthemes
@@ -53,6 +53,9 @@ escala_discreta <- function(v, col) {
 #'   n = c(3, 2))
 #' x <- sf::st_sf(population = c(120, 340, 90, 560, 210, 430), geometry = zonas)
 #' plot_geouy(x, col = "population")
+#'
+#' # Arguments in ... go to ggplot2::theme().
+#' plot_geouy(x, col = "population", legend.position = "bottom")
 #' 
 
 plot_geouy <- function(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...){
@@ -106,7 +109,12 @@ plot_geouy <- function(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...){
           plot.title = element_text(size = 9),
           plot.subtitle = element_text(size = 8),
           plot.caption = element_text(size = 8, hjust = -0.001),
-          legend.key.size = unit(0.4, "cm")) + coord_sf(datum = NA)  +
+          legend.key.size = unit(0.4, "cm")) +
+    # Lo que venga en ... va a theme(), despues del tema por defecto para que lo
+    # pise. Estaba documentado asi, pero el ... no se usaba en ningun lado: lo que
+    # se pasaba se ignoraba sin avisar.
+    ggplot2::theme(...) +
+    coord_sf(datum = NA)  +
     ggspatial::annotation_scale(location = "tr", width_hint = 0.4) +
     ggspatial::annotation_north_arrow(location = "tr", which_north = "true",
                                       pad_x = unit(0.095, "in"), pad_y = unit(0.25, "in"),

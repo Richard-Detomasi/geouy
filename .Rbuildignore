@@ -30,3 +30,4 @@
 ^catalogo-capas\.estado$
 ^\.gitattributes$
 ^news$
+(^|/)Thumbs\.db$

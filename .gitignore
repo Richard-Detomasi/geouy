@@ -19,3 +19,6 @@ chequeo-capas.estado
 catalogo-capas.md
 catalogo-capas.rds
 catalogo-capas.estado
+
+# Cache de miniaturas que Windows crea solo al abrir una carpeta de imagenes
+Thumbs.db

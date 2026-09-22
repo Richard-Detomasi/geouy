@@ -1,0 +1,55 @@
+# Los tests no viajan en el paquete (^tests$ en el .Rbuildignore), y
+# R-CMD-check.yaml chequea el tarball, asi que por construccion nunca corrian:
+# el CI podia estar verde en las cinco plataformas sin ejecutar un solo test.
+# Este workflow los corre sobre el codigo fuente, sin cambiar lo que viaja.
+#
+# Son dos pasos porque la suite completa sale a la red, y los servidores del
+# Estado no siempre contestan: el del IGM devuelve 500 una de cada cinco veces
+# (#27) y el geocodificador del IDE pasa ratos en 504. Si eso bloqueara un merge,
+# el CI se volveria ruido. Entonces:
+#
+#  - los tests que no salen a la red, BLOQUEANTES: son rapidos y no dependen de
+#    nadie, asi que si fallan es que algo se rompio en el paquete;
+#  - la suite completa, VISIBLE PERO NO BLOQUEANTE, para ver en cada PR como le
+#    va contra los servicios.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+name: tests
+
+permissions: read-all
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::testthat, any::pkgload
+
+      # NOT_CRAN tiene que ir en false a mano. Sin definir, test_local() corre
+      # la suite entera igual que con true -medido: 74 contra 17-, y este paso
+      # dejaria de ser el que no sale a la red.
+      - name: Tests que no salen a la red
+        env:
+          NOT_CRAN: "false"
+        run: Rscript -e 'testthat::test_local(".", stop_on_failure = TRUE)'
+
+      - name: Suite completa, contra los servicios
+        continue-on-error: true
+        env:
+          NOT_CRAN: "true"
+        run: Rscript -e 'testthat::test_local(".", stop_on_failure = TRUE)'

@@ -22,9 +22,10 @@ https://direcciones.ide.uy/swagger-ui.html#/geocode,_reverse,_inversa
 }
 \examples{
 \donttest{
-# x1 <- cbind(dpto="Montevideo",loc="Montevideo",dir="Av. 18 de julio 1453")
-# x2 <- data.frame(x1, stringsAsFactors = F)
-# geocode_ide_uy(x2)
+x <- data.frame(dpto = "Montevideo", loc = "Montevideo",
+                dir = "Av. 18 de julio 1453")
+puntos <- try(geocode_ide_uy(x), silent = TRUE)
+if (!inherits(puntos, "try-error")) puntos
 }
 }
 \seealso{

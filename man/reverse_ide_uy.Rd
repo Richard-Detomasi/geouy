@@ -23,8 +23,9 @@ https://direcciones.ide.uy/swagger-ui.html#/Geocode
 }
 \examples{
 \donttest{
-# x <- data.frame(cbind(lat = -34.77882, lon = -56.06476))
-# reverse_ide_uy(x)
+x <- data.frame(lat = -34.77882, lon = -56.06476)
+direccion <- try(reverse_ide_uy(x), silent = TRUE)
+if (!inherits(direccion, "try-error")) direccion
 }
 }
 \seealso{

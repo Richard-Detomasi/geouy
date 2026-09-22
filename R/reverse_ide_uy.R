@@ -10,8 +10,9 @@
 #' @details https://direcciones.ide.uy/swagger-ui.html#/Geocode
 #' @examples
 #'\donttest{
-#' # x <- data.frame(cbind(lat = -34.77882, lon = -56.06476))
-#' # reverse_ide_uy(x)
+#' x <- data.frame(lat = -34.77882, lon = -56.06476)
+#' direccion <- try(reverse_ide_uy(x), silent = TRUE)
+#' if (!inherits(direccion, "try-error")) direccion
 #'}
 
 reverse_ide_uy <- function(x, details = F) {
@@ -22,7 +23,9 @@ reverse_ide_uy <- function(x, details = F) {
   x <- x %>% dplyr::mutate(lat = stringr::str_trim(lat),
                            lon = stringr::str_trim(lon)) %>% 
     dplyr::filter(nchar(lat) > 0 & nchar(lon) > 0)
-  for (i in 1:nrow(x)) {
+  # seq_len() y no 1:nrow(x), por lo mismo que en geocode_ide_uy(): con cero
+  # filas, 1:0 recorre 1 y 0.
+  for (i in seq_len(nrow(x))) {
     p <- glue::glue("https://direcciones.ide.uy/api/v1/geocode/reverse?latitud={x[i,'lat']}&limit=1&longitud={x[i,'lon']}") %>% 
       stringr::str_replace_all(" ", "%20") 
     p <- suppressWarnings(fromJSON(paste(readLines(p), collapse=""))[[1]])
@@ -51,7 +54,8 @@ reverse_ide_uy <- function(x, details = F) {
       x[i, "source"] <- ifelse(is.null(p$source), NA, p$source)   
     }
     p <- NULL
-    if (nrow(x) > 10){
+    # Espacia los pedidos en tandas grandes; despues del ultimo no hace falta.
+    if (nrow(x) > 10 && i < nrow(x)){
       Sys.sleep(10)
     }
   }

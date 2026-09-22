@@ -15,7 +15,7 @@
 #' if (!inherits(direccion, "try-error")) direccion
 #'}
 
-reverse_ide_uy <- function(x, details = F) {
+reverse_ide_uy <- function(x, details = FALSE) {
   stopifnot(is.data.frame(x))
   stopifnot(is.numeric(x$lat), "lat" %in% colnames(x), length(x$lat) >= 1)
   stopifnot(is.numeric(x$lon), "lon" %in% colnames(x))
@@ -41,7 +41,7 @@ reverse_ide_uy <- function(x, details = F) {
     x[i,"solar"] <- ifelse(is.null(p$solar), NA, p$solar)              
     x[i,"km"] <- ifelse(is.null(p$km), NA,p$km)             
                          
-    if (details == T) {
+    if (details == TRUE) {
       x[i, "type"] <- ifelse(is.null(p$type), NA, p$type)
       x[i, "id_ide"] <- ifelse(is.null(p$id), NA, p$id)
       x[i, "idCalle"] <- ifelse(is.null(p$idCalle), NA, p$idCalle) 

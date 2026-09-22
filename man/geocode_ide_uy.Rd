@@ -4,7 +4,7 @@
 \alias{geocode_ide_uy}
 \title{A function to geocoding directions using IDE_uy}
 \usage{
-geocode_ide_uy(x, details = F)
+geocode_ide_uy(x, details = FALSE)
 }
 \arguments{
 \item{x}{Dataframe with unless 3 variables: dpto = corresponding to the department, loc = city / location, dir = to the address.}

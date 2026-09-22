@@ -15,7 +15,7 @@
 #' if (!inherits(puntos, "try-error")) puntos
 #'}
 
-geocode_ide_uy <- function(x, details = F) {
+geocode_ide_uy <- function(x, details = FALSE) {
   stopifnot(is.data.frame(x))
   stopifnot(is.character(x$dpto), "dpto" %in% colnames(x), length(x$dpto) >= 1)
   stopifnot(is.character(x$loc), "loc" %in% colnames(x))
@@ -31,7 +31,7 @@ geocode_ide_uy <- function(x, details = F) {
     p <- suppressWarnings(rjson::fromJSON(paste(readLines(p), collapse=""))[[1]])
     x[i, "x"] <- p$puntoX
     x[i, "y"] <- p$puntoY
-    if (details == T) {
+    if (details == TRUE) {
       x[i, "idTipoClasificacion"] <- p$idTipoClasificacion
       x[i, "error"] <- p$error
     }

@@ -4,7 +4,7 @@
 \alias{reverse_ide_uy}
 \title{A function to reverse geocoding from coordinates (EPSG 4326) using IDE_uy}
 \usage{
-reverse_ide_uy(x, details = F)
+reverse_ide_uy(x, details = FALSE)
 }
 \arguments{
 \item{x}{Dataframe with unless 2 variables: lat = latitud in EPSG:4326 & longitud in EPSG:4326.}

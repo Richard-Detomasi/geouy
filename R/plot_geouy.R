@@ -83,7 +83,7 @@ plot_geouy <- function(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...){
       msg = glue::glue("The variable '{other_lab}' given in other_lab is not in x. ",
                        "Available: {listar(disponibles)}"))
   }
-  if (!is.null(l) && l %in% "%" & is.numeric(x[[col]]) & sum(x[[col]] > 1, na.rm = T) == 0) {
+  if (!is.null(l) && l %in% "%" & is.numeric(x[[col]]) & sum(x[[col]] > 1, na.rm = TRUE) == 0) {
       x[[col]] <- x[[col]] * 100
     }
 

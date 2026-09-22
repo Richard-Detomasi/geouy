@@ -24,7 +24,7 @@ is.uy4326 <- function(x){
     return("The object you want to process is not at CRS 4326")
   } else {
   y$geometry <- NULL
-  x1 <- sf::st_join(x, y, left = F)
+  x1 <- sf::st_join(x, y, left = FALSE)
   x2 <- (nrow(x1) / nrow(x)) * 100
   return(ifelse(x2 == 0, "Your object have not any geometry in Uruguay... Try 5381, 5382 or 32721",
                 glue::glue("Your object have {x2}% of matches with Ururguay CRS 4326")))
@@ -57,7 +57,7 @@ is.uy32721 <- function(x){
     return("The object you want to process is not at CRS 32721")
   } else {
     y$geometry <- NULL
-    x1 <- sf::st_join(x, y, left = F)
+    x1 <- sf::st_join(x, y, left = FALSE)
     x2 <- (nrow(x1) / nrow(x)) * 100
     return(ifelse(x2 == 0, "Your object have not any geometry in Uruguay... Try 4326, 5381 or 5382",
                   glue::glue("Your object have {x2}% of matches with Ururguay CRS 32721")))
@@ -90,7 +90,7 @@ is.uy5381 <- function(x){
     return("The object you want to process is not at CRS 5381")
   } else {
   y$geometry <- NULL
-  x1 <- sf::st_join(x, y, left = F)
+  x1 <- sf::st_join(x, y, left = FALSE)
   x2 <- (nrow(x1) / nrow(x)) * 100
   return(ifelse(x2 == 0, "Your object have not any geometry in Uruguay... Try 4326, 5382 or 32721",
                 glue::glue("Your object have {x2}% of matches with Ururguay CRS 5381")))
@@ -123,7 +123,7 @@ is.uy5382 <- function(x){
     return("The object you want to process is not at CRS 5382")
   } else {
   y$geometry <- NULL
-  x1 <- sf::st_join(x, y, left = F)
+  x1 <- sf::st_join(x, y, left = FALSE)
   x2 <- (nrow(x1) / nrow(x)) * 100
   return(ifelse(x2 == 0, "Your object have not any geometry in Uruguay... Try 4326, 5381 or 32721",
                 glue::glue("Your object have {x2}% of matches with Ururguay CRS 5382")))

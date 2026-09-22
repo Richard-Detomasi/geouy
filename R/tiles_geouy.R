@@ -148,7 +148,7 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
            "with x.", call. = FALSE)
     }
     x2 <- x2 %>% 
-      sf::st_join(x %>% sf::st_transform(5381), left = F) %>% 
+      sf::st_join(x %>% sf::st_transform(5381), left = FALSE) %>% 
       dplyr::distinct(.data$nombre, .keep_all = TRUE)
     if (nrow(x2) == 0) {
       stop("The geometry in x is not in Uruguay, or its crs is not the one it ",
@@ -170,7 +170,7 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
            "with x.", call. = FALSE)
     }
     x2 <- x2 %>%
-      sf::st_join(x %>% sf::st_transform(5381), left = F) %>%
+      sf::st_join(x %>% sf::st_transform(5381), left = FALSE) %>%
       dplyr::distinct(.data$nombre, .keep_all = TRUE)
     if (nrow(x2) == 0) {
       stop("No urban-flight orthophotos cover the geometry in x. ",

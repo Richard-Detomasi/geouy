@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = FALSE)
   
 # Use the development version with latest features
   utils::remove.packages('geouy')
-  devtools::install_github("RichDeto/geouy")
+  devtools::install_github("Richard-Detomasi/geouy")
   library(geouy)
 ```
 

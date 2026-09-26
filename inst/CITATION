@@ -9,7 +9,7 @@ if (is.null(year)) year <- meta$Date
 year <- if (is.null(year)) format(Sys.Date(), "%Y") else sub("-.*", "", year)
 
 note <- sprintf("R package version %s", meta$Version)
-url <- "https://github.com/RichDeto/geouy"
+url <- "https://github.com/Richard-Detomasi/geouy"
 
 bibentry(bibtype = "Misc",
          title = "{geouy}: Geographic Information of Uruguay",

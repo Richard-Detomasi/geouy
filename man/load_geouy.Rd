@@ -4,7 +4,7 @@
 \alias{load_geouy}
 \title{This function allows to take oficial uruguayan geometries, as object "sf", from various servers.}
 \usage{
-load_geouy(c, crs = 32721, folder = tempdir())
+load_geouy(c, crs = 32721, folder = tempdir(), make_valid = TRUE)
 }
 \arguments{
 \item{c}{Define the geometries to download: may be: "Departamentos", "Secciones", "Zonas", etc. View(metadata) for details.}
@@ -12,6 +12,17 @@ load_geouy(c, crs = 32721, folder = tempdir())
 \item{crs}{Define the Coordinate Reference Systems you want the output, default 32721}
 
 \item{folder}{Folder where are the files download if formato == "zip" in metadata. Default tempdir()}
+
+\item{make_valid}{Logical. With \code{TRUE}, the default, the geometries that
+are invalid as published are repaired with \code{sf::st_make_valid()}, and a
+message says how many were repaired; any that cannot be repaired are left as
+they are, with a warning. Invalid means rejected by either of the two
+geometry engines \code{sf} uses: GEOS, which flags a ring that crosses
+itself, or s2, which also rejects a repeated vertex. Curved geometries,
+which neither engine can evaluate, and geometry collections are left as
+they are. With \code{FALSE}
+the geometries are neither checked nor repaired: apart from the
+transformation to \code{crs}, they are returned as the server publishes them.}
 }
 \value{
 sf object with the requested geometries

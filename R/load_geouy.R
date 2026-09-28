@@ -75,6 +75,16 @@ descarga_o_falla <- function(expr, capa, url, accion = "read") {
 #' @param c Define the geometries to download: may be: "Departamentos", "Secciones", "Zonas", etc. View(metadata) for details.
 #' @param crs Define the Coordinate Reference Systems you want the output, default 32721
 #' @param folder Folder where are the files download if formato == "zip" in metadata. Default tempdir()
+#' @param make_valid Logical. With \code{TRUE}, the default, the geometries that
+#'   are invalid as published are repaired with \code{sf::st_make_valid()}, and a
+#'   message says how many were repaired; any that cannot be repaired are left as
+#'   they are, with a warning. Invalid means rejected by either of the two
+#'   geometry engines \code{sf} uses: GEOS, which flags a ring that crosses
+#'   itself, or s2, which also rejects a repeated vertex. Curved geometries,
+#'   which neither engine can evaluate, and geometry collections are left as
+#'   they are. With \code{FALSE}
+#'   the geometries are neither checked nor repaired: apart from the
+#'   transformation to \code{crs}, they are returned as the server publishes them.
 #' @importFrom curl has_internet
 #' @importFrom sf st_read st_transform
 #' @importFrom glue glue
@@ -88,7 +98,7 @@ descarga_o_falla <- function(expr, capa, url, accion = "read") {
 #' if (!inherits(secc, "try-error")) head(secc)
 #'}
 
-load_geouy <- function(c, crs = 32721, folder = tempdir()){
+load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
   x <- geouy::metadata 
   folder <- normalizePath(folder,"/")
   # Sin try(): envolver un stop() propio en try() lo atrapa, la funcion sigue
@@ -162,6 +172,230 @@ load_geouy <- function(c, crs = 32721, folder = tempdir()){
       a <- descarga_o_falla(sf::st_read(x$url, crs = x$crs), c, x$url)
     }
   }
+  # Antes de transformar: se valida en el CRS en que se publico la capa, que es
+  # donde el organismo la dibujo.
+  if (isTRUE(make_valid)) a <- sanear(a, c)
   a <- a %>% sf::st_transform(crs)
   return(a)
+}
+
+# Un dato oficial no es necesariamente un dato valido, y sf usa dos motores que no
+# coinciden en que es valido:
+#
+#  - GEOS, geometria plana, que es lo que se usa en un CRS proyectado. Marca los
+#    anillos que se cruzan a si mismos: dos en "Departamentos" y en "Deptos", en
+#    la misma coordenada.
+#  - s2, geometria esferica, que sf usa por omision con coordenadas geograficas.
+#    Ademas rechaza los vertices consecutivos repetidos, que GEOS acepta. Medido:
+#    GEOS no ve ningun problema en "Secciones" ni en "Segmentos", y s2 rechaza 10
+#    y 20 geometrias respectivamente.
+#
+# Las operaciones que calcula s2 contra una de esas geometrias -un st_join(), un
+# st_centroid()- cortan con error, que es lo que rompia which_uy() (#34). Asi que "invalida" es invalida para cualquiera
+# de los dos, y se chequean los dos siempre, sin importar como tenga configurado
+# sf el usuario en ese momento: sf_use_s2() es estado global y lo puede cambiar
+# despues de cargar la capa.
+#
+# Se reparan solo esas, no la capa entera: el resto conserva exactamente las
+# coordenadas que publico el organismo. La unica excepcion es de tipo, no de
+# coordenadas: si la capa es de POLYGON y una reparacion parte una geometria en
+# dos, la capa entera pasa a MULTIPOLYGON para no quedar mezclada. Lo que mas
+# cuesta es validar: menos de un segundo en la mayoria de las capas, y unos cinco
+# en "Zonas", que tiene 78.035 geometrias.
+#
+# Y si sanear falla, la capa se devuelve como estaba, con un warning que lo dice:
+# todo va envuelto, para que sanear no sea la razon de que una capa deje de
+# cargar.
+sanear <- function(a, capa) {
+  if (!nrow(a)) return(a)
+  tryCatch(reparar_invalidas(a, capa), error = function(e) {
+    warning(glue::glue("The geometries of '{capa}' could not be checked or repaired ",
+                       "({conditionMessage(e)}); the layer is returned as is."),
+            call. = FALSE)
+    a
+  })
+}
+
+reparar_invalidas <- function(a, capa) {
+  geom <- sf::st_geometry(a)
+  # GEOS y s2 solo entienden geometrias lineales. Las curvas -MULTISURFACE,
+  # MULTICURVE, que publica el MTOP en "Balnearios", "Lagunas publicas" y "Cursos
+  # de agua navegables y flotables", y RENARE en "CONEAT"- ni siquiera se pueden
+  # evaluar: st_is_valid() da NA y st_make_valid() falla. No son invalidas, son de
+  # un tipo que estos motores no manejan, asi que quedan como estan y sin avisar.
+  # Sin esto, cada carga de esas capas decia que ninguna de sus geometrias se
+  # podia reparar, y en "CONEAT", con 237.681, intentarlo sumaba casi tres minutos.
+  # Las colecciones -GEOMETRYCOLLECTION- tampoco se tocan: pueden traer curvas
+  # adentro, y al repararlas se perderian las partes de otra dimension, como un
+  # punto junto a un poligono. No las publica ninguna de las capas que se pueden
+  # descargar.
+  evaluables <- which(sf::st_is(geom, c("POINT", "MULTIPOINT", "LINESTRING",
+                                        "MULTILINESTRING", "POLYGON",
+                                        "MULTIPOLYGON")))
+  if (!length(evaluables)) return(a)
+  malas <- evaluables[invalidas(a[evaluables, ])]
+  if (!length(malas)) return(a)
+
+  tipo <- as.character(sf::st_geometry_type(a, by_geometry = FALSE))
+  familia <- sub("^MULTI", "", tipo)
+  dimension <- unname(c(POINT = 0L, LINESTRING = 1L, POLYGON = 2L)[familia])
+  crs <- sf::st_crs(geom)
+
+  # Primer paso: la reparacion comun, que no mueve nada que no haga falta.
+  arreglos <- reparar(geom[malas], familia, dimension)
+  bien <- validadas(arreglos, crs)
+
+  # Segundo paso, solo para las que siguen invalidas: con precision de
+  # milimetro. Hay vertices a un nanometro de otro vertice -en "Deptos", Maldonado
+  # y Rocha, a 1e-9 m- o de una arista que no es la suya, que es ruido de punto
+  # flotante y no dato: GEOS los da por distintos, y en coordenadas geograficas
+  # s2 los ve como un vertice repetido o como dos aristas que se cruzan, y
+  # rechaza la geometria. Con la grilla de milimetro pasan a coincidir y
+  # st_make_valid() lo resuelve. Va como segundo paso y no para todas porque la
+  # grilla tambien puede llevarse detalles mas chicos que un milimetro, y eso
+  # solo se justifica donde hace falta.
+  con_grilla <- rep(FALSE, length(malas))
+  precision <- precision_milimetro(crs)
+  if (any(!bien) && !is.na(precision)) {
+    resto <- which(!bien)
+    segundos <- reparar(geom[malas[resto]], familia, dimension, precision)
+    ok <- validadas(segundos, crs)
+    arreglos[resto[ok]] <- segundos[ok]
+    bien[resto[ok]] <- TRUE
+    con_grilla[resto[ok]] <- TRUE
+  }
+
+  if (any(bien)) {
+    nuevas <- sf::st_sfc(arreglos[bien], crs = sf::st_crs(geom))
+    if (!is.na(dimension)) {
+      multi <- paste0("MULTI", familia)
+      if (tipo == familia && all(lengths(nuevas) == 1)) {
+        # La capa es de geometrias simples y ninguna reparacion la partio.
+        nuevas <- sf::st_cast(nuevas, familia)
+      } else if (tipo == familia) {
+        # Alguna reparacion partio una geometria en dos: la capa pasa entera a
+        # MULTI, que no pierde nada, en vez de quedar mezclada.
+        geom <- sf::st_cast(geom, multi)
+      }
+    }
+    geom[malas[bien]] <- nuevas
+    sf::st_geometry(a) <- geom
+    grilla <- if (any(con_grilla)) {
+      glue::glue(" ({sum(con_grilla)} of them at millimetre precision, which can ",
+                 "drop detail smaller than that)")
+    } else ""
+    message(glue::glue("{sum(bien)} of {length(geom)} geometries of '{capa}' ",
+                       "were invalid as published and were repaired with ",
+                       "sf::st_make_valid(){grilla}. Use make_valid = FALSE to get ",
+                       "them as the server publishes them."))
+  }
+  # Las que no se pudieron reparar quedan como estaban, pero la capa sigue
+  # teniendo geometrias invalidas y probablemente corte mas adelante: eso si
+  # tiene que verse.
+  if (any(!bien)) {
+    warning(glue::glue("{sum(!bien)} of {length(geom)} geometries of '{capa}' ",
+                       "are invalid as published and could not be repaired; ",
+                       "they are left as is."), call. = FALSE)
+  }
+  a
+}
+
+# Repara las geometrias con GEOS, que es el motor que saca los vertices
+# repetidos, y devuelve una lista con una geometria por entrada, o NULL donde no
+# se pudo. Nunca cambia la dimension de una fila: si la reparacion la deja sin
+# nada de su dimension -un poligono sin area colapsa a una linea-, esa queda
+# NULL y la geometria original se conserva.
+#
+# Todas juntas primero, porque es mucho mas rapido: con 2000 invalidas, una sola
+# llamada a st_make_valid() tarda unas cien veces menos que una por fila. Solo pasan de
+# a una las que vuelven como coleccion o de otra dimension, y todas de a una si
+# la llamada conjunta falla.
+reparar <- function(g, familia, dimension, precision = NA) {
+  # En una capa de tipo GEOMETRY no hay una familia a la que volver: cada fila
+  # tiene que conservar su propia dimension.
+  esperada <- if (is.na(dimension)) sf::st_dimension(g) else rep(dimension, length(g))
+  if (!is.na(precision)) g <- sf::st_set_precision(g, precision)
+  juntas <- tryCatch(con_s2(FALSE, sf::st_make_valid(g)), error = function(e) NULL)
+
+  if (is.null(juntas)) {
+    return(lapply(seq_along(g), function(i) {
+      r <- tryCatch(con_s2(FALSE, sf::st_make_valid(g[i])), error = function(e) NULL)
+      if (is.null(r)) NULL else a_su_dimension(r, familia, esperada[i])
+    }))
+  }
+
+  dim_r <- sf::st_dimension(juntas)
+  directas <- !sf::st_is(juntas, "GEOMETRYCOLLECTION") & !sf::st_is_empty(juntas) &
+    !is.na(dim_r) & !is.na(esperada) & dim_r == esperada
+  salida <- vector("list", length(g))
+  if (any(directas)) {
+    listas <- if (is.na(dimension)) juntas[directas] else sf::st_cast(juntas[directas], paste0("MULTI", familia))
+    salida[directas] <- unclass(listas)
+  }
+  for (i in which(!directas)) {
+    salida[i] <- list(a_su_dimension(juntas[i], familia, esperada[i]))
+  }
+  salida
+}
+
+# Deja una geometria ya reparada en la dimension que tenia, o NULL si no queda
+# nada de esa dimension.
+a_su_dimension <- function(r, familia, esperada) {
+  if (is.na(esperada) || all(sf::st_is_empty(r))) return(NULL)
+  if (any(sf::st_is(r, "GEOMETRYCOLLECTION"))) {
+    objetivo <- c("POINT", "LINESTRING", "POLYGON")[esperada + 1L]
+    r <- suppressWarnings(sf::st_collection_extract(r, objetivo))
+  }
+  r <- r[!sf::st_is_empty(r) & sf::st_dimension(r) %in% esperada]
+  if (!length(r)) return(NULL)
+  unida <- sf::st_combine(r)
+  if (familia %in% c("POINT", "LINESTRING", "POLYGON")) {
+    unida <- sf::st_cast(unida, paste0("MULTI", familia))
+  }
+  unida[[1]]
+}
+
+# Cuales de las geometrias reparadas son validas para los dos motores. La
+# reparacion es con GEOS, y hay geometrias que s2 rechaza y GEOS no sabe arreglar
+# -un poligono de aristas largas que se cruzan sobre la esfera-: esas no pueden
+# figurar como reparadas, porque el mensaje estaria diciendo algo falso.
+validadas <- function(arreglos, crs) {
+  bien <- !vapply(arreglos, is.null, logical(1))
+  if (any(bien)) {
+    candidatas <- sf::st_sf(geometry = sf::st_sfc(arreglos[bien], crs = crs))
+    siguen <- invalidas(candidatas)
+    if (length(siguen)) bien[which(bien)[siguen]] <- FALSE
+  }
+  bien
+}
+
+# La precision que equivale a un milimetro en las unidades del CRS, o NA si las
+# unidades no se conocen. Sin esta cuenta, la misma cifra que es un milimetro en
+# metros seria un metro en un CRS en kilometros, o cien en uno sin CRS con
+# coordenadas en grados.
+precision_milimetro <- function(crs) {
+  if (is.na(crs)) return(NA_real_)
+  unidades <- crs$units_gdal
+  if (identical(unidades, "degree")) return(1e8)  # 1e-8 grados, alrededor de 1 mm
+  if (identical(unidades, "metre")) return(1000)
+  NA_real_
+}
+
+# Las filas invalidas para GEOS o para s2. Si el chequeo esferico no se puede
+# hacer -una capa sin CRS, o uno que no se puede llevar a 4326-, queda el plano.
+invalidas <- function(a) {
+  plana <- con_s2(FALSE, sf::st_is_valid(a))
+  esferica <- tryCatch(
+    con_s2(TRUE, sf::st_is_valid(
+      if (isTRUE(sf::st_is_longlat(a))) a else sf::st_transform(a, 4326))),
+    error = function(e) rep(TRUE, nrow(a)))
+  # NA es una geometria que ni siquiera se puede evaluar: tambien va a reparar.
+  which(is.na(plana) | !plana | is.na(esferica) | !esferica)
+}
+
+# Evalua expr con s2 prendido o apagado, y deja sf_use_s2() como estaba.
+con_s2 <- function(usar, expr) {
+  anterior <- suppressMessages(sf::sf_use_s2(usar))
+  on.exit(suppressMessages(sf::sf_use_s2(anterior)), add = TRUE)
+  expr
 }

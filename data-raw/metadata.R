@@ -71,7 +71,6 @@ metadata <- tibble::tribble(
   "Instituciones deportivas", "IDE", "MIDES", 32721, "wfs", 2015, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:inst_deportivas_2015", "gml_id", "nombre", "UTF-8",
   "OTs", "MIDES", "MIDES", 32721, "wfs", 2022, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Otes_UY", NA, NA, "UTF-8",
   "Colegios privados N0a3", "CEIP", "MIDES", 32721, "zip", 2020,"https://mapas.mides.gub.uy/2shp/out/colegiosprivadosconniveles0a3.zip", NA, NA, "UTF-8",
-  "Educación en Primera Infancia e Inicial", "CEIP", "MIDES", 32721, "zip", 2020, "https://mapas.mides.gub.uy/2shp/out/educacionenprimerainfanciaeinicial.zip", NA, NA, "UTF-8",
   "Jardines de infantes", "CEIP", "MIDES", 32721, "zip a", 2020, "https://mapas.mides.gub.uy/2shp/out/jardinesdeinfantes.zip",  NA, NA, "UTF-8",
   "Escuelas", "CEIP", "MIDES", 32721, "wfs", 2020, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Escuelas_UY", NA, NA, "UTF-8",
   "Escuelas con N3", "CEIP", "MIDES", 32721, "zip", 2020, "https://mapas.mides.gub.uy/2shp/out/escuelaspublicascomunesconnivel3.zip", NA, NA, "UTF-8",
@@ -106,9 +105,10 @@ metadata <- tibble::tribble(
 # Aca habia un iconv(x, "latin1", "UTF-8") que los volvia a convertir: leia los
 # dos bytes de la "o" con tilde como si fueran dos caracteres latin1 y los
 # codificaba de nuevo, dejando c3 83 c2 b3 donde va c3 b3. El unico nombre con
-# acento del metadata es "Educacion en Primera Infancia e Inicial", y quedaba
-# con dos caracteres raros en lugar de la o con tilde: nadie podia pedir esa
-# capa con el nombre que dice el README.
+# acento que tuvo el metadata, "Educacion en Primera Infancia e Inicial" -que
+# despues se saco por duplicar a "Jardines de infantes" (#51)-, quedaba con dos
+# caracteres raros en lugar de la o con tilde: nadie podia pedir esa capa con el
+# nombre que decia el README.
 #
 # Si lo corres en una sesion cuya codificacion por defecto no es UTF-8, usa
 # source("data-raw/metadata.R", encoding = "UTF-8").

@@ -3,7 +3,7 @@
 #' The toolbox have functions to load and process geographic information for Uruguay.
 #'
 #' See the README on
-#' \href{https://github.com/RichDeto/geouy/blob/master/README.md}{Github}
+#' \href{https://github.com/Richard-Detomasi/geouy/blob/master/README.md}{Github}
 #'
 #' "_PACKAGE"
 #' @name geouy

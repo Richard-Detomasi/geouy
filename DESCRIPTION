@@ -21,7 +21,8 @@ Description: The toolbox have functions to load and process geographic
     coordinates and orthophotos through the uruguayan 'IDE' API
     <https://www.gub.uy/infraestructura-datos-espaciales/tramites-y-servicios/servicios/servicio-direcciones-geograficas>.
 License: GPL-3
-BugReports: https://github.com/RichDeto/geouy/issues
+URL: https://github.com/Richard-Detomasi/geouy
+BugReports: https://github.com/Richard-Detomasi/geouy/issues
 Depends: 
     R (>= 4.1.0)
 Imports:

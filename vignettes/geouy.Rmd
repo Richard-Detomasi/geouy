@@ -35,7 +35,7 @@ Para instalar la versión en desarrollo:
 
 ```{r, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
 # install.packages('devtools') si no tiene instalado devtools
-devtools::install_github("RichDeto/geouy")
+devtools::install_github("Richard-Detomasi/geouy")
 ```
 
 Para activarla 
@@ -110,7 +110,7 @@ Por ejemplo, el corte normal entre los tamaños de localidades no consideran ini
 Por este motivo, es que agregamos el dataset `loc_agr_ine` que permite combinar la capa de `Localidades pg` con los datos del Censo 2011 y poder categorizar las agrupaciones de localidades como lo hace el INE. 
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
-# devtools::install_github("RichDeto/geouy", ref = 'master'); 
+# devtools::install_github("Richard-Detomasi/geouy", ref = 'master'); 
 library(geouy)
 
 # Simulamos una población

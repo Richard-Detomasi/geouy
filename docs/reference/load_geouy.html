@@ -32,7 +32,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/RichDeto/geouy/" class="external-link">
+  <a href="https://github.com/Richard-Detomasi/geouy/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>This function allows to take oficial uruguayan geometries, as object "sf", from various servers.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/RichDeto/geouy/blob/HEAD/R/load_geouy.R" class="external-link"><code>R/load_geouy.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/Richard-Detomasi/geouy/blob/HEAD/R/load_geouy.R" class="external-link"><code>R/load_geouy.R</code></a></small>
     <div class="hidden name"><code>load_geouy.Rd</code></div>
     </div>
 
@@ -56,7 +56,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">load_geouy</span><span class="op">(</span><span class="va">c</span>, crs <span class="op">=</span> <span class="fl">32721</span>, folder <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">load_geouy</span><span class="op">(</span><span class="va">c</span>, crs <span class="op">=</span> <span class="fl">32721</span>, folder <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, make_valid <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -73,6 +73,19 @@
 
 <dt id="arg-folder">folder<a class="anchor" aria-label="anchor" href="#arg-folder"></a></dt>
 <dd><p>Folder where are the files download if formato == "zip" in metadata. Default tempdir()</p></dd>
+
+
+<dt id="arg-make-valid">make_valid<a class="anchor" aria-label="anchor" href="#arg-make-valid"></a></dt>
+<dd><p>Logical. With <code>TRUE</code>, the default, the geometries that
+are invalid as published are repaired with <code><a href="https://r-spatial.github.io/sf/reference/valid.html" class="external-link">sf::st_make_valid()</a></code>, and a
+message says how many were repaired; any that cannot be repaired are left as
+they are, with a warning. Invalid means rejected by either of the two
+geometry engines <code>sf</code> uses: GEOS, which flags a ring that crosses
+itself, or s2, which also rejects a repeated vertex. Curved geometries,
+which neither engine can evaluate, and geometry collections are left as
+they are. With <code>FALSE</code>
+the geometries are neither checked nor repaired: apart from the
+transformation to <code>crs</code>, they are returned as the server publishes them.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -94,41 +107,8 @@
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">secc</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">load_geouy</span><span class="op">(</span>c <span class="op">=</span> <span class="st">"Secciones"</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Reading layer `Secciones' from data source </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   `https://mapas.mides.gub.uy:443/geoserver/ows?service=WFS&amp;version=1.0.0&amp;request=GetFeature&amp;typeName=INECenso:Secciones' </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   using driver `GML'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 236 features and 10 fields</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: MULTIPOLYGON</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 366605.4 ymin: 6121402 xmax: 858003.8 ymax: 6671734</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: WGS 84 / UTM zone 21S</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>GDAL Error 1: Failed to connect to mapas.mides.gub.uy port 443 after 134889 ms: Connection timed out</span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">secc</span>, <span class="st">"try-error"</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">secc</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 6 features and 10 fields</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: MULTIPOLYGON</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 612797.8 ymin: 6173795 xmax: 829630.7 ymax: 6414470</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: WGS 84 / UTM zone 21S</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                     gml_id id DEPTO SECCION CODSEC   NOMBDEPTO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Secciones.fid--7a08045e_1a08845f831_776d  1    10       8   1008   MALDONADO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Secciones.fid--7a08045e_1a08845f831_776e  2     6       7    607     DURAZNO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 Secciones.fid--7a08045e_1a08845f831_776f  3     4       2    402 CERRO LARGO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 Secciones.fid--7a08045e_1a08845f831_7770  4     6       8    608     DURAZNO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Secciones.fid--7a08045e_1a08845f831_7771  5    10       9   1009   MALDONADO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 Secciones.fid--7a08045e_1a08845f831_7772  6     6       9    609     DURAZNO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   viv_tot_23 pob_tot_23 pob_tot_hom_23 pob_tot_muj_23</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       2189       2942           1412           1530</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        973       1441            761            680</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3        774        932            513            419</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        766       1341            656            685</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5        451        191            115             76</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6       3809       7495           3648           3847</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                         the_geom</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 MULTIPOLYGON (((705073.2 62...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 MULTIPOLYGON (((632031.5 63...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 MULTIPOLYGON (((807381.4 63...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 MULTIPOLYGON (((654689.5 63...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 MULTIPOLYGON (((715826.9 61...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 MULTIPOLYGON (((624373.8 63...</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
@@ -140,7 +120,7 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Richard Detomasi.</p>
+  <p></p><p>Developed by Richard Detomasi, Sebastián Lucas.</p>
 </div>
 
 <div class="pkgdown">

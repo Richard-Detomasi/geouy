@@ -32,7 +32,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/RichDeto/geouy/" class="external-link">
+  <a href="https://github.com/Richard-Detomasi/geouy/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>This function test if an 'sf' object match with Uruguay at crs = 4326.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/RichDeto/geouy/blob/HEAD/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/Richard-Detomasi/geouy/blob/HEAD/R/utils.R" class="external-link"><code>R/utils.R</code></a></small>
     <div class="hidden name"><code>is.uy4326.Rd</code></div>
     </div>
 
@@ -69,7 +69,8 @@
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>logical value based in crs parameter of the sf object</p>
+    <p>A character string. If <code>x</code> is not in the CRS being tested it says so;
+  otherwise it gives the percentage of its geometries that fall in Uruguay.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -97,16 +98,8 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: -58.24649 ymin: -34.78446 xmax: -54.42373 ymax: -31.54664</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Geodetic CRS:  WGS 84</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Reading layer `ine_pais_corregido' from data source </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   `https://mapas.mides.gub.uy:443/geoserver/INECenso2004/ows?service=WFS&amp;version=1.0.0&amp;request=GetFeature&amp;typeName=INECenso2004:ine_pais_corregido' </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   using driver `GML'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 1 feature and 1 field</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: MULTIPOLYGON</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 366582.2 ymin: 6127919 xmax: 858252.1 ymax: 6671738</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: WGS 84 / UTM zone 21S</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>GDAL Error 1: Failed to connect to mapas.mides.gub.uy port 443 after 133896 ms: Connection timed out</span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">resultado</span>, <span class="st">"try-error"</span><span class="op">)</span><span class="op">)</span> <span class="va">resultado</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "The object you want to process is not at CRS 4326"</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
@@ -118,7 +111,7 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Richard Detomasi.</p>
+  <p></p><p>Developed by Richard Detomasi, Sebastián Lucas.</p>
 </div>
 
 <div class="pkgdown">

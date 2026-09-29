@@ -32,7 +32,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/RichDeto/geouy/" class="external-link">
+  <a href="https://github.com/Richard-Detomasi/geouy/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/RichDeto/geouy/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/Richard-Detomasi/geouy/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
@@ -60,7 +60,7 @@
 <li><p>Fix the <code>cod</code> and <code>name</code> columns declared for six more layers. The five <code>Secc*11</code> ones named <code>codsecc</code>, with one <code>c</code> too many, when the layers carry <code>codsec</code>; and <code>Rutas</code> named <code>numero</code> and <code>nombre</code> in lower case when the layer returns <code>NUMERO</code> and <code>NOMBRE</code>. <code><a href="../reference/where_uy.html">where_uy()</a></code> failed on all six with “Can’t extract columns that don’t exist”.</p></li>
 <li><p><code><a href="../reference/tiles_geouy.html">tiles_geouy()</a></code> checks that the tiles can be mosaicked before trying. The dangerous case is the number of bands: <code><a href="https://rspatial.github.io/terra/reference/mosaic.html" class="external-link">raster::mosaic()</a></code> does not reject it, it takes the maximum and recycles the tile that has fewer, so a one-band tile next to a three-band one comes back as three bands with the single one repeated -a raster carrying made-up values, with no warning at all. When the counts are not divisors of each other the error does exist, but reads “number of items to replace is not a multiple of replacement length”, which names neither the tile nor the layer. Resolution, grid origin and CRS are checked too, and the message now says which tile differs and in what.</p></li>
 <li><p>The test suite passes again. Four tests asserted values from remote layers that changed: <code>test-plot.R</code> and <code>test-which.R</code> named columns of <code>Secciones</code> that the 2023 census replaced, <code>test-where_uy.R</code> looked up a locality code that no longer exists, and <code>test-load.R</code> downloaded a layer from the Ambiente server, which cannot be read at all. They now assert what each function promises -an <code>sf</code> back, the columns it adds, one row per input- instead of the schema of a service we do not control.</p></li>
-<li><p>Two test blocks that reach the network gained <code>skip_if_offline()</code>, which also covers <code>skip_on_cran()</code>. Every example was already inside <code>\donttest{}</code> or <code>\dontrun{}</code>, and the vignette does not evaluate its chunks.</p></li>
+<li><p>Two test blocks that reach the network gained <code>skip_if_offline()</code>, which also covers <code>skip_on_cran()</code>. Every example that reaches the network was already inside <code>\donttest{}</code> or <code>\dontrun{}</code>, and the vignette does not evaluate its chunks.</p></li>
 <li><p>Fix <code>Localidades pt</code> returning polygons. Both <code>Localidades</code> rows asked the server for the same layer, <code>INECenso:Localidades_pg</code>, so the one meant to be points quietly returned the polygons. The server does publish <code>INECenso:Localidades_pt</code>, which is what the row asks for now. Its name column is <code>NOMLOC</code>, not <code>NOMBLOC</code>, so that is corrected too.</p></li>
 <li><p>Fix the year of both <code>Localidades</code> rows, which said 2011 while the layers carry the 2023 census: they come from the same workspace as <code>Secciones</code>, <code>Segmentos</code> and <code>Zonas</code> and share their <code>viv_tot_23</code> and <code>pob_tot_23</code> columns.</p></li>
 <li><p>Fix the layer name of <code>Zonas11</code>, which asked for <code>INECenso2011:Zona_2011</code> while the MIDES geoserver publishes it as <code>zona_2011</code>. The failure was hard to spot: the server answers HTTP 200 with a <code>ServiceException</code> inside, so there is no 404 and no network error, and <code>st_read()</code> complains about something else. The layer returns 69,752 zones.</p></li>
@@ -234,7 +234,7 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Richard Detomasi.</p>
+  <p></p><p>Developed by Richard Detomasi, Sebastián Lucas.</p>
 </div>
 
 <div class="pkgdown">

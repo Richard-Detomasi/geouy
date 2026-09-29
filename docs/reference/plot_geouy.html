@@ -32,7 +32,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/RichDeto/geouy/" class="external-link">
+  <a href="https://github.com/Richard-Detomasi/geouy/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>plot_geouy</h1>
-    <small class="dont-index">Source: <a href="https://github.com/RichDeto/geouy/blob/HEAD/R/plot_geouy.R" class="external-link"><code>R/plot_geouy.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/Richard-Detomasi/geouy/blob/HEAD/R/plot_geouy.R" class="external-link"><code>R/plot_geouy.R</code></a></small>
     <div class="hidden name"><code>plot_geouy.Rd</code></div>
     </div>
 
@@ -84,7 +84,7 @@
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>All parameters allowed from ggplot2 themes.</p></dd>
+<dd><p>Further arguments passed to <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code>, applied after the default theme so they override it.</p></dd>
 
 </dl></div>
     <div id="value">
@@ -94,19 +94,21 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">secc</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu"><a href="load_geouy.html">load_geouy</a></span><span class="op">(</span><span class="st">"Secciones"</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Reading layer `Secciones' from data source </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   `https://mapas.mides.gub.uy:443/geoserver/ows?service=WFS&amp;version=1.0.0&amp;request=GetFeature&amp;typeName=INECenso:Secciones' </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   using driver `GML'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 236 features and 10 fields</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: MULTIPOLYGON</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 366605.4 ymin: 6121402 xmax: 858003.8 ymax: 6671734</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: WGS 84 / UTM zone 21S</span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">secc</span>, <span class="st">"try-error"</span><span class="op">)</span><span class="op">)</span> <span class="fu">plot_geouy</span><span class="op">(</span>x <span class="op">=</span> <span class="va">secc</span>, col <span class="op">=</span> <span class="st">"pob_tot_23"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Six zones built by hand, so the example does not depend on any remote</span></span></span>
+<span class="r-in"><span><span class="co"># service. Any sf object works the same way, for instance one returned by</span></span></span>
+<span class="r-in"><span><span class="co"># load_geouy().</span></span></span>
+<span class="r-in"><span><span class="va">zonas</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_make_grid.html" class="external-link">st_make_grid</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_as_sfc.html" class="external-link">st_as_sfc</a></span><span class="op">(</span><span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_bbox.html" class="external-link">st_bbox</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>xmin <span class="op">=</span> <span class="fl">500000</span>, ymin <span class="op">=</span> <span class="fl">6100000</span>,</span></span>
+<span class="r-in"><span>                              xmax <span class="op">=</span> <span class="fl">600000</span>, ymax <span class="op">=</span> <span class="fl">6200000</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                            crs <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_crs.html" class="external-link">st_crs</a></span><span class="op">(</span><span class="fl">32721</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/sf.html" class="external-link">st_sf</a></span><span class="op">(</span>population <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">340</span>, <span class="fl">90</span>, <span class="fl">560</span>, <span class="fl">210</span>, <span class="fl">430</span><span class="op">)</span>, geometry <span class="op">=</span> <span class="va">zonas</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">plot_geouy</span><span class="op">(</span><span class="va">x</span>, col <span class="op">=</span> <span class="st">"population"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="plot_geouy-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Arguments in ... go to ggplot2::theme().</span></span></span>
+<span class="r-in"><span><span class="fu">plot_geouy</span><span class="op">(</span><span class="va">x</span>, col <span class="op">=</span> <span class="st">"population"</span>, legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="plot_geouy-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -118,7 +120,7 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Richard Detomasi.</p>
+  <p></p><p>Developed by Richard Detomasi, Sebastián Lucas.</p>
 </div>
 
 <div class="pkgdown">

@@ -32,7 +32,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/RichDeto/geouy/" class="external-link">
+  <a href="https://github.com/Richard-Detomasi/geouy/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>This function allows you to add a geom variable with a code variable of "zona", "barrio", "localidad", "segmentos", "secciones" or "departamentos".</h1>
-    <small class="dont-index">Source: <a href="https://github.com/RichDeto/geouy/blob/HEAD/R/add_geom.R" class="external-link"><code>R/add_geom.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/Richard-Detomasi/geouy/blob/HEAD/R/add_geom.R" class="external-link"><code>R/add_geom.R</code></a></small>
     <div class="hidden name"><code>add_geom.Rd</code></div>
     </div>
 
@@ -107,12 +107,13 @@ Aviso: El script no es un producto oficial de INE.</p>
 <span class="r-in"><span><span class="va">pobre_x_dpto_geo</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">add_geom</span><span class="op">(</span>data <span class="op">=</span> <span class="va">pobre_x_dpto</span>, unit <span class="op">=</span> <span class="st">"Deptos"</span>,</span></span>
 <span class="r-in"><span>                                 variable <span class="op">=</span> <span class="st">"nomdpto"</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Intentando descargar Deptos...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Reading layer `ine_depto' from data source `/tmp/RtmpzjWMUP/ine_depto.shp' using driver `ESRI Shapefile'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Reading layer `ine_depto' from data source `/tmp/RtmpKibWDB/ine_depto.shp' using driver `ESRI Shapefile'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 20 features and 6 fields</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: MULTIPOLYGON</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 366582.2 ymin: 6127919 xmax: 858252.1 ymax: 6671738</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: WGS 84 / UTM zone 21S</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 4 of 20 geometries of 'Deptos' were invalid as published and were repaired with sf::st_make_valid() (2 of them at millimetre precision, which can drop detail smaller than that). Use make_valid = FALSE to get them as the server publishes them.</span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">pobre_x_dpto_geo</span>, <span class="st">"try-error"</span><span class="op">)</span><span class="op">)</span> <span class="va">pobre_x_dpto_geo</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 20 features and 2 fields</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: MULTIPOLYGON</span>
@@ -121,7 +122,7 @@ Aviso: El script no es un producto oficial de INE.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: WGS 84 / UTM zone 21S</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> First 10 features:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>          link Pobreza                       geometry</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  MONTEVIDEO    &lt;NA&gt; MULTIPOLYGON (((579197 6136...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  MONTEVIDEO    &lt;NA&gt; MULTIPOLYGON (((579202.8 61...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2     ARTIGAS    0.26 MULTIPOLYGON (((441318.2 66...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3   CANELONES    &lt;NA&gt; MULTIPOLYGON (((587667.2 61...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4     COLONIA    &lt;NA&gt; MULTIPOLYGON (((446550.3 61...</span>
@@ -130,7 +131,7 @@ Aviso: El script no es un producto oficial de INE.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7   LAVALLEJA     0.1 MULTIPOLYGON (((729873.6 62...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8    PAYSANDU    &lt;NA&gt; MULTIPOLYGON (((571956.7 64...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9   RIO NEGRO    &lt;NA&gt; MULTIPOLYGON (((401012.3 63...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10     RIVERA    &lt;NA&gt; MULTIPOLYGON (((638452.2 65...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10     RIVERA    &lt;NA&gt; MULTIPOLYGON (((638496.3 65...</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
@@ -142,7 +143,7 @@ Aviso: El script no es un producto oficial de INE.</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Richard Detomasi.</p>
+  <p></p><p>Developed by Richard Detomasi, Sebastián Lucas.</p>
 </div>
 
 <div class="pkgdown">

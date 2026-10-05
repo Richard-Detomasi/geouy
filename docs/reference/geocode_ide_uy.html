@@ -32,7 +32,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/RichDeto/geouy/" class="external-link">
+  <a href="https://github.com/Richard-Detomasi/geouy/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>A function to geocoding directions using IDE_uy</h1>
-    <small class="dont-index">Source: <a href="https://github.com/RichDeto/geouy/blob/HEAD/R/geocode_ide_uy.R" class="external-link"><code>R/geocode_ide_uy.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/Richard-Detomasi/geouy/blob/HEAD/R/geocode_ide_uy.R" class="external-link"><code>R/geocode_ide_uy.R</code></a></small>
     <div class="hidden name"><code>geocode_ide_uy.Rd</code></div>
     </div>
 
@@ -56,7 +56,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">geocode_ide_uy</span><span class="op">(</span><span class="va">x</span>, details <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">geocode_ide_uy</span><span class="op">(</span><span class="va">x</span>, details <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -68,12 +68,15 @@
 
 
 <dt id="arg-details">details<a class="anchor" aria-label="anchor" href="#arg-details"></a></dt>
-<dd><p>Logical value, default FALSE for X and Y variables only, if TRUE keep all variables of the service.</p></dd>
+<dd><p>Logical. With <code>FALSE</code>, the default, only the <code>x</code> and
+<code>y</code> coordinates are added; with <code>TRUE</code>, also <code>idTipoClasificacion</code>
+and <code>error</code>.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The DafaFrame x with the coordinates variables append (x and y)</p>
+    <p>The data frame <code>x</code> with the coordinates appended (<code>x</code> and
+  <code>y</code>). Rows whose address is empty are dropped before querying the service.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -93,9 +96,10 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="co"># x1 &lt;- cbind(dpto="Montevideo",loc="Montevideo",dir="Av. 18 de julio 1453")</span></span></span>
-<span class="r-in"><span><span class="co"># x2 &lt;- data.frame(x1, stringsAsFactors = F)</span></span></span>
-<span class="r-in"><span><span class="co"># geocode_ide_uy(x2)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>dpto <span class="op">=</span> <span class="st">"Montevideo"</span>, loc <span class="op">=</span> <span class="st">"Montevideo"</span>,</span></span>
+<span class="r-in"><span>                dir <span class="op">=</span> <span class="st">"Av. 18 de julio 1453"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">puntos</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">geocode_ide_uy</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">puntos</span>, <span class="st">"try-error"</span><span class="op">)</span><span class="op">)</span> <span class="va">puntos</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
@@ -107,7 +111,7 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Richard Detomasi.</p>
+  <p></p><p>Developed by Richard Detomasi, Sebastián Lucas.</p>
 </div>
 
 <div class="pkgdown">

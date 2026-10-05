@@ -32,7 +32,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/RichDeto/geouy/" class="external-link">
+  <a href="https://github.com/Richard-Detomasi/geouy/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>This function return an 'sf' object with the geometry of the consult id or group of ids, of an administrative units in Uruguay.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/RichDeto/geouy/blob/HEAD/R/where_uy.R" class="external-link"><code>R/where_uy.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/Richard-Detomasi/geouy/blob/HEAD/R/where_uy.R" class="external-link"><code>R/where_uy.R</code></a></small>
     <div class="hidden name"><code>where_uy.Rd</code></div>
     </div>
 
@@ -72,7 +72,10 @@
 
 
 <dt id="arg-e">e<a class="anchor" aria-label="anchor" href="#arg-e"></a></dt>
-<dd><p>A vector who determines the ids or names to identify.</p></dd>
+<dd><p>A vector who determines the ids or names to identify. It is matched
+against the column the metadata declares, using that column's own type: a
+numeric code is compared as a number and a textual one, such as `gml_id` or
+the INE codes like "UY-MO", as text.</p></dd>
 
 
 <dt id="arg-crs">crs<a class="anchor" aria-label="anchor" href="#arg-crs"></a></dt>
@@ -98,29 +101,8 @@
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">where_uy</span><span class="op">(</span>c <span class="op">=</span> <span class="st">"Localidades pg"</span>, d <span class="op">=</span> <span class="st">"cod"</span>, e <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1020</span>, <span class="fl">2020</span><span class="op">)</span><span class="op">)</span>, silent <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Reading layer `Localidades_pg' from data source </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   `https://mapas.mides.gub.uy:443/geoserver/ows?service=WFS&amp;version=1.0.0&amp;request=GetFeature&amp;typeName=INECenso:Localidades_pg' </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   using driver `GML'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 652 features and 11 fields</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: MULTIPOLYGON</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 367301.2 ymin: 6127941 xmax: 851002.9 ymax: 6660353</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: WGS 84 / UTM zone 21S</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>GDAL Error 1: Failed to connect to mapas.mides.gub.uy port 443 after 134754 ms: Connection timed out</span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"try-error"</span><span class="op">)</span><span class="op">)</span> <span class="va">x</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Simple feature collection with 2 features and 11 fields</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Geometry type: MULTIPOLYGON</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Dimension:     XY</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Bounding box:  xmin: 548162.8 ymin: 6133504 xmax: 589754.2 ymax: 6638447</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Projected CRS: WGS 84 / UTM zone 21S</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                           gml_id id DEPTO CODLOC  NOMBDEPTO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 Localidades_pg.fid--3a02f092_1a08864122d_-4aae  1     1   1020 MONTEVIDEO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 Localidades_pg.fid--3a02f092_1a08864122d_-4a97 23     2   2020    ARTIGAS</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      NOMBLOC viv_tot_23 pob_tot_23 pob_tot_hom_23 pob_tot_muj_23 capital</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 MONTEVIDEO     576483    1284699         605416         679283    TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    ARTIGAS      17190      43843          21082          22761   FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                         the_geom</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 MULTIPOLYGON (((564657.7 61...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 MULTIPOLYGON (((548438.6 66...</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
@@ -132,7 +114,7 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Richard Detomasi.</p>
+  <p></p><p>Developed by Richard Detomasi, Sebastián Lucas.</p>
 </div>
 
 <div class="pkgdown">

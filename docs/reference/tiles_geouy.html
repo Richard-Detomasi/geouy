@@ -32,7 +32,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul><ul class="nav navbar-nav navbar-right"><li>
-  <a href="https://github.com/RichDeto/geouy/" class="external-link">
+  <a href="https://github.com/Richard-Detomasi/geouy/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
 
   </a>
@@ -47,7 +47,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>This function allows to Download .jpg or .tif files from the IDEuy tiles repository, according to a 'sf' object bbox.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/RichDeto/geouy/blob/HEAD/R/tiles_geouy.R" class="external-link"><code>R/tiles_geouy.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/Richard-Detomasi/geouy/blob/HEAD/R/tiles_geouy.R" class="external-link"><code>R/tiles_geouy.R</code></a></small>
     <div class="hidden name"><code>tiles_geouy.Rd</code></div>
     </div>
 
@@ -68,7 +68,10 @@
 
 
 <dt id="arg-d">d<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
-<dd><p>numeric; buffer distance for all, or for each of the elements in x; in case dist is a units object, it should be convertible to arc_degree if x has geographic coordinates, and to st_crs(x)$units otherwise. Default NA, but if x is a only one point buffer default is 100.</p></dd>
+<dd><p>A single buffer distance around <code>x</code>, in meters, as
+<code><a href="https://r-spatial.github.io/sf/reference/geos_unary.html" class="external-link">sf::st_buffer()</a></code> interprets it both for projected and for geographic
+coordinates; a <code>units</code> object is also accepted. Default <code>NA</code>, which
+means no buffer, except when <code>x</code> is a single feature, where it defaults to 100.</p></dd>
 
 
 <dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
@@ -85,7 +88,7 @@
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>raster::stack object with th cropped tif corresponding to x bbox</p>
+    <p>A <code>RasterBrick</code> with the tiles covering <code>x</code>, cropped to its bounding box.</p>
     </div>
     <div id="see-also">
     <h2>See also</h2>
@@ -121,7 +124,7 @@
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Richard Detomasi.</p>
+  <p></p><p>Developed by Richard Detomasi, Sebastián Lucas.</p>
 </div>
 
 <div class="pkgdown">

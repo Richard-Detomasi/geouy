@@ -53,3 +53,14 @@ jobs:
         env:
           NOT_CRAN: "true"
         run: Rscript -e 'testthat::test_local(".", stop_on_failure = TRUE)'
+      
+      - name: Install covr
+        run: Rscript -e 'install.package("covr")'
+
+      - name: Generate coverage
+        run: Rscript -e 'covr::package_coverage()'
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-actions@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.TOKEN_COVECOD }}

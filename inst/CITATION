@@ -13,12 +13,13 @@ url <- "https://github.com/Richard-Detomasi/geouy"
 
 bibentry(bibtype = "Misc",
          title = "{geouy}: Geographic Information of Uruguay",
-         author = c(person("Richard", "Detomasi")),
+         author = c(person("Richard", "Detomasi"),
+                    person("Sebastián", "Lucas")),
          year = year,
          note = note,
          url = url,
          # Iba con "=" fuera de la llamada, asi que era una variable suelta y
          # bibentry nunca la recibia.
-         textVersion = paste0("Detomasi, Richard, (", year, "). ",
+         textVersion = paste0("Detomasi, Richard & Lucas, Sebastián; (", year, "). ",
                               "geouy: Geographic Information of Uruguay. ",
                               note, ". ", url))

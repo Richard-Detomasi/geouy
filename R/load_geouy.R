@@ -164,19 +164,112 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
     } else {
       a <- descarga_o_falla(sf::st_read(archivo, crs = x$crs), c, x$url)
     }
+  } else if (length(capas_de_la_url(x$url)) > 1) {
+    a <- leer_partes(x)
   } else {
-    if(!enco == "UTF-8"){
-      a <- descarga_o_falla(
-        sf::st_read(x$url, crs = x$crs, options = glue::glue("ENCODING=", enco)), c, x$url)
-    } else {
-      a <- descarga_o_falla(sf::st_read(x$url, crs = x$crs), c, x$url)
-    }
+    a <- leer_servicio(x$url, x$crs, enco, c)
   }
   # Antes de transformar: se valida en el CRS en que se publico la capa, que es
   # donde el organismo la dibujo.
   if (isTRUE(make_valid)) a <- sanear(a, c)
   a <- a %>% sf::st_transform(crs)
   return(a)
+}
+
+leer_servicio <- function(url, crs, enco, capa) {
+  if (!enco == "UTF-8") {
+    descarga_o_falla(
+      sf::st_read(url, crs = crs, options = glue::glue("ENCODING=", enco)), capa, url)
+  } else {
+    descarga_o_falla(sf::st_read(url, crs = crs), capa, url)
+  }
+}
+
+# Una capa del paquete puede juntar varias del mismo servicio: "Calles" pide en
+# su URL los ejes de UTE, que cubren el interior, y los de la Intendencia, que
+# cubren Montevideo. sf::st_read() con esa URL lee solo la primera, y avisa, asi
+# que "Calles" venia sin Montevideo (#75). Cada parte se lee con su propia URL,
+# con un solo typeName, y no con el argumento layer de st_read(), que depende de
+# la version de GDAL.
+capas_de_la_url <- function(url) {
+  if (!grepl("[?&]typeNames?=", url, ignore.case = TRUE)) return(character())
+  tn <- sub(".*[?&]typeNames?=([^&#]*).*", "\\1", url, ignore.case = TRUE)
+  strsplit(utils::URLdecode(tn), ",", fixed = TRUE)[[1]]
+}
+
+con_una_capa <- function(url, parte) {
+  sub("([?&]typeNames?=)[^&#]*", paste0("\\1", utils::URLencode(parte)), url,
+      ignore.case = TRUE)
+}
+
+# Cada parte tiene su propia fila en el metadata, con la misma URL y un solo
+# typeName: de ahi salen su CRS, su codificacion y cuales son su codigo y su
+# nombre. Un test comprueba que esas filas existan.
+leer_partes <- function(x) {
+  md <- geouy::metadata
+  piezas <- lapply(capas_de_la_url(x$url), function(parte) {
+    url <- con_una_capa(x$url, parte)
+    fila <- md[md$url %in% url, ]
+    if (nrow(fila) != 1) {
+      stop(glue::glue("The metadata has no layer for '{parte}', part of '{x$capa}'."))
+    }
+    list(datos = leer_servicio(url, fila$crs, fila$enc, fila$capa), fila = fila)
+  })
+  unir_capas(piezas, x)
+}
+
+# Junta las partes conservando todas sus columnas, con NA donde una parte no
+# tiene la de la otra: asi juntas son lo mismo que por separado. Ademas, el
+# codigo y el nombre de cada parte se copian a las columnas que declara la capa
+# unida, como texto -en una el codigo es texto y en la otra es entero-, para que
+# where_uy() busque en todas las filas; y la columna capa dice de cual de las
+# partes sale cada fila.
+unir_capas <- function(piezas, x) {
+  partes <- lapply(piezas, function(p) {
+    a <- p$datos
+    f <- p$fila
+    # Si el metadata declara una columna que la capa no trae, que el error lo
+    # diga, y no uno sobre longitudes al copiarla.
+    for (columna in stats::na.omit(c(f$cod, f$name))) {
+      if (!columna %in% names(a)) {
+        stop(glue::glue("The metadata declares {columna} as a column of '{f$capa}', ",
+                        "but the layer does not bring it."))
+      }
+    }
+    # Si una parte ya trajera una columna capa, se conserva con otro nombre.
+    if ("capa" %in% names(a)) names(a)[names(a) == "capa"] <- "capa_original"
+    # rep() y no un valor suelto: una parte puede venir sin filas.
+    vacio <- rep(NA_character_, nrow(a))
+    a[[x$cod]] <- if (is.na(f$cod)) vacio else as.character(a[[f$cod]])
+    a[[x$name]] <- if (is.na(f$name)) vacio else as.character(a[[f$name]])
+    a$capa <- rep(f$capa, nrow(a))
+    # rbind() exige el mismo CRS en todas.
+    if (sf::st_crs(a) != sf::st_crs(x$crs)) a <- sf::st_transform(a, x$crs)
+    a
+  })
+  geom <- attr(partes[[1]], "sf_column")
+  partes <- lapply(partes, function(a) {
+    if (!identical(attr(a, "sf_column"), geom)) sf::st_geometry(a) <- geom
+    a
+  })
+  columnas <- unique(unlist(lapply(partes, names)))
+  # Una columna que esta en varias partes con tipos distintos -una fecha en una
+  # y texto en otra- no se puede apilar: pasa a texto en todas.
+  for (n in setdiff(columnas, geom)) {
+    clases <- unique(lapply(partes, function(a) if (n %in% names(a)) class(a[[n]])))
+    clases <- Filter(Negate(is.null), clases)
+    if (length(clases) > 1) {
+      partes <- lapply(partes, function(a) {
+        if (n %in% names(a)) a[[n]] <- as.character(a[[n]])
+        a
+      })
+    }
+  }
+  partes <- lapply(partes, function(a) {
+    for (n in setdiff(columnas, names(a))) a[[n]] <- rep(NA, nrow(a))
+    a[, columnas]
+  })
+  do.call(rbind, partes)
 }
 
 # Un dato oficial no es necesariamente un dato valido, y sf usa dos motores que no

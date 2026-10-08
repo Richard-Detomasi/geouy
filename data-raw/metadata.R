@@ -67,6 +67,10 @@ metadata <- tibble::tribble(
   "Lagunas publicas", "MTOP", "MTOP", 32721, "wfs", 2019, "https://geoservicios.mtop.gub.uy/geoserver/rec_hidrograficos/lagunas_publicas/ows?service=WFS&request=GetFeature&typeName=lagunas_publicas", "gml_id", "nam", "UTF-8",
   "Rutas", "IDE", "MIDES", 32721, "wfs", 2017, "https://mapas.mides.gub.uy/geoserver/IDE/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Carreteras%20Uruguay&maxFeatures=50&outputFormat=application%2Fjson", "NUMERO", "NOMBRE", "UTF-8",
   "Calles", "IDE - UTE - IM", "MIDES", 32721, "wfs", 2017, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:EjesUruguayUTE,IDE:EjesMontevideoIM", "id", "nombre", "UTF-8",
+  # Las dos partes de "Calles", cada una por separado. load_geouy() las busca por
+  # su URL para unirlas, asi que tiene que ser la misma con un solo typeName.
+  "Calles del interior", "IDE - UTE", "MIDES", 32721, "wfs", 2017, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:EjesUruguayUTE", "id", "nombre", "UTF-8",
+  "Calles de Montevideo", "IM", "MIDES", 32721, "wfs", 2017, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:EjesMontevideoIM", "cod_nombre", "nom_calle", "UTF-8",
   "Peajes", "MTOP", "MTOP", 4326, "wfs", 2019, "https://geoservicios.mtop.gub.uy/geoserver/inf_tte_ttelog_terrestre/peajes/ows?service=WFS&request=GetFeature&typeName=peajes", "gml_id", "nombre", "UTF-8",
   "Instituciones deportivas", "IDE", "MIDES", 32721, "wfs", 2015, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:inst_deportivas_2015", "gml_id", "nombre", "UTF-8",
   "OTs", "MIDES", "MIDES", 32721, "wfs", 2022, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Otes_UY", NA, NA, "UTF-8",

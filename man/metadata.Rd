@@ -13,7 +13,9 @@ A data frame with one row per layer and 10 variables:
   \item{crs}{Coordinate Reference Systems of data}
   \item{formato}{format in which the layer is served: \code{wfs}, \code{zip} or \code{zip a}}
   \item{anio}{year of data production}
-  \item{url}{url of the service}
+  \item{url}{url of the service. When it asks for several layers of the same
+  service, as \code{Calles} does, \code{load_geouy()} reads each one, which
+  has its own row, and joins them}
   \item{cod}{name of the variable that contains the cod value of the geometries}
   \item{name}{name of the variable that contains the name of the geometries}
   \item{enc}{name of the encoding of the geoservice table}

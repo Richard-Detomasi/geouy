@@ -8,8 +8,8 @@
   geometries are repaired. Those that s2 still rejects after the repair,
   because a vertex lies within a few nanometres of another vertex or edge, are
   repaired again on a millimetre grid, and the message says how many. Any that
-  cannot be repaired are left as they are, with a warning: in `Calles`, 572
+  cannot be repaired are left as they are, with a warning: in `Calles`, 759
   lines of zero length. Curved geometries, as in `CONEAT` or `Balnearios`, are
   left untouched, since neither engine can evaluate them, and so are geometry
-  collections. With
-  `make_valid = FALSE` the geometries are neither checked nor repaired.
+  collections. With `make_valid = FALSE` the geometries are neither checked nor
+  repaired.

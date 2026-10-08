@@ -81,6 +81,13 @@ metadata <- tibble::tribble(
   "Educacion especial", "CEIP", "MIDES", 32721, "zip a", 2020, "https://mapas.mides.gub.uy/2shp/out/educacionespecial.zip", NA, NA, "UTF-8",
   "Educacion secundaria", "CEIP", "MIDES", 32721, "zip a", 2020, "https://mapas.mides.gub.uy/2shp/out/liceos.zip", NA, NA, "UTF-8",
   "UTU", "ANEP", "MIDES", 32721, "zip", 2020, "https://mapas.mides.gub.uy/2shp/out/utu.zip", NA, NA, "UTF-8",
+  # Sumadas por el #76. Las sirve el MIDES en su guia de recursos, con el mismo
+  # esquema que las de arriba; ID es unico en cada una. La oficina de victimas
+  # se atribuye a ASSE por el correo que trae el dato.
+  "Centros de lenguas extranjeras", "ANEP", "MIDES", 32721, "zip", 2026, "https://mapas.mides.gub.uy/2shp/out/centrodelenguasextranjeras.zip", "ID", "NOMBRE", "UTF-8",
+  "Centros educativos comunitarios", "ANEP", "MIDES", 32721, "zip", 2026, "https://mapas.mides.gub.uy/2shp/out/centroseducativoscomunitarioscec.zip", "ID", "NOMBRE", "UTF-8",
+  "Atencion al usuario del MSP", "MSP", "MIDES", 32721, "zip", 2026, "https://mapas.mides.gub.uy/2shp/out/oficinadeatencionalusuarioadelministeriodesaludms.zip", "ID", "NOMBRE", "UTF-8",
+  "Atencion a victimas del terrorismo de Estado", "ASSE", "MIDES", 32721, "zip", 2026, "https://mapas.mides.gub.uy/2shp/out/oficinadeatencionavictimasdeterrorismodeestado.zip", "ID", "NOMBRE", "UTF-8",
   "Postes Kilometros", "MTOP", "MTOP", 32721, "wfs", 2019, "https://geoservicios.mtop.gub.uy/geoserver/inf_tte_ttelog_terrestre/postes_km/ows?service=WFS&request=GetFeature&typeName=postes_km", NA, NA, "UTF-8",
   "Grilla ortofotos urbana", "IDE", "IDE", 5381, "wfs", 2019, "https://mapas.ide.uy/geoserver-raster/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ortofotos:grilla_urbana", "gml_id","nombre", "UTF-8",
   "Grilla ortofotos nacional", "IDE", "IDE", 5381, "wfs", 2019, "https://mapas.ide.uy/geoserver-raster/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ortofotos:grilla_nacional", "gml_id","nombre", "UTF-8",

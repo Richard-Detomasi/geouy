@@ -73,7 +73,6 @@ incompatible_o_falla <- function(primero, otro, nombre_primero, nombre_otro) {
 #' @importFrom sf st_join st_crs st_bbox st_transform
 #' @importFrom dplyr filter %>% distinct
 #' @importFrom methods is as
-#' @importFrom stringr str_sub str_pad
 #' @importFrom raster brick crop extent crs mosaic
 #' @importFrom glue glue
 #' @importFrom sp SpatialPolygons

@@ -4,11 +4,13 @@
 # si el problema es de uno o es ajeno. Estas dos funciones lo traducen a un
 # mensaje que si lo dice, y dejan el original al final por si el motivo era otro.
 falla_de_servicio <- function(capa, url, accion, detalle = NULL,
-                              causa = "The server may be down or the layer may have changed.") {
+                              causa = "The server may be down or the layer may have changed.",
+                              intentos = 1L) {
   # El prefijo "WFS:" que GDAL necesita en la URL no es parte del servidor.
   servidor <- sub("^WFS:", "", url)
   servidor <- sub("^(https?://[^/?#]+).*", "\\1", servidor)
-  mensaje <- glue::glue("Could not {accion} the layer '{capa}' from {servidor}.")
+  despues <- if (intentos > 1) glue::glue(" after {intentos} attempts") else ""
+  mensaje <- glue::glue("Could not {accion} the layer '{capa}' from {servidor}{despues}.")
   # La especulacion sirve cuando no hay nada mejor, pero estorba cuando si lo
   # hay: quien la pasa en NULL es porque ya tiene la causa real y no quiere que
   # el mensaje diga "puede estar caido" arriba de un detalle que dice otra cosa.
@@ -19,7 +21,7 @@ falla_de_servicio <- function(capa, url, accion, detalle = NULL,
   stop(mensaje, call. = FALSE)
 }
 
-descarga_o_falla <- function(expr, capa, url, accion = "read") {
+descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
   # GDAL y download.file suelen decir la causa real en un warning -"SSL
   # certificate problem: unable to get local issuer certificate", "Timeout of N
   # seconds was reached"- y recien despues tirar un error generico que no la
@@ -65,8 +67,9 @@ descarga_o_falla <- function(expr, capa, url, accion = "read") {
       # arriba de "SSL certificate problem"-. La decision es por si hay aviso o
       # no, no por lo que el aviso diga: los textos cambian entre versiones de
       # GDAL y entre idiomas, y no se puede colgar de ahi el comportamiento.
-      if (length(avisos)) falla_de_servicio(capa, url, accion, detalle, causa = NULL)
-      else falla_de_servicio(capa, url, accion, detalle)
+      if (length(avisos)) falla_de_servicio(capa, url, accion, detalle, causa = NULL,
+                                            intentos = intentos)
+      else falla_de_servicio(capa, url, accion, detalle, intentos = intentos)
     })
 }
 
@@ -85,6 +88,14 @@ descarga_o_falla <- function(expr, capa, url, accion = "read") {
 #'   they are. With \code{FALSE}
 #'   the geometries are neither checked nor repaired: apart from the
 #'   transformation to \code{crs}, they are returned as the server publishes them.
+#' @details Reading a layer from a web service, or downloading its zip file, is
+#'   retried when it fails: up to three attempts in all, waiting 5 and then 10
+#'   seconds, with a message before each new attempt. Failures that waiting
+#'   cannot fix, such as a layer that does not exist (HTTP 404) or a broken
+#'   certificate, are not retried. \code{options(geouy.attempts = 1)} turns this
+#'   off; \code{geouy.attempts} and \code{geouy.retry_wait} set the number of
+#'   attempts and the first wait, in seconds, which doubles after each attempt
+#'   up to 30 seconds (a longer first wait is kept as it is).
 #' @importFrom curl has_internet
 #' @importFrom sf st_read st_transform
 #' @importFrom glue glue
@@ -129,6 +140,10 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
       suppressWarnings(dir.create(folder, recursive = TRUE))
       if (!dir.exists(folder)) stop(glue::glue("You must enter a valid directory..."))
     }
+    # Una carpeta donde no se puede escribir es un problema de aca, no del
+    # servidor: sin esta guarda se reintentaba la descarga y el error lo
+    # culpaba a el.
+    if (file.access(folder, 2) != 0) stop(glue::glue("You must enter a valid directory..."))
     f = glue::glue("{folder}/{x$capa}.zip")
     if (!file.exists(f)) {
       message(glue::glue("Intentando descargar {x$capa}..."))
@@ -137,8 +152,28 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
       # servidor no responde, download.file() con mode = "a" aborta R con un
       # segfault, que ningun try() del usuario puede recuperar. Con mode = "wb"
       # el fallo es un error normal, que si se puede manejar.
-      descarga_o_falla(utils::download.file(x$url, f, mode = "wb", method = "libcurl"),
-                       c, x$url, accion = "download")
+      # Se baja a un temporal y se renombra al final: si la descarga falla a
+      # mitad de camino, un zip incompleto con el nombre definitivo haria que
+      # la proxima llamada lo diera por bajado. download.file() puede fallar
+      # tambien devolviendo un estado distinto de 0, sin error.
+      parcial <- paste0(f, ".parcial")
+      tryCatch(
+        con_reintentos(function() {
+          estado <- utils::download.file(x$url, parcial, mode = "wb", method = "libcurl")
+          if (!identical(as.integer(estado), 0L)) {
+            stop(glue::glue("download.file() returned status {estado}."))
+          }
+          estado
+        }, c, x$url, accion = "download"),
+        error = function(e) {
+          unlink(parcial)
+          stop(e)
+        })
+      if (!renombrar(parcial, f)) {
+        unlink(parcial)
+        stop(glue::glue("The zip of '{c}' was downloaded, but could not be saved in {folder}."),
+             call. = FALSE)
+      }
     }
     # Hay que mirar lo que el unzip extrajo, y no barrer la carpeta entera. Si
     # lo que se bajo no era un zip -por ejemplo, una pagina de error servida con
@@ -177,13 +212,87 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
 }
 
 leer_servicio <- function(url, crs, enco, capa) {
-  if (!enco == "UTF-8") {
-    descarga_o_falla(
-      sf::st_read(url, crs = crs, options = glue::glue("ENCODING=", enco)), capa, url)
-  } else {
-    descarga_o_falla(sf::st_read(url, crs = crs), capa, url)
+  con_reintentos(function() {
+    if (!enco == "UTF-8") {
+      sf::st_read(url, crs = crs, options = glue::glue("ENCODING=", enco))
+    } else {
+      sf::st_read(url, crs = crs)
+    }
+  }, capa, url)
+}
+
+# El servidor del IGM devolvia 500 una de cada cinco veces, y el geocodificador
+# de la IDE pasa ratos en 504 (#27): fallos de un momento, que el pedido
+# siguiente ya no tiene. Por eso lo que se baja de la red se reintenta. Lo que
+# esperar no arregla -una capa que no existe, un certificado roto- no, porque
+# solo demoraria el aviso.
+#
+# intento es una funcion y no una expresion: volver a forzar una promesa que ya
+# fallo la reevalua, pero con un aviso de R que terminaria en el mensaje de
+# error. Cuando anda a la primera no hay ninguna espera ni costo agregado.
+con_reintentos <- function(intento, capa, url, accion = "read") {
+  n <- opcion_intentos()
+  espera <- opcion_espera()
+  for (i in seq_len(n)) {
+    # Los avisos de un intento que falla son ruido -GDAL repite los suyos en
+    # cada uno-, y la causa igual llega en el error. Los del intento que anda
+    # son del usuario, y vuelven a salir.
+    avisos <- list()
+    r <- tryCatch(
+      withCallingHandlers(
+        list(valor = descarga_o_falla(intento(), capa, url, accion, intentos = i)),
+        warning = function(w) {
+          avisos[[length(avisos) + 1]] <<- w
+          invokeRestart("muffleWarning")
+        }),
+      error = function(e) e)
+    if (!inherits(r, "error")) {
+      for (w in avisos) warning(w)
+      return(r$valor)
+    }
+    if (i == n || es_permanente(conditionMessage(r))) stop(r)
+    segundos <- min(espera * 2^(i - 1), max(espera, 30))
+    message(glue::glue("Attempt {i} of {n} to {accion} the layer '{capa}' failed; ",
+                       "retrying in {segundos} seconds."))
+    esperar(segundos)
   }
 }
+
+# Lo que se reconoce como permanente, por el texto que dejan GDAL y
+# download.file(). Lo que no se reconoce se reintenta: si un texto cambia entre
+# versiones o idiomas, lo peor que pasa son intentos de mas, no perder el
+# reintento de un fallo de un momento. 408 y 429 no estan: son transitorios.
+# "cannot open destfile" es la carpeta local, por si la guarda de load_geouy()
+# no lo detecto.
+es_permanente <- function(mensaje) {
+  grepl(paste0("HTTP error code : (400|401|403|404|405|410)\\b|",
+               "HTTP status was '(400|401|403|404|405|410)\\b|",
+               "SSL certificate problem|SSL peer certificate|",
+               "cannot open destfile"), mensaje)
+}
+
+opcion_intentos <- function() {
+  n <- getOption("geouy.attempts", 3L)
+  if (!is.numeric(n) || length(n) != 1 || !is.finite(n) || n < 1 || n > 100 ||
+      n != round(n)) {
+    stop("The option geouy.attempts must be a whole number from 1 to 100.", call. = FALSE)
+  }
+  as.integer(n)
+}
+
+opcion_espera <- function() {
+  s <- getOption("geouy.retry_wait", 5)
+  if (!is.numeric(s) || length(s) != 1 || !is.finite(s) || s < 0) {
+    stop("The option geouy.retry_wait must be a number of seconds, 0 or more.",
+         call. = FALSE)
+  }
+  s
+}
+
+# Aparte, para que los tests puedan reemplazarlas: una para no esperar, la otra
+# para simular un rename que falla.
+esperar <- function(segundos) Sys.sleep(segundos)
+renombrar <- function(de, a) file.rename(de, a)
 
 # Una capa del paquete puede juntar varias del mismo servicio: "Calles" pide en
 # su URL los ejes de UTE, que cubren el interior, y los de la Intendencia, que

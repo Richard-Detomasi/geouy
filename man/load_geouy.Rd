@@ -30,6 +30,16 @@ sf object with the requested geometries
 \description{
 This function allows to take oficial uruguayan geometries, as object "sf", from various servers.
 }
+\details{
+Reading a layer from a web service, or downloading its zip file, is
+  retried when it fails: up to three attempts in all, waiting 5 and then 10
+  seconds, with a message before each new attempt. Failures that waiting
+  cannot fix, such as a layer that does not exist (HTTP 404) or a broken
+  certificate, are not retried. \code{options(geouy.attempts = 1)} turns this
+  off; \code{geouy.attempts} and \code{geouy.retry_wait} set the number of
+  attempts and the first wait, in seconds, which doubles after each attempt
+  up to 30 seconds (a longer first wait is kept as it is).
+}
 \examples{
 \donttest{
 secc <- try(load_geouy(c = "Secciones"), silent = TRUE)

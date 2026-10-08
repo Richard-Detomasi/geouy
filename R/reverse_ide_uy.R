@@ -23,9 +23,9 @@ reverse_ide_uy <- function(x, details = FALSE) {
   stopifnot(is.numeric(x$lat), "lat" %in% colnames(x), length(x$lat) >= 1)
   stopifnot(is.numeric(x$lon), "lon" %in% colnames(x))
   if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
-  x <- x %>% dplyr::mutate(lat = stringr::str_trim(lat),
-                           lon = stringr::str_trim(lon)) %>% 
-    dplyr::filter(nchar(lat) > 0 & nchar(lon) > 0)
+  # Las coordenadas ya son numeros: alcanza con sacar las filas sin ellas, NA o
+  # NaN, antes de consultar el servicio, que con un NaN responde 500.
+  x <- x %>% dplyr::filter(!is.na(lat) & !is.na(lon))
   # seq_len() y no 1:nrow(x), por lo mismo que en geocode_ide_uy(): con cero
   # filas, 1:0 recorre 1 y 0.
   for (i in seq_len(nrow(x))) {

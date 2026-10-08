@@ -49,7 +49,7 @@ plot_a <-
 sticker(plot_a, package = "",
         s_x = 1.03, s_y = 1, s_width = 1.5, s_height = 1.5, # ggplot image size and position
         h_fill = "black", h_color = "black", # hexagon
-        url = "https://github.com/Richard-Detomasi/geouy", u_color = "#4dc0d1", u_size = 6,
+        url = "https://github.com/Richard-Detomasi/geouy", u_color = "#4dc0d1", u_size = 4.8,
         spotlight = T, l_height = 17,
         filename = "./man/figures/geouy_logo_a.png", dpi = 400)  # output name and resolution
 
@@ -70,7 +70,7 @@ plot_a_svg <-
 sticker(plot_a_svg, package = "",
         s_x = 1.03, s_y = 1, s_width = 1.5, s_height = 1.5, # ggplot image size and position
         h_fill = "black", h_color = "black", # hexagon
-        url = "https://github.com/Richard-Detomasi/geouy", u_color = "#4dc0d1", 
+        url = "https://github.com/Richard-Detomasi/geouy", u_color = "#4dc0d1", u_size = 1.2,
         spotlight = T, l_height = 17,
         filename = "./man/figures/geouy_logo_a.svg")  # output name and resolution
 
@@ -91,7 +91,7 @@ plot_b <-
 sticker(plot_b, package = "",
         s_x = 1.03, s_y = 1, s_width = 1.5, s_height = 1.5, # ggplot image size and position
         h_fill = "#4dc0d1", h_color = "#4dc0d1", # hexagon
-        url = "https://github.com/Richard-Detomasi/geouy", u_color = "black", u_size = 6,
+        url = "https://github.com/Richard-Detomasi/geouy", u_color = "black", u_size = 4.8,
         spotlight = T, l_height = 17,
         filename = "./man/figures/geouy_logo_b.png", dpi = 400)  # output name and resolution
 
@@ -112,7 +112,7 @@ plot_b_svg <-
 sticker(plot_b_svg, package = "",
         s_x = 1.03, s_y = 1, s_width = 1.5, s_height = 1.5, # ggplot image size and position
         h_fill = "#4dc0d1", h_color = "#4dc0d1", # hexagon
-        url = "https://github.com/Richard-Detomasi/geouy", u_color = "black",
+        url = "https://github.com/Richard-Detomasi/geouy", u_color = "black", u_size = 1.2,
         spotlight = T, l_height = 17,
         filename = "./man/figures/geouy_logo_b.svg")  # output name and resolution
 

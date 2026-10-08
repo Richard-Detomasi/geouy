@@ -53,14 +53,43 @@ jobs:
         env:
           NOT_CRAN: "true"
         run: Rscript -e 'testthat::test_local(".", stop_on_failure = TRUE)'
-      
-      - name: Install covr
-        run: Rscript -e 'install.package("covr")'
 
-      - name: Generate coverage
-        run: Rscript -e 'covr::package_coverage()'
+  # La cobertura va en un job aparte, que corre en paralelo y con
+  # continue-on-error: mide con la suite completa, que sale a la red, y si un
+  # servidor esta caido ese job puede fallar sin que falle la corrida. covr
+  # calcula la cobertura y to_cobertura() la escribe en cobertura.xml, que es
+  # lo que sube la accion de Codecov. fail_ci_if_error hace que una subida que
+  # falla se vea, en vez de pasar en verde.
+  cobertura:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-actions@v5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::covr, any::xml2
+
+      - name: Medir la cobertura
         env:
-          CODECOV_TOKEN: ${{ secrets.TOKEN_COVECOD }}
+          NOT_CRAN: "true"
+        run: |
+          cov <- covr::package_coverage(quiet = FALSE)
+          print(cov)
+          covr::to_cobertura(cov)
+        shell: Rscript {0}
+
+      - name: Subir la cobertura a Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./cobertura.xml
+          disable_search: true
+          fail_ci_if_error: true
+          token: ${{ secrets.TOKEN_CODECOV }}

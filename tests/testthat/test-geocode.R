@@ -26,7 +26,23 @@ test_that("connection to IDE server working to reverse geocoding", {
   
   testthat::expect_is(x1, "data.frame")
   testthat::expect_equal(ncol(x1), 13)
+  # Las coordenadas vuelven como entraron, numeros y no texto (#70).
+  testthat::expect_type(x1$lat, "double")
+  testthat::expect_equal(x1[c("lat", "lon")], x)
   x2 <- reverse_ide_uy(x, details = T)
   testthat::expect_is(x2, "data.frame")
   testthat::expect_equal(ncol(x2), 23)
  })
+
+test_that("reverse_ide_uy() descarta las filas sin coordenadas y deja lat y lon como numeros", {
+  # Sin red: con una coordenada faltante en cada fila no queda nada que
+  # consultar, asi que alcanza con que has_internet() diga que hay conexion.
+  # Un NaN tambien es una coordenada faltante: antes se mandaba al servicio,
+  # que responde 500, y hacia fallar toda la llamada.
+  local_mocked_bindings(has_internet = function() TRUE, .package = "curl")
+  x <- data.frame(lat = c(-34.77882, NA, NaN), lon = c(NA, -56.06476, -56.06476))
+  r <- reverse_ide_uy(x)
+  expect_equal(nrow(r), 0)
+  expect_type(r$lat, "double")
+  expect_type(r$lon, "double")
+})

@@ -48,28 +48,29 @@ secc <- load_geouy("Secciones")
 |-----|-----|-----|-----|-----|
 |`"Uruguay"`| `"INE"` | MIDES | 2011 | wfs |
 |`"Areas administrativas"`| `"SGM"` | IGM | 2011 | wfs |
-|`"Deptos"`| `"INE"` | IDE | 2011 | wfs |
+|`"Deptos"`| `"INE"` | IDE | 2011 | zip |
 |`"Dptos"`| `"DINAMA"` | "MVOTMA"| 2020  | wfs | 
 |`"Limites departamentales"`| `"IGM"` | "IGM" | 2011  | wfs | 
 |`"Departamentos"`| `"IDE"` | "MIDES" | 2011  | wfs |
-|`"Secciones"`| `"INE Censo"` | MIDES | 2023 | wfs |
-|`"Segmentos"`| `"INE Censo"` | MIDES | 2023 | wfs |
-|`"Zonas"`| `"INE Censo"` | MIDES | 2023 | wfs |
-|`"Secciones11"`| `"INE Censo"` | MIDES | 2011 | wfs |
-|`"Segmentos11"`| `"INE Censo"` | MIDES | 2011 | wfs |
-|`"Zonas11"`| `"INE Censo"` | MIDES | 2011 | wfs |
+|`"Secciones"`| `"INE"` | MIDES | 2023 | wfs |
+|`"Segmentos"`| `"INE"` | MIDES | 2023 | wfs |
+|`"Zonas"`| `"INE"` | MIDES | 2023 | wfs |
+|`"Secciones11"`| `"INE"` | MIDES | 2011 | wfs |
+|`"Segmentos11"`| `"INE"` | MIDES | 2011 | wfs |
+|`"Zonas11"`| `"INE"` | MIDES | 2011 | wfs |
 |`"Secc MVD 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Segm MVD 2004"`| `"INE"` | MIDES | 2004 | wfs |
-|`"Segm URB INT 2004"`| `"INE"` | MIDES | 2004 | wfs |
+|`"Segmentos URB INT 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Zonas MVD 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Zonas URB INT 2004"`| `"INE"` | MIDES | 2004 | wfs |
-|`"Localidades pg"`| `"INE Censo"` | MIDES | 2011 | wfs |
-|`"Localidades pt"`| `"INE Censo"` | MIDES | 2011 | wfs |
+|`"Localidades pg"`| `"INE"` | MIDES | 2023 | wfs |
+|`"Localidades pt"`| `"INE"` | MIDES | 2023 | zip |
 |`"Centros poblados pg"`| `"SGM"` | IGM | 2011 | wfs |
 |`"Centros poblados pt"`| `"SGM"` | IGM | 2011 | wfs |
+|`"Municipios"`| `"IGM"` | IGM | 2011 | wfs |
 |`"Municipios10"`| `"DINOT-IM-IC"` | MVOTMA | 2010 | zip |
 |`"Municipios15"`| `"DINOT-IM-IC"` | MVOTMA | 2015 | zip |
-|`"CCZ"`| `"INE"` | MIDES | 2011 | wfs |
+|`"CCZ"`| `"IM"` | MIDES | 2011 | wfs |
 |`"Asentamientos irregulares"`| `"PMB"` | MIDES | 2014 | wfs |
 |`"Barrios"` | `"INE"` | MIDES | 2011 | wfs |
 |`"Balnearios"`| `"MTOP"` | MTOP |  2017 | wfs |
@@ -82,10 +83,31 @@ secc <- load_geouy("Secciones")
 
 | Layer | Productor | Source | Year | Format |
 |-----|-----|-----|-----|-----|
+|`"DeptoHog11"`| `"INE"` | IDE | 2011 | zip |
+|`"DeptoPob11"`| `"INE"` | IDE | 2011 | zip |
+|`"DeptoPobHom11"`| `"INE"` | IDE | 2011 | zip |
+|`"DeptoPobMuj11"`| `"INE"` | IDE | 2011 | zip |
+|`"DeptoViv11"`| `"INE"` | IDE | 2011 | zip |
 |`"LocHog11"`| `"INE"` | IDE | 2011 | zip |
+|`"LocPob11"`| `"INE"` | IDE | 2011 | zip |
 |`"LocPobHom11"`| `"INE"` | IDE | 2011 | zip |
 |`"LocPobMuj11"`| `"INE"` | IDE | 2011 | zip |
 |`"LocViv11"`| `"INE"` | IDE | 2011 | zip |
+|`"SeccHog11"`| `"INE"` | IDE | 2011 | zip |
+|`"SeccPob11"`| `"INE"` | IDE | 2011 | zip |
+|`"SeccPobHom11"`| `"INE"` | IDE | 2011 | zip |
+|`"SeccPobMuj11"`| `"INE"` | IDE | 2011 | zip |
+|`"SeccViv11"`| `"INE"` | IDE | 2011 | zip |
+|`"SegHog11"`| `"INE"` | IDE | 2011 | zip |
+|`"SegPob11"`| `"INE"` | IDE | 2011 | zip |
+|`"SegPobHom11"`| `"INE"` | IDE | 2011 | zip |
+|`"SegPobMuj11"`| `"INE"` | IDE | 2011 | zip |
+|`"SegViv11"`| `"INE"` | IDE | 2011 | zip |
+|`"ZonHog11"`| `"INE"` | IDE | 2011 | zip |
+|`"ZonPob11"`| `"INE"` | IDE | 2011 | zip |
+|`"ZonPobHom11"`| `"INE"` | IDE | 2011 | zip |
+|`"ZonPobMuj11"`| `"INE"` | IDE | 2011 | zip |
+|`"ZonViv11"`| `"INE"` | IDE | 2011 | zip |
 
 
 ##### Hidrology
@@ -111,6 +133,8 @@ secc <- load_geouy("Secciones")
 |-----|-----|-----|-----|-----|
 |`"Rutas"` | `"IDE"` | MIDES | 2017 | wfs |
 |`"Calles"` | `"IDE - UTE - IM"` | MIDES | 2017 | wfs |
+|`"Calles del interior"`| `"IDE - UTE"` | MIDES | 2017 | wfs |
+|`"Calles de Montevideo"`| `"IM"` | MIDES | 2017 | wfs |
 |`"Peajes"` | `"MTOP"` | MTOP | 2019 | wfs |
 |`"Postes Kilometros"` |`"MTOP"` | MTOP | 2019 | wfs |
 
@@ -118,17 +142,20 @@ secc <- load_geouy("Secciones")
 
 | Layer | Productor | Source | Year | Format |
 |-----|-----|-----|-----|-----|
-| `"OTs"` | `"MIDES"` | MIDES | 2022 | zip |
-| `"Educación en Primera Infancia e Inicial"` | `"CEIP"` | MIDES | 2020 | zip | 
+| `"OTs"` | `"MIDES"` | MIDES | 2022 | wfs |
 | `"Jardines de infantes"` | `"CEIP"` | MIDES | 2020 | zip |
 | `"Colegios privados N0a3"` | `"CEIP"` | MIDES | 2020 | zip |
 | `"Escuelas con N3"` | `"CEIP"` | MIDES | 2020 | zip |
-| `"Escuelas"` | `"CEIP"` | MIDES | 2020 | zip | 
+| `"Escuelas"` | `"CEIP"` | MIDES | 2020 | wfs |
 | `"Educacion especial"` | `"CEIP"` | MIDES | 2020 | zip | 
 | `"Educacion secundaria"` | `"CEIP"` | MIDES | 2020 |  zip |
 | `"UTU"` | `"ANEP"` | MIDES | 2020 |  zip |
+|`"Centros de lenguas extranjeras"`| `"ANEP"` | MIDES | 2026 | zip |
+|`"Centros educativos comunitarios"`| `"ANEP"` | MIDES | 2026 | zip |
+|`"Atencion al usuario del MSP"`| `"MSP"` | MIDES | 2026 | zip |
+|`"Atencion a victimas del terrorismo de Estado"`| `"ASSE"` | MIDES | 2026 | zip |
 | `"Instituciones deportivas"` | `"IDE"` | MIDES | 2015 | wfs |
-| `"Playas"`| `"DINAMA¨` | MVOTMA | 2007 | zip |
+| `"Playas"`| `"DINAMA"` | MVOTMA | 2007 | zip |
 
 ##### Orthophotos
 

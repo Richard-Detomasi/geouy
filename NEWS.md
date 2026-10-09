@@ -1,7 +1,153 @@
 *log history of geouy package development*
 
-## geouy v0.2.9
+## geouy v0.3.0
 
+* `add_geom()` no longer uses an external vector inside a selection, which
+  `tidyselect` deprecated in 1.1.0 and has announced will become an error. The
+  `rename()` in the middle was not needed either: `select()` can rename while
+  selecting, so it is now a single call.
+* The `NEWS.md` entries of a change now live in their own file under `news/`
+  until a release consolidates them, so two pull requests no longer collide on
+  the same lines of the same file.
+* The weekly layer check no longer reports a static file as down on a single
+  404. Those files are regenerated periodically, and while they are being
+  recreated they answer 404 even though the service is fine. The check now
+  looks at the directory index first: if the file is still listed there, it is
+  most likely being regenerated rather than withdrawn.
+* The pkgdown site was rebuilt. It had been generated for v0.2.6, so it was
+  missing the `Secciones11`, `Segmentos11` and `Zonas11` layers, still credited
+  the SGM as the source of the three layers the IGM serves now, and documented
+  functions that no longer exist.
+* The changelog page of the site was empty. `NEWS.md` opened with a title
+  heading above the version headings, and pkgdown takes the top-level headings
+  of the file as the versions, so it found none and rendered nothing.
+* `citation("geouy")` printed the year as `????`. It was taken from the `Date`
+  field of the DESCRIPTION, which this package does not have; it now comes from
+  `Date/Publication`, the field CRAN adds when it publishes, and falls back to
+  the current year when neither is there.
+* The `textVersion` of the citation was written outside the call to
+  `bibentry()`, so it was an unused variable and what `citation()` showed was
+  the text `bibentry` builds on its own.
+* The layer `Educación en Primera Infancia e Inicial` could not be loaded by
+  the name the README gives. The script that builds `metadata` ran every
+  character column through `iconv(x, "latin1", "UTF-8")`, and since the file is
+  itself UTF-8 that double-encoded the only accented name in the table, so
+  `load_geouy()` answered that the name was not correct. The rest of the table
+  is ASCII, so no other layer was affected.
+* The weekly check now also looks at what the organisms publish, not only at
+  whether what the package already uses still answers. It takes a snapshot of
+  the catalogues the package draws from -the WFS workspaces and the directory
+  index of the static files- and reports what appeared since the previous run.
+  It deliberately does not report everything published that the package does
+  not use: that would be seventy-odd entries every single week.
+* `where_uy(d = "cod")` can now query the layers whose code is textual. It used
+  to run the ids through `as.numeric()` whenever `d = "cod"`, so a layer that
+  declares `gml_id` or `globalid` as its code -ten of the sixty-four that
+  declare one- could not be queried at all: a number never matched the column,
+  and a text id was turned into `NA` before it got there. The ids are now
+  compared using the type of the column itself.
+* `where_uy()` says which column it compared against and what its values look
+  like when nothing matches, instead of only "verify ids", which read as if the
+  id were wrong even when the query could not have worked.
+* `where_uy()` no longer stops with `the condition has length > 1` when several
+  non-numeric ids are given at once, and the warning about ids that found no
+  match now names them instead of interpolating the whole vector.
+* `load_geouy()`, `which_uy()` and `plot_geouy()` now stop when the input is
+  wrong, instead of printing the reason and carrying on. Their checks were
+  written as `try(if (...) stop(...))`, and a `try()` around a `stop()` catches
+  the very error the code has just raised: the message was printed but the
+  function kept going and failed later with something unrelated. A layer name
+  that is not in the metadata came back as "argument is of length zero"; an
+  object that is not `sf` came back, in `which_uy()`, as "restarting
+  interrupted promise evaluation"; and `plot_geouy()` did not fail at all, it
+  returned a ggplot of an object that is not a layer.
+* `load_geouy()` no longer returns a different layer than the one asked for
+  when given more than one name. The condition failed on length, the `try()`
+  swallowed that error too, and the filter below recycled and kept one of them,
+  so `load_geouy(c("Peajes", "Rutas"))` quietly downloaded `Rutas`.
+* `load_geouy()` and `tiles_geouy()` now say that the directory they were given
+  cannot be used, instead of blaming the server. `dir.create()` was wrapped in
+  `try()` to ignore the "directory already exists" case, but that also hid "the
+  path is a file" and "no permission": the download then wrote nowhere and the
+  error that reached the user said the server had not returned a zip.
+* `tiles_geouy()` no longer builds its "not class sf" message by interpolating
+  the whole object. `glue()` is vectorised, so it produced one message per
+  column of the object and pasted them one after another. It is the same shape
+  that produced the "bad error message" the package was archived for.
+* The example of `plot_geouy()` no longer downloads a layer. It used a column of
+  the MIDES `Secciones` layer, which is what got the package archived in 2025
+  when that layer dropped `AREA`; it now draws a few zones built by hand, so it
+  runs without network access and never depends on a remote schema.
+* `plot_geouy()` now passes `...` to `ggplot2::theme()`, as its documentation
+  said. It used to ignore it silently, so a call with an argument that
+  `theme()` rejects, such as `plot.title = 1`, used to draw the map and now
+  stops with the error from ggplot2.
+* `geocode_ide_uy()` and `reverse_ide_uy()` have runnable examples; they were
+  commented out. They also no longer stop with "subscript out of bounds" when
+  every address is empty, and `geocode_ide_uy()` no longer waits ten seconds
+  after the last address, when there is no next request to space out.
+* The text returned by `is.uy4326()`, `is.uy32721()`, `is.uy5381()` and
+  `is.uy5382()` changed: it said "Your object have ... Ururguay" and now says
+  "Your object has ... Uruguay". That text is the return value, so code that
+  compares it exactly has to be updated. Their documentation also said they
+  return a logical value; they return a character string.
+* Several parts of the documentation described something other than what the
+  code does, and the code of the vignette did not run. Both are fixed.
+* `load_geouy()` now repairs the geometries that are invalid as published, with
+  `sf::st_make_valid()`, and a message says how many it repaired. It checks them
+  as both GEOS and s2 see them, because they disagree: s2, which `sf` uses by
+  default with geographic coordinates, also rejects repeated vertices, which
+  GEOS accepts. Most census layers had some, among them `Departamentos`,
+  `Secciones`, `Segmentos` and `Zonas`, so spatial joins in `EPSG:4326` against
+  them failed, and so did `which_uy()` with `Departamentos`. Only the invalid
+  geometries are repaired. Those that s2 still rejects after the repair,
+  because a vertex lies within a few nanometres of another vertex or edge, are
+  repaired again on a millimetre grid, and the message says how many. Any that
+  cannot be repaired are left as they are, with a warning: in `Calles`, 759
+  lines of zero length. Curved geometries, as in `CONEAT` or `Balnearios`, are
+  left untouched, since neither engine can evaluate them, and so are geometry
+  collections. With `make_valid = FALSE` the geometries are neither checked nor
+  repaired.
+* The layer `Educación en Primera Infancia e Inicial` was removed. It was the
+  same data as `Jardines de infantes`, row by row and column by column: the
+  server publishes the same file under two names. `Jardines de infantes` is the
+  name that describes what the layer contains, so that is the one that stays.
+* The package now points to its current repository,
+  <https://github.com/Richard-Detomasi/geouy>: the `DESCRIPTION` gained a `URL`
+  field and `BugReports` points there, as do `citation("geouy")`, `?geouy`, the
+  vignette and the tutorial. They pointed to the old one, where bug reports
+  would not be seen and `install_github()` installed a version without any of
+  these fixes.
+* `reverse_ide_uy()` returns `lat` and `lon` as numbers, as they came in. They
+  were coming back as text, so `r$lat + 1` failed. Rows whose coordinates are
+  `NaN` are now dropped like those with `NA`: they used to be sent to the
+  service, which answers with an error, and the whole call failed.
+* `Calles` now includes Montevideo. Its URL asks the service for two layers,
+  the street axes from UTE, which cover the rest of the country, and those
+  from the Intendencia de Montevideo, but only the first one was being read.
+  Both are now read and joined, keeping all their columns, with the code and
+  the name of each copied to `id` and `nombre` and a `capa` column saying
+  which one each row comes from. Each part can also be loaded on its own, as
+  `Calles del interior` and `Calles de Montevideo`.
+* Four new point layers from the MIDES resource guide: `Centros de lenguas
+  extranjeras`, `Centros educativos comunitarios`, `Atencion al usuario del
+  MSP` and `Atencion a victimas del terrorismo de Estado`. They declare `ID`
+  as their code and `NOMBRE` as their name, so `where_uy()` works with them.
+* `load_geouy()` retries when reading a layer from a web service, or
+  downloading its zip file, fails: up to three attempts in all, waiting 5 and
+  then 10 seconds, with a message before each new attempt. Failures that
+  waiting cannot fix, such as a layer that does not exist or a broken
+  certificate, are not retried, and the final error says how many attempts
+  were made. `options(geouy.attempts = 1)` turns it off; `geouy.attempts` and
+  `geouy.retry_wait` change the number of attempts and the first wait. A zip
+  whose download fails half-way is no longer left behind as if it had been
+  downloaded.
+* geouy no longer depends on `fs`, `ggthemes` and `sp`, which it did not use,
+  and `SystemRequirements` no longer asks for `unrar` or 7-Zip: no function
+  handles `.rar` files anymore.
+* `add_geom()` accepts `Segmentos URB INT 2004`. Its list of layers said
+  `Segm URB INT 2004`, a name the metadata does not have, so that layer could
+  not be used with either name.
 * Fix `tiles_geouy()` returning the whole union of the tiles when the area
   spans more than one. The crop to the requested area, and the CRS, were only
   applied on the single-tile path; asking for 300 m around a point came back as

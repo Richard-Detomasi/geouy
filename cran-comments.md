@@ -1,8 +1,8 @@
 ## Resubmission of an archived package
 
-geouy was archived on 2025-08-20. The problem was the additional check with
-`--run-donttest`, where the example of `plot_geouy()` failed with
-`bad error message`. It had two causes:
+geouy was archived on 2025-08-20, at version 0.2.8; this submission is version
+0.3.0. The problem was the additional check with `--run-donttest`, where the
+example of `plot_geouy()` failed with `bad error message`. It had two causes:
 
 * The example plotted a column of a remote layer, the MIDES `Secciones` WFS
   layer, which was republished with the 2023 census and no longer included that
@@ -23,6 +23,9 @@ In this version:
   server, instead of an unrelated error from further down.
 * The two validation messages that interpolated a whole `sf` object no longer do
   so.
+* A download or a read that fails is retried up to three times in normal use,
+  but only once while `R CMD check` runs, so a remote service that is down does
+  not make the check slower.
 
 ## R CMD check results
 
@@ -41,8 +44,8 @@ In this version:
       despite reminders.
 
 With `--run-donttest`, the examples that download data depend on the response
-time of the remote servers: `load_geouy()` took about 3 seconds of CPU and 29 of
-elapsed time.
+time of the remote servers: in our runs, `load_geouy()` took about 5 seconds of
+CPU and between 23 and 45 seconds of elapsed time.
 
 ## Example in \dontrun{}
 
@@ -55,8 +58,8 @@ still run it in the checks with `--run-donttest`.
 
 * local: Pop!_OS 22.04 (Ubuntu based), R 4.6.1, with `--as-cran --run-donttest`
 * GitHub Actions: ubuntu-latest (R-devel, release, oldrel-1), macOS (release)
-  and Windows (release), with `--as-cran`; the R-devel job also runs the
-  examples with `--run-donttest`
+  and Windows (release), with `--as-cran`, which also runs the examples in
+  `\donttest{}`
 
 ## Downstream dependencies
 

@@ -22,7 +22,7 @@ test_that("output is a ggplot", {
   expect_error(plot_geouy(x = secc, col = num, l = "c", other_lab = "zapallitos"))
   
   pobre_x_dpto <- structure(list(nomdpto = c("ARTIGAS", "DURAZNO", "FLORIDA", "LAVALLEJA", "MONTEVIDEO", "PAYSANDU", "SALTO"), 
-                                 pobre06 = structure(c(2L, 2L, 2L, 2L, 2L, 2L, 2L), .Label = c("No pobre", "Pobre"), class = "factor"), 
+                                 pobre06 = structure(c(2L, 2L, 2L, 2L, 2L, 2L, 2L), levels = c("No pobre", "Pobre"), class = "factor"), 
                                  Pobreza = c(0.260606060606061, 0.272321428571429, 0.0732394366197183, 0.102941176470588, 
                                              0.0604369319087865, 0.158753709198813,  0.0578947368421053), 
                                  Pobreza_low = c(0.00872869058521952, -0.042928893532206, -0.0285853469112693, -0.0946580157678766, 

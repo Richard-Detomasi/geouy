@@ -18,7 +18,7 @@ for Uruguay."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">geouy</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -82,7 +82,9 @@ for Uruguay.</p>
 <dd><p>year of data production</p></dd>
 
   <dt>url</dt>
-<dd><p>url of the service</p></dd>
+<dd><p>url of the service. When it asks for several layers of the same
+  service, as <code>Calles</code> does, <code><a href="load_geouy.html">load_geouy()</a></code> reads each one, which
+  has its own row, and joins them</p></dd>
 
   <dt>cod</dt>
 <dd><p>name of the variable that contains the cod value of the geometries</p></dd>

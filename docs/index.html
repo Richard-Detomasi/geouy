@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Geographic Information of Uruguay">
-<meta property="og:description" content="The toolbox have functions to load and process geographic information for Uruguay. And extra-function to get address coordinates and orthophotos through the uruguayan IDE API &lt;https://www.gub.uy/infraestructura-datos-espaciales/tramites-y-servicios/servicios/servicio-direcciones-geograficas&gt;.">
+<meta property="og:description" content="Loads official geographic information of Uruguay, such as administrative boundaries, census areas, streets and public services, from the services of public agencies like the IDE, the INE and the MIDES, as sf objects, and provides functions to process them. It also turns addresses into coordinates and back, and downloads the orthophotos of an area, through the services of the Uruguayan IDE &lt;https://www.gub.uy/infraestructura-datos-espaciales/tramites-y-servicios/servicios/servicio-direcciones-geograficas&gt;.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">geouy</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.9</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.0</span>
       </span>
     </div>
 
@@ -130,7 +130,7 @@
 <td><code>"INE"</code></td>
 <td>IDE</td>
 <td>2011</td>
-<td>wfs</td>
+<td>zip</td>
 </tr>
 <tr class="even">
 <td><code>"Dptos"</code></td>
@@ -155,42 +155,42 @@
 </tr>
 <tr class="odd">
 <td><code>"Secciones"</code></td>
-<td><code>"INE Censo"</code></td>
+<td><code>"INE"</code></td>
 <td>MIDES</td>
 <td>2023</td>
 <td>wfs</td>
 </tr>
 <tr class="even">
 <td><code>"Segmentos"</code></td>
-<td><code>"INE Censo"</code></td>
+<td><code>"INE"</code></td>
 <td>MIDES</td>
 <td>2023</td>
 <td>wfs</td>
 </tr>
 <tr class="odd">
 <td><code>"Zonas"</code></td>
-<td><code>"INE Censo"</code></td>
+<td><code>"INE"</code></td>
 <td>MIDES</td>
 <td>2023</td>
 <td>wfs</td>
 </tr>
 <tr class="even">
 <td><code>"Secciones11"</code></td>
-<td><code>"INE Censo"</code></td>
+<td><code>"INE"</code></td>
 <td>MIDES</td>
 <td>2011</td>
 <td>wfs</td>
 </tr>
 <tr class="odd">
 <td><code>"Segmentos11"</code></td>
-<td><code>"INE Censo"</code></td>
+<td><code>"INE"</code></td>
 <td>MIDES</td>
 <td>2011</td>
 <td>wfs</td>
 </tr>
 <tr class="even">
 <td><code>"Zonas11"</code></td>
-<td><code>"INE Censo"</code></td>
+<td><code>"INE"</code></td>
 <td>MIDES</td>
 <td>2011</td>
 <td>wfs</td>
@@ -210,7 +210,7 @@
 <td>wfs</td>
 </tr>
 <tr class="odd">
-<td><code>"Segm URB INT 2004"</code></td>
+<td><code>"Segmentos URB INT 2004"</code></td>
 <td><code>"INE"</code></td>
 <td>MIDES</td>
 <td>2004</td>
@@ -232,17 +232,17 @@
 </tr>
 <tr class="even">
 <td><code>"Localidades pg"</code></td>
-<td><code>"INE Censo"</code></td>
+<td><code>"INE"</code></td>
 <td>MIDES</td>
-<td>2011</td>
+<td>2023</td>
 <td>wfs</td>
 </tr>
 <tr class="odd">
 <td><code>"Localidades pt"</code></td>
-<td><code>"INE Censo"</code></td>
+<td><code>"INE"</code></td>
 <td>MIDES</td>
-<td>2011</td>
-<td>wfs</td>
+<td>2023</td>
+<td>zip</td>
 </tr>
 <tr class="even">
 <td><code>"Centros poblados pg"</code></td>
@@ -259,69 +259,76 @@
 <td>wfs</td>
 </tr>
 <tr class="even">
+<td><code>"Municipios"</code></td>
+<td><code>"IGM"</code></td>
+<td>IGM</td>
+<td>2011</td>
+<td>wfs</td>
+</tr>
+<tr class="odd">
 <td><code>"Municipios10"</code></td>
 <td><code>"DINOT-IM-IC"</code></td>
 <td>MVOTMA</td>
 <td>2010</td>
 <td>zip</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>"Municipios15"</code></td>
 <td><code>"DINOT-IM-IC"</code></td>
 <td>MVOTMA</td>
 <td>2015</td>
 <td>zip</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>"CCZ"</code></td>
-<td><code>"INE"</code></td>
+<td><code>"IM"</code></td>
 <td>MIDES</td>
 <td>2011</td>
 <td>wfs</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>"Asentamientos irregulares"</code></td>
 <td><code>"PMB"</code></td>
 <td>MIDES</td>
 <td>2014</td>
 <td>wfs</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>"Barrios"</code></td>
 <td><code>"INE"</code></td>
 <td>MIDES</td>
 <td>2011</td>
 <td>wfs</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>"Balnearios"</code></td>
 <td><code>"MTOP"</code></td>
 <td>MTOP</td>
 <td>2017</td>
 <td>wfs</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>"Secciones catastrales"</code></td>
 <td><code>"DNC"</code></td>
 <td>MVOTMA</td>
 <td>2013</td>
 <td>zip</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>"Padrones rurales"</code></td>
 <td><code>"DNC"</code></td>
 <td>“MVOTMA”</td>
 <td>2014</td>
 <td>zip</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>"Padrones urbanos"</code></td>
 <td><code>"DNC"</code></td>
 <td>MVOTMA</td>
 <td>2014</td>
 <td>zip</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>"Secciones policiales"</code></td>
 <td><code>"MI"</code></td>
 <td>MVOTMA</td>
@@ -344,7 +351,49 @@
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td><code>"DeptoHog11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"DeptoPob11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"DeptoPobHom11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"DeptoPobMuj11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"DeptoViv11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
 <td><code>"LocHog11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"LocPob11"</code></td>
 <td><code>"INE"</code></td>
 <td>IDE</td>
 <td>2011</td>
@@ -366,6 +415,111 @@
 </tr>
 <tr class="even">
 <td><code>"LocViv11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"SeccHog11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"SeccPob11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"SeccPobHom11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"SeccPobMuj11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"SeccViv11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"SegHog11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"SegPob11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"SegPobHom11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"SegPobMuj11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"SegViv11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"ZonHog11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"ZonPob11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"ZonPobHom11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"ZonPobMuj11"</code></td>
+<td><code>"INE"</code></td>
+<td>IDE</td>
+<td>2011</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"ZonViv11"</code></td>
 <td><code>"INE"</code></td>
 <td>IDE</td>
 <td>2011</td>
@@ -493,6 +647,20 @@
 <td>wfs</td>
 </tr>
 <tr class="odd">
+<td><code>"Calles del interior"</code></td>
+<td><code>"IDE - UTE"</code></td>
+<td>MIDES</td>
+<td>2017</td>
+<td>wfs</td>
+</tr>
+<tr class="even">
+<td><code>"Calles de Montevideo"</code></td>
+<td><code>"IM"</code></td>
+<td>MIDES</td>
+<td>2017</td>
+<td>wfs</td>
+</tr>
+<tr class="odd">
 <td><code>"Peajes"</code></td>
 <td><code>"MTOP"</code></td>
 <td>MTOP</td>
@@ -526,74 +694,95 @@
 <td><code>"MIDES"</code></td>
 <td>MIDES</td>
 <td>2022</td>
-<td>zip</td>
+<td>wfs</td>
 </tr>
 <tr class="even">
-<td><code>"Educación en Primera Infancia e Inicial"</code></td>
-<td><code>"CEIP"</code></td>
-<td>MIDES</td>
-<td>2020</td>
-<td>zip</td>
-</tr>
-<tr class="odd">
 <td><code>"Jardines de infantes"</code></td>
 <td><code>"CEIP"</code></td>
 <td>MIDES</td>
 <td>2020</td>
 <td>zip</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>"Colegios privados N0a3"</code></td>
 <td><code>"CEIP"</code></td>
 <td>MIDES</td>
 <td>2020</td>
 <td>zip</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>"Escuelas con N3"</code></td>
 <td><code>"CEIP"</code></td>
 <td>MIDES</td>
 <td>2020</td>
 <td>zip</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>"Escuelas"</code></td>
 <td><code>"CEIP"</code></td>
 <td>MIDES</td>
 <td>2020</td>
-<td>zip</td>
+<td>wfs</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>"Educacion especial"</code></td>
 <td><code>"CEIP"</code></td>
 <td>MIDES</td>
 <td>2020</td>
 <td>zip</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>"Educacion secundaria"</code></td>
 <td><code>"CEIP"</code></td>
 <td>MIDES</td>
 <td>2020</td>
 <td>zip</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>"UTU"</code></td>
 <td><code>"ANEP"</code></td>
 <td>MIDES</td>
 <td>2020</td>
 <td>zip</td>
 </tr>
+<tr class="odd">
+<td><code>"Centros de lenguas extranjeras"</code></td>
+<td><code>"ANEP"</code></td>
+<td>MIDES</td>
+<td>2026</td>
+<td>zip</td>
+</tr>
 <tr class="even">
+<td><code>"Centros educativos comunitarios"</code></td>
+<td><code>"ANEP"</code></td>
+<td>MIDES</td>
+<td>2026</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
+<td><code>"Atencion al usuario del MSP"</code></td>
+<td><code>"MSP"</code></td>
+<td>MIDES</td>
+<td>2026</td>
+<td>zip</td>
+</tr>
+<tr class="even">
+<td><code>"Atencion a victimas del terrorismo de Estado"</code></td>
+<td><code>"ASSE"</code></td>
+<td>MIDES</td>
+<td>2026</td>
+<td>zip</td>
+</tr>
+<tr class="odd">
 <td><code>"Instituciones deportivas"</code></td>
 <td><code>"IDE"</code></td>
 <td>MIDES</td>
 <td>2015</td>
 <td>wfs</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>"Playas"</code></td>
-<td><code>"DINAMA¨</code></td>
+<td><code>"DINAMA"</code></td>
 <td>MVOTMA</td>
 <td>2007</td>
 <td>zip</td>
@@ -823,7 +1012,7 @@
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Richard Detomasi <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0002-6725-0261" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-<li>Sebastián Lucas <br><small class="roles"> Author </small>   </li>
+<li>Sebastián Lucas <br><small class="roles"> Author </small> <a href="https://orcid.org/0009-0009-9068-0276" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>

@@ -75,10 +75,8 @@ incompatible_o_falla <- function(primero, otro, nombre_primero, nombre_otro) {
 #' @importFrom methods is as
 #' @importFrom raster brick crop extent crs mosaic
 #' @importFrom glue glue
-#' @importFrom sp SpatialPolygons
 #' @importFrom utils download.file
 #' @importFrom rlang .data
-#' @importFrom fs dir_ls
 #' @importFrom curl has_internet
 #' @export
 #' @examples

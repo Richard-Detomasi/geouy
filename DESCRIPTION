@@ -1,7 +1,7 @@
 Type: Package
 Package: geouy
 Title: Geographic Information of Uruguay
-Version: 0.2.9
+Version: 0.3.0
 Authors@R: c(
     person("Richard", "Detomasi", email = "richard.detomasi@gmail.com",
            role = c("aut", "cre", "cph"),
@@ -17,9 +17,12 @@ Authors@R: c(
     person(given = "", family = "Instituto Geográfico Militar, Uruguay (IGM)", role = "dtc"),
     person(given = "", family = "Ministerio de Vivienda, Ordenamiento Territorial y Medio Ambiente, Uruguay (MVOTMA)", role = "dtc"))
 Maintainer: Richard Detomasi <richard.detomasi@gmail.com>
-Description: The toolbox have functions to load and process geographic
-    information for Uruguay.  And extra-function to get address
-    coordinates and orthophotos through the uruguayan 'IDE' API
+Description: Loads official geographic information of Uruguay, such as
+    administrative boundaries, census areas, streets and public services,
+    from the services of public agencies like the 'IDE', the 'INE' and the
+    'MIDES', as 'sf' objects, and provides functions to process them. It also
+    turns addresses into coordinates and back, and downloads the orthophotos
+    of an area, through the services of the Uruguayan 'IDE'
     <https://www.gub.uy/infraestructura-datos-espaciales/tramites-y-servicios/servicios/servicio-direcciones-geograficas>.
 License: GPL-3
 URL: https://github.com/Richard-Detomasi/geouy
@@ -30,10 +33,8 @@ Imports:
     assertthat,
     curl,
     dplyr,
-    fs,
     ggplot2,
     ggspatial,
-    ggthemes,
     glue,
     magrittr,
     methods,
@@ -41,7 +42,6 @@ Imports:
     rjson,
     rlang,
     sf,
-    sp,
     stringr,
     tidyselect,
     utils,
@@ -57,6 +57,5 @@ ByteCompile: true
 Encoding: UTF-8
 Language: en-US
 LazyData: TRUE
-SystemRequirements: 'unrar' (Linux/macOS) or '7-Zip' (Windows) to work
-    with '.rar' files, GDAL (>= 2.0.1), GEOS (>= 3.8.0), PROJ (>= 6.2.1)
+SystemRequirements: GDAL (>= 2.0.1), GEOS (>= 3.8.0), PROJ (>= 6.2.1)
 Config/roxygen2/version: 8.0.0

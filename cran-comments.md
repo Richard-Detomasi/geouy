@@ -43,9 +43,10 @@ In this version:
     X-CRAN-Comment: Archived on 2025-08-20 as issues were not corrected
       despite reminders.
 
-With `--run-donttest`, the examples that download data depend on the response
-time of the remote servers: in our runs, `load_geouy()` took about 5 seconds of
-CPU and between 23 and 45 seconds of elapsed time.
+With `--run-donttest` there can be a second NOTE, for the examples that take
+more than 5 seconds: those that download data depend on the response time of
+the remote servers, and in our runs `load_geouy()` took about 5 seconds of CPU
+and between 23 and 45 seconds of elapsed time.
 
 ## Example in \dontrun{}
 

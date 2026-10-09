@@ -49,8 +49,10 @@ In this version:
 
 With `--run-donttest` there can be a second NOTE, for the examples that take
 more than 5 seconds: those that download data depend on the response time of
-the remote servers, and in our runs `load_geouy()` took between 2 and 6 seconds
-of CPU and between 20 and 45 seconds of elapsed time.
+the remote servers. In our runs from Uruguay, `load_geouy()` took between 2 and
+6 seconds of CPU and between 20 and 45 seconds of elapsed time; on the GitHub
+Actions runners, all the examples in `\donttest{}` together took between 2.5
+and 3.5 minutes of elapsed time.
 
 ## Example in \dontrun{}
 

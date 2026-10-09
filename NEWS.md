@@ -11,12 +11,13 @@ First version since the package was archived on CRAN in 2025.
   them failed, as did `which_uy()` with `Departamentos`. Only invalid geometries
   are repaired, and a message reports how many; `make_valid = FALSE` skips the
   repair.
-* `load_geouy()` retries a failed download up to three times (only once while
-  `R CMD check` runs), except for failures that waiting cannot fix, such as a
-  layer that does not exist. The options `geouy.attempts` and
-  `geouy.retry_wait` change the number of attempts and the first wait. Large
-  downloads are no longer cut off after 60 seconds, and when a download or a
-  read fails, the error reports which layer, which server and why.
+* `load_geouy()` makes up to three attempts at each download or read (a single
+  one while `R CMD check` runs), and does not retry errors that retrying cannot
+  fix, such as HTTP 404 or a broken certificate. The options `geouy.attempts`
+  and `geouy.retry_wait` change the number of attempts and the wait before the
+  first retry. Large downloads are no longer cut off after 60 seconds, and when
+  a download or a read fails, the error reports which layer, which server and
+  why.
 * `load_geouy()` takes a single layer name: given several, it used to download
   one of them without saying so, and now it stops. It also stops with a clear
   message when the name or the folder is wrong, and no longer returns a
@@ -30,8 +31,11 @@ First version since the package was archived on CRAN in 2025.
   MSP` and `Atencion a victimas del terrorismo de Estado`. `Educación en
   Primera Infancia e Inicial` was removed: it was the same data as `Jardines de
   infantes`.
-* Several layers work again or return the right data: the five read from the
-  IGM; `Municipios10`, `Municipios15` and `CONEAT`, from their new servers;
+* `Secciones`, `Segmentos` and `Zonas` now return the 2023 census, which the
+  server publishes under the same names and with different columns. The 2011
+  census is in the new layers `Secciones11`, `Segmentos11` and `Zonas11`.
+* Several layers work again or return the right data: the five layers read from
+  the IGM; `Municipios10`, `Municipios15` and `CONEAT`, from their new servers;
   `OTs` and `Escuelas`, over WFS; `Zonas11`; and `Localidades pt`, which
   returned polygons instead of points. Several layers declared a code or name
   column they do not have, so `where_uy()` failed on them; they are fixed. Both
@@ -46,7 +50,7 @@ First version since the package was archived on CRAN in 2025.
   from an area outside the coverage, and no longer leaves half-downloaded
   files. It keeps the CRS that the "rgbi" tiles declare, instead of replacing
   it with WGS84, and checks that the tiles can be combined before building the
-  mosaic, instead of returning made-up values.
+  mosaic, instead of returning a raster with made-up values.
 * `where_uy()` can query the layers whose code column is text, accepts several
   values of it, and its errors say which column it compared against and which
   values had no match.
@@ -55,10 +59,10 @@ First version since the package was archived on CRAN in 2025.
 * `plot_geouy()` honors `viri_opt`, passes `...` to `ggplot2::theme()`, picks
   the color scale from the type of the variable and no longer changes the
   default theme of the session.
-* `reverse_ide_uy()` returns `lat` and `lon` as numbers, as they came in, and
-  drops the rows without coordinates before querying the service.
-  `geocode_ide_uy()` and `reverse_ide_uy()` no longer fail when every row is
-  empty, and `geocode_ide_uy()` no longer waits after the last address.
+* `reverse_ide_uy()` returns `lat` and `lon` as numbers, as they were given,
+  instead of as text, and drops the rows without coordinates before querying the
+  service. `geocode_ide_uy()` and `reverse_ide_uy()` no longer fail when every
+  row is empty, and `geocode_ide_uy()` no longer waits after the last address.
 * `add_geom()` accepts `Segmentos URB INT 2004`.
 * The text returned by `is.uy4326()`, `is.uy32721()`, `is.uy5381()` and
   `is.uy5382()` says "Your object has ... Uruguay" instead of "Your object have
@@ -68,12 +72,13 @@ First version since the package was archived on CRAN in 2025.
 ### Package
 
 * No example can make `R CMD check` fail when a remote service is down, and the
-  example of `plot_geouy()` no longer downloads anything. Its validation message
-  interpolated the whole layer and produced the error that got the package
-  archived; it, and a similar one in `tiles_geouy()`, now build a single
-  message.
-* geouy no longer depends on `fs`, `ggthemes` and `sp`, and no longer asks for
-  `unrar` or 7-Zip in `SystemRequirements`.
+  example of `plot_geouy()` no longer downloads anything. The validation
+  message of `plot_geouy()` interpolated the whole layer and produced the error
+  that got the package archived; it and a similar one in `tiles_geouy()` now
+  build a single message.
+* geouy now requires R 4.1.0 or later. It no longer depends on `fs`,
+  `ggthemes` and `sp`, and no longer asks for `unrar` or 7-Zip in
+  `SystemRequirements`.
 * The package points to its new repository,
   <https://github.com/Richard-Detomasi/geouy>.
 

@@ -7,7 +7,7 @@ descarga_tile <- function(url, destino) {
   temporal <- tempfile(paste0(basename(destino), ".part-"), tmpdir = dirname(destino))
   on.exit(unlink(temporal), add = TRUE)
   estado <- tryCatch(
-    utils::download.file(url, temporal, mode = "wb", method = "libcurl"),
+    bajar_archivo(url, temporal),
     error = function(e) e)
   detalle <- if (inherits(estado, "error")) {
     conditionMessage(estado)

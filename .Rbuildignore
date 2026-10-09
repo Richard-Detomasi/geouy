@@ -12,7 +12,6 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-^tests$
 ^doc$
 ^Meta$
 ^inst/tutorials/intro_geouy/intro_geouy\.Rmd$

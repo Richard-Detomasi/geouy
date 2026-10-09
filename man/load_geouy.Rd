@@ -38,7 +38,9 @@ Reading a layer from a web service, or downloading its zip file, is
   certificate, are not retried. \code{options(geouy.attempts = 1)} turns this
   off; \code{geouy.attempts} and \code{geouy.retry_wait} set the number of
   attempts and the first wait, in seconds, which doubles after each attempt
-  up to 30 seconds (a longer first wait is kept as it is).
+  up to 30 seconds (a longer first wait is kept as it is). While
+  \code{R CMD check} runs, the default is a single attempt, so that a server
+  that is down does not make the check slower.
 }
 \examples{
 \donttest{

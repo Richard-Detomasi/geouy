@@ -16,9 +16,10 @@ In this version:
 
 * The example of `plot_geouy()` no longer downloads anything: it draws a few
   zones built in the example itself, and is no longer in `\donttest{}`.
-* Every example that accesses a remote service is in `\donttest{}` and wraps
-  the whole remote operation in `try()`, including those that download twice,
-  so a change or an outage on the server cannot make the check fail.
+* Every example that accesses a remote service and is run by the check is in
+  `\donttest{}` and wraps the whole remote operation in `try()`, including
+  those that download twice, so a change or an outage on the server cannot make
+  the check fail.
 * When a download or a read fails, `load_geouy()`, which the other functions
   that load layers use, stops with a message that names the layer and the
   server, instead of an unrelated error from further down.

@@ -36,8 +36,8 @@ First version since the package was archived on CRAN in 2025.
   census is in the new layers `Secciones11`, `Segmentos11` and `Zonas11`.
 * Several layers work again or return the right data: the five layers read from
   the IGM; `Municipios10`, `Municipios15` and `CONEAT`, from their new servers;
-  `OTs` and `Escuelas`, over WFS; `Zonas11`; and `Localidades pt`, which
-  returned polygons instead of points. Several layers declared a code or name
+  `OTs` and `Escuelas`, over WFS; and `Localidades pt`, which returned
+  polygons instead of points. Several layers declared a code or name
   column they do not have, so `where_uy()` failed on them; they are fixed. Both
   `Localidades` layers are from 2023, not 2011, and `Barrios` from 2011, not
   1985.

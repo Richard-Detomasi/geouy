@@ -6,43 +6,59 @@ First version since the package was archived on CRAN in 2025.
 
 ### Loading layers
 
-* `load_geouy()` repairs the geometries that are invalid as published. Most
-  census layers had some, and spatial operations in `EPSG:4326` against them
-  failed, `which_uy()` with `Departamentos` among them. Only the invalid
-  geometries are repaired, a message says how many, and `make_valid = FALSE`
-  returns them as published.
-* `load_geouy()` retries a download that fails, up to three times (once while
-  `R CMD check` runs), and large downloads are no longer cut off after 60
-  seconds. When a layer cannot be loaded, the error says which layer, which
-  server and why.
-* `load_geouy()` no longer returns a different layer than the one asked for
-  when a download fails, and stops with a clear message when the name of the
-  layer or the folder is wrong.
+* `load_geouy()` repairs the geometries that are invalid in the published data.
+  Most census layers had some, and spatial operations in `EPSG:4326` against
+  them failed, as did `which_uy()` with `Departamentos`. Only invalid geometries
+  are repaired, and a message reports how many; `make_valid = FALSE` skips the
+  repair.
+* `load_geouy()` retries a failed download up to three times (only once while
+  `R CMD check` runs), except for failures that waiting cannot fix, such as a
+  layer that does not exist. The options `geouy.attempts` and
+  `geouy.retry_wait` change the number of attempts and the first wait. Large
+  downloads are no longer cut off after 60 seconds, and when a download or a
+  read fails, the error reports which layer, which server and why.
+* `load_geouy()` takes a single layer name: given several, it used to download
+  one of them without saying so, and now it stops. It also stops with a clear
+  message when the name or the folder is wrong, and no longer returns a
+  different layer than the one requested when a download fails.
 * `Calles` now includes Montevideo. Its two parts can also be loaded on their
-  own, as `Calles del interior` and `Calles de Montevideo`.
-* Four new layers from the MIDES resource guide. `Educación en Primera Infancia
-  e Inicial` was removed: it was the same data as `Jardines de infantes`.
+  own, as `Calles del interior` and `Calles de Montevideo`; the joined layer
+  keeps the columns of both, adds `id` and `nombre` for all rows, and a `capa`
+  column with the part each row comes from.
+* Adds four layers from the MIDES resource guide: `Centros de lenguas
+  extranjeras`, `Centros educativos comunitarios`, `Atencion al usuario del
+  MSP` and `Atencion a victimas del terrorismo de Estado`. `Educación en
+  Primera Infancia e Inicial` was removed: it was the same data as `Jardines de
+  infantes`.
 * Several layers work again or return the right data: the five read from the
   IGM; `Municipios10`, `Municipios15` and `CONEAT`, from their new servers;
   `OTs` and `Escuelas`, over WFS; `Zonas11`; and `Localidades pt`, which
-  returned polygons. Nine layers now declare the right code and name columns.
+  returned polygons instead of points. Several layers declared a code or name
+  column they do not have, so `where_uy()` failed on them; they are fixed. Both
+  `Localidades` layers are from 2023, not 2011, and `Barrios` from 2011, not
+  1985.
 
 ### Other functions
 
 * `tiles_geouy()` works again: it failed on every call. It crops to the
-  requested area in its CRS, covers the whole country with the urban flight,
-  tells a service that is down apart from an area outside the coverage, and no
-  longer leaves half-downloaded files.
-* `where_uy()` can query the layers whose code is text, and its errors say
-  which column it compared against.
+  requested area, works with `urban = TRUE` in every locality of the urban
+  orthophotos and not only in Montevideo, distinguishes a service that is down
+  from an area outside the coverage, and no longer leaves half-downloaded
+  files. It keeps the CRS that the "rgbi" tiles declare, instead of replacing
+  it with WGS84, and checks that the tiles can be combined before building the
+  mosaic, instead of returning made-up values.
+* `where_uy()` can query the layers whose code column is text, accepts several
+  values of it, and its errors say which column it compared against and which
+  values had no match.
 * `which_uy()` and `plot_geouy()` stop with a clear message when the input is
   wrong, instead of failing later with an unrelated error.
-* `plot_geouy()` honours `viri_opt`, passes `...` to `ggplot2::theme()`, picks
-  the colour scale from the type of the variable and no longer changes the
+* `plot_geouy()` honors `viri_opt`, passes `...` to `ggplot2::theme()`, picks
+  the color scale from the type of the variable and no longer changes the
   default theme of the session.
 * `reverse_ide_uy()` returns `lat` and `lon` as numbers, as they came in, and
-  drops the rows without coordinates before asking the service.
-  `geocode_ide_uy()` no longer waits after the last address.
+  drops the rows without coordinates before querying the service.
+  `geocode_ide_uy()` and `reverse_ide_uy()` no longer fail when every row is
+  empty, and `geocode_ide_uy()` no longer waits after the last address.
 * `add_geom()` accepts `Segmentos URB INT 2004`.
 * The text returned by `is.uy4326()`, `is.uy32721()`, `is.uy5381()` and
   `is.uy5382()` says "Your object has ... Uruguay" instead of "Your object have
@@ -52,10 +68,12 @@ First version since the package was archived on CRAN in 2025.
 ### Package
 
 * No example can make `R CMD check` fail when a remote service is down, and the
-  example of `plot_geouy()` no longer downloads anything. The validation
-  messages that interpolated a whole object, which produced the error that got
-  the package archived, now build a single message.
-* geouy no longer depends on `fs`, `ggthemes` and `sp`.
+  example of `plot_geouy()` no longer downloads anything. Its validation message
+  interpolated the whole layer and produced the error that got the package
+  archived; it, and a similar one in `tiles_geouy()`, now build a single
+  message.
+* geouy no longer depends on `fs`, `ggthemes` and `sp`, and no longer asks for
+  `unrar` or 7-Zip in `SystemRequirements`.
 * The package points to its new repository,
   <https://github.com/Richard-Detomasi/geouy>.
 

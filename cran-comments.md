@@ -8,16 +8,16 @@ example of `plot_geouy()` failed with `bad error message`. It had two causes:
   layer, which was republished with the 2023 census and no longer included that
   column.
 * The validation that caught the missing column built its message by
-  interpolating the whole `sf` object with `glue()`, which is vectorised, so it
-  produced one message per column of the layer instead of a single one.
+  interpolating the whole `sf` object with `glue()`. As `glue()` is vectorised,
+  it produced one message per column of the layer instead of a single one.
 
 In this version:
 
 * The example of `plot_geouy()` no longer downloads anything: it draws a few
   zones built in the example itself, and is no longer in `\donttest{}`.
 * Every example run by `--run-donttest` that accesses a remote service wraps the
-  whole remote operation in `try()`, including the ones that download more than
-  once, so a change or an outage on the server cannot make the check fail.
+  whole remote operation in `try()`, including those that download twice, so a
+  change or an outage on the server cannot make the check fail.
 * When a download or a read fails, `load_geouy()`, which the other functions
   that load layers use, stops with a message that names the layer and the
   server, instead of an unrelated error from further down.
@@ -64,4 +64,4 @@ still run it in the checks with `--run-donttest`.
 ## Downstream dependencies
 
 There are currently no downstream dependencies on CRAN. 'ech', which imports
-geouy, was archived on the same day for that reason.
+geouy, was archived on the same day because of that dependency.

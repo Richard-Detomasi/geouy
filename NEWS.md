@@ -139,9 +139,10 @@
   waiting cannot fix, such as a layer that does not exist or a broken
   certificate, are not retried, and the final error says how many attempts
   were made. `options(geouy.attempts = 1)` turns it off; `geouy.attempts` and
-  `geouy.retry_wait` change the number of attempts and the first wait. A zip
-  whose download fails half-way is no longer left behind as if it had been
-  downloaded.
+  `geouy.retry_wait` change the number of attempts and the first wait. While
+  `R CMD check` runs, the default is a single attempt, so that a server that is
+  down does not make the check slower. A zip whose download fails half-way is no
+  longer left behind as if it had been downloaded.
 * geouy no longer depends on `fs`, `ggthemes` and `sp`, which it did not use,
   and `SystemRequirements` no longer asks for `unrar` or 7-Zip: no function
   handles `.rar` files anymore.

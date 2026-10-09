@@ -2,12 +2,19 @@
 # espera: el intento es una funcion armada a mano, y esperar() se reemplaza por
 # una que anota cuanto se habria esperado.
 
+# Fuera de R CMD check son tres intentos; adentro, uno. Los tests fijan los tres
+# para dar lo mismo en los dos casos.
+tres_intentos <- function(env = parent.frame()) {
+  local_mocked_bindings(intentos_por_omision = function() 3L, .env = env)
+}
+
 falla_500 <- function() {
   warning("GDAL Error 1: HTTP error code : 500")
   stop("Cannot open \"WFS:https://x.uy/ows\"; Check connection parameters.")
 }
 
 test_that("lo que anda a la primera se pide una sola vez, sin mensajes ni esperas", {
+  tres_intentos()
   esperas <- numeric()
   local_mocked_bindings(esperar = function(s) esperas <<- c(esperas, s))
   n <- 0
@@ -18,6 +25,7 @@ test_that("lo que anda a la primera se pide una sola vez, sin mensajes ni espera
 })
 
 test_that("un fallo de un momento se reintenta, con un mensaje antes de cada intento", {
+  tres_intentos()
   esperas <- numeric()
   local_mocked_bindings(esperar = function(s) esperas <<- c(esperas, s))
   n <- 0
@@ -38,6 +46,7 @@ test_that("un fallo de un momento se reintenta, con un mensaje antes de cada int
 })
 
 test_that("si sigue fallando, el error dice cuantos intentos se hicieron", {
+  tres_intentos()
   esperas <- numeric()
   local_mocked_bindings(esperar = function(s) esperas <<- c(esperas, s))
   n <- 0
@@ -50,6 +59,7 @@ test_that("si sigue fallando, el error dice cuantos intentos se hicieron", {
 })
 
 test_that("lo que esperar no arregla no se reintenta", {
+  tres_intentos()
   esperas <- numeric()
   local_mocked_bindings(esperar = function(s) esperas <<- c(esperas, s))
   for (causa in c("GDAL Error 1: HTTP error code : 404",
@@ -65,6 +75,7 @@ test_that("lo que esperar no arregla no se reintenta", {
 })
 
 test_that("los avisos del intento que anda siguen saliendo", {
+  tres_intentos()
   local_mocked_bindings(esperar = function(s) NULL)
   n <- 0
   intento <- function() {
@@ -79,6 +90,7 @@ test_that("los avisos del intento que anda siguen saliendo", {
 })
 
 test_that("con warn = 2 el reintento sigue andando", {
+  tres_intentos()
   local_mocked_bindings(esperar = function(s) NULL)
   viejas <- options(warn = 2)
   on.exit(options(viejas), add = TRUE)
@@ -89,6 +101,7 @@ test_that("con warn = 2 el reintento sigue andando", {
 })
 
 test_that("las opciones cambian los intentos y la espera, y con 1 se apaga", {
+  tres_intentos()
   esperas <- numeric()
   local_mocked_bindings(esperar = function(s) esperas <<- c(esperas, s))
   viejas <- options(geouy.attempts = NULL, geouy.retry_wait = NULL)
@@ -114,6 +127,7 @@ test_that("las opciones cambian los intentos y la espera, y con 1 se apaga", {
 })
 
 test_that("una opcion que no tiene sentido da un error que la nombra", {
+  tres_intentos()
   viejas <- options(geouy.attempts = NULL, geouy.retry_wait = NULL)
   on.exit(options(viejas), add = TRUE)
   options(geouy.attempts = 0)
@@ -125,6 +139,7 @@ test_that("una opcion que no tiene sentido da un error que la nombra", {
 })
 
 test_that("una descarga que falla no deja un zip a medias en la carpeta", {
+  tres_intentos()
   local_mocked_bindings(esperar = function(s) NULL)
   local_mocked_bindings(has_internet = function() TRUE, .package = "curl")
   carpeta <- tempfile()
@@ -139,6 +154,7 @@ test_that("una descarga que falla no deja un zip a medias en la carpeta", {
 })
 
 test_that("un rename que falla da un error que lo dice, y no deja el zip a medias", {
+  tres_intentos()
   local_mocked_bindings(has_internet = function() TRUE, .package = "curl")
   local_mocked_bindings(renombrar = function(de, a) FALSE)
   carpeta <- tempfile()
@@ -152,6 +168,7 @@ test_that("un rename que falla da un error que lo dice, y no deja el zip a media
 })
 
 test_that("una carpeta donde no se puede escribir es un error local, sin bajar nada", {
+  tres_intentos()
   skip_on_os("windows")
   carpeta <- tempfile()
   dir.create(carpeta)
@@ -164,4 +181,19 @@ test_that("una carpeta donde no se puede escribir es un error local, sin bajar n
   local_mocked_bindings(download.file = function(...) { n <<- n + 1; 0L }, .package = "utils")
   expect_error(load_geouy("Deptos", folder = carpeta), "valid directory")
   expect_equal(n, 0)
+})
+
+test_that("durante R CMD check el valor por omision es un solo intento", {
+  viejo <- Sys.getenv("_R_CHECK_PACKAGE_NAME_", NA)
+  on.exit(if (is.na(viejo)) Sys.unsetenv("_R_CHECK_PACKAGE_NAME_")
+          else Sys.setenv("_R_CHECK_PACKAGE_NAME_" = viejo), add = TRUE)
+  Sys.setenv("_R_CHECK_PACKAGE_NAME_" = "geouy")
+  expect_equal(intentos_por_omision(), 1L)
+  Sys.unsetenv("_R_CHECK_PACKAGE_NAME_")
+  expect_equal(intentos_por_omision(), 3L)
+  # La opcion manda sobre el valor por omision, tambien durante el check.
+  Sys.setenv("_R_CHECK_PACKAGE_NAME_" = "geouy")
+  viejas <- options(geouy.attempts = 2)
+  on.exit(options(viejas), add = TRUE)
+  expect_equal(opcion_intentos(), 2L)
 })

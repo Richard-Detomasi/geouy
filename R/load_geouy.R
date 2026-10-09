@@ -95,7 +95,9 @@ descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
 #'   certificate, are not retried. \code{options(geouy.attempts = 1)} turns this
 #'   off; \code{geouy.attempts} and \code{geouy.retry_wait} set the number of
 #'   attempts and the first wait, in seconds, which doubles after each attempt
-#'   up to 30 seconds (a longer first wait is kept as it is).
+#'   up to 30 seconds (a longer first wait is kept as it is). While
+#'   \code{R CMD check} runs, the default is a single attempt, so that a server
+#'   that is down does not make the check slower.
 #' @importFrom curl has_internet
 #' @importFrom sf st_read st_transform
 #' @importFrom glue glue
@@ -272,7 +274,7 @@ es_permanente <- function(mensaje) {
 }
 
 opcion_intentos <- function() {
-  n <- getOption("geouy.attempts", 3L)
+  n <- getOption("geouy.attempts", intentos_por_omision())
   if (!is.numeric(n) || length(n) != 1 || !is.finite(n) || n < 1 || n > 100 ||
       n != round(n)) {
     stop("The option geouy.attempts must be a whole number from 1 to 100.", call. = FALSE)
@@ -287,6 +289,13 @@ opcion_espera <- function() {
          call. = FALSE)
   }
   s
+}
+
+# Durante R CMD check, un solo intento: si un servidor esta caido, los ejemplos
+# no tienen por que tardar el triple en avisarlo. R CMD check define esta
+# variable antes de correr los ejemplos, y el proceso que los corre la hereda.
+intentos_por_omision <- function() {
+  if (nzchar(Sys.getenv("_R_CHECK_PACKAGE_NAME_"))) 1L else 3L
 }
 
 # Aparte, para que los tests puedan reemplazarlas: una para no esperar, la otra

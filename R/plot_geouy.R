@@ -38,7 +38,7 @@ escala_discreta <- function(v, col) {
 #' @param ... Further arguments passed to \code{ggplot2::theme()}, applied after the default theme so they override it.
 #'
 #' @keywords ggplot2 sf maps
-#' @import ggplot2 ggthemes
+#' @import ggplot2
 #' @return ggplot object of a choropleth map with x geometries and col values.
 #' @export
 #'

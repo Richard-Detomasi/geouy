@@ -9,3 +9,10 @@ test_that("add_geom works", {
   pobre_x_dpto_geo <- add_geom(data = pobre_x_dpto, unit = "Deptos", variable = "nomdpto")
   testthat::expect_equal(ncol(pobre_x_dpto_geo), 3)
 })
+
+test_that("las capas que acepta add_geom() existen en el metadata", {
+  # Sin red. La lista tuvo "Segm URB INT 2004", que no existe: la capa se llama
+  # "Segmentos URB INT 2004".
+  expect_true(all(unidades_add_geom %in% geouy::metadata$capa),
+              info = paste(setdiff(unidades_add_geom, geouy::metadata$capa), collapse = ", "))
+})

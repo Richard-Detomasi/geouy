@@ -9,7 +9,7 @@ add_geom(data, unit, variable, crs = 32721)
 \arguments{
 \item{data}{data.frame}
 
-\item{unit}{spatial unit of data, may be: "Departamentos", "Secciones", "Secc MVD 2004", "Segmentos", "Segm MVD 2004", "Segm URB INT 2004", "Zonas", "Zonas MVD 2004", "Zonas URB INT 2004", "Localidades pg", "Municipios" o "Barrios".}
+\item{unit}{spatial unit of data, may be: "Departamentos", "Deptos", "Secciones", "Secc MVD 2004", "Segmentos", "Segm MVD 2004", "Segmentos URB INT 2004", "Zonas", "Zonas MVD 2004", "Zonas URB INT 2004", "Localidades pg", "Municipios" o "Barrios".}
 
 \item{variable}{Variable name of unit code (without duplicates)}
 

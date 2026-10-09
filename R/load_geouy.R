@@ -161,7 +161,7 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
       parcial <- paste0(f, ".parcial")
       tryCatch(
         con_reintentos(function() {
-          estado <- utils::download.file(x$url, parcial, mode = "wb", method = "libcurl")
+          estado <- bajar_archivo(x$url, parcial)
           if (!identical(as.integer(estado), 0L)) {
             stop(glue::glue("download.file() returned status {estado}."))
           }
@@ -289,6 +289,18 @@ opcion_espera <- function() {
          call. = FALSE)
   }
   s
+}
+
+# R corta toda descarga a los getOption("timeout") segundos, 60 por omision, y
+# es el tiempo total, no el de inactividad: las capas de cobertura del suelo de
+# Ambiente pesan 130 MB y una tesela de las ortofotos llega a 1,3 GB, asi que con
+# una conexion comun la descarga se cortaba a mitad de camino. Mientras se baja,
+# el tope pasa a una hora, salvo que el usuario haya puesto uno mayor, y despues
+# vuelve a lo que estaba.
+bajar_archivo <- function(url, destino) {
+  viejo <- options(timeout = max(getOption("timeout"), 3600))
+  on.exit(options(viejo), add = TRUE)
+  utils::download.file(url, destino, mode = "wb", method = "libcurl")
 }
 
 # Durante R CMD check, un solo intento: si un servidor esta caido, los ejemplos

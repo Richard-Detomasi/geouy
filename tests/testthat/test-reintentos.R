@@ -197,3 +197,21 @@ test_that("durante R CMD check el valor por omision es un solo intento", {
   on.exit(options(viejas), add = TRUE)
   expect_equal(opcion_intentos(), 2L)
 })
+
+test_that("las descargas tienen una hora de tope, y el timeout vuelve a lo que estaba", {
+  # Sin esto, R corta a los 60 segundos y una capa de 130 MB no llega a bajar.
+  visto <- NULL
+  local_mocked_bindings(download.file = function(url, destfile, ...) {
+    visto <<- getOption("timeout")
+    0L
+  }, .package = "utils")
+  viejas <- options(timeout = 60)
+  on.exit(options(viejas), add = TRUE)
+  bajar_archivo("https://x.uy/capa.zip", tempfile())
+  expect_equal(visto, 3600)
+  expect_equal(getOption("timeout"), 60)
+  # Un tope mas largo que puso el usuario se respeta.
+  options(timeout = 7200)
+  bajar_archivo("https://x.uy/capa.zip", tempfile())
+  expect_equal(visto, 7200)
+})

@@ -50,7 +50,7 @@ Suggests:
     knitr,
     rmarkdown,
     spelling,
-    testthat
+    testthat (>= 3.1.7)
 VignetteBuilder: 
     knitr
 ByteCompile: true

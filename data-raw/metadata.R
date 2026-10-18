@@ -61,7 +61,11 @@ metadata <- tibble::tribble(
   "CCZ", "IM", "MIDES", 32721, "wfs", 2011, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:ZonasComunales", "GID","ZONA_LEGAL", "UTF-8",
   "Asentamientos irregulares", "PMB", "MIDES", 32721, "wfs", 2014, "https://mapas.mides.gub.uy:443/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:ai_pmb_2014", "cod_ast", "nom_ast", "UTF-8",
   # "Barrio", "INE", "IDE", 32721, "zip", 1985, "https://mapas.ide.uy/geoserver-vectorial/INE_NO_SEGURO/wfs?service=WFS&request=GetFeature&version=1.0.0&outputFormat=shape-zip&typeName=ine_barrios_mvd_nbi85", "nrobarrio", "nombbarr", "UTF-8",
-  "Barrios", "INE", "MIDES", 32721, "wfs", 1985, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:barrios_ine_uy", "nrobarrio", "nombbarr", "UTF-8",
+  # 2011 y no 1985: 1985 es el ano de la definicion de los barrios, pero las
+  # geometrias salen de agrupar las zonas del censo 2011. El 99,99% del
+  # contorno de los barrios cae a menos de 1 m de un limite de esas zonas,
+  # contra el 53% con las de 2004 y el 27% con las de 2023.
+  "Barrios", "INE", "MIDES", 32721, "wfs", 2011, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:barrios_ine_uy", "nrobarrio", "nombbarr", "UTF-8",
   "Balnearios", "MTOP", "MTOP", 4326, "wfs", 2017, "https://geoservicios.mtop.gub.uy/geoserver/mb_planos/v_balnearios/ows?service=WFS&request=GetFeature&typeName=v_balnearios", "id", "balneario", "UTF-8",
   "Cursos de agua navegables y flotables", "MTOP", "MTOP", 32721, "wfs", 2019, "https://geoservicios.mtop.gub.uy/geoserver/rec_hidrograficos/cursos_nav_flot/ows?service=WFS&request=GetFeature&typeName=cursos_nav_flot", "gml_id", "nombre", "UTF-8",
   "Lagunas publicas", "MTOP", "MTOP", 32721, "wfs", 2019, "https://geoservicios.mtop.gub.uy/geoserver/rec_hidrograficos/lagunas_publicas/ows?service=WFS&request=GetFeature&typeName=lagunas_publicas", "gml_id", "nam", "UTF-8",

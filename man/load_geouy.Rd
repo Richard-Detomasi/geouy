@@ -19,8 +19,8 @@ message says how many were repaired; any that cannot be repaired are left as
 they are, with a warning. Invalid means rejected by either of the two
 geometry engines \code{sf} uses: GEOS, which flags a ring that crosses
 itself, or s2, which also rejects a repeated vertex. Repeated vertices are
-removed before the repair, because \code{sf::st_make_valid()} removes them
-only with GEOS 3.10 or later. Curved geometries,
+removed before the repair, because with GEOS older than 3.10
+\code{sf::st_make_valid()} can leave them in place. Curved geometries,
 which neither engine can evaluate, and geometry collections are left as
 they are. With \code{FALSE}
 the geometries are neither checked nor repaired: apart from the

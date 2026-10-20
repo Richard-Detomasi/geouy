@@ -84,8 +84,8 @@ descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
 #'   they are, with a warning. Invalid means rejected by either of the two
 #'   geometry engines \code{sf} uses: GEOS, which flags a ring that crosses
 #'   itself, or s2, which also rejects a repeated vertex. Repeated vertices are
-#'   removed before the repair, because \code{sf::st_make_valid()} removes them
-#'   only with GEOS 3.10 or later. Curved geometries,
+#'   removed before the repair, because with GEOS older than 3.10
+#'   \code{sf::st_make_valid()} can leave them in place. Curved geometries,
 #'   which neither engine can evaluate, and geometry collections are left as
 #'   they are. With \code{FALSE}
 #'   the geometries are neither checked nor repaired: apart from the
@@ -540,7 +540,7 @@ reparar <- function(g, familia, dimension, precision = NA) {
   # tiene que conservar su propia dimension.
   esperada <- if (is.na(dimension)) sf::st_dimension(g) else rep(dimension, length(g))
   if (!is.na(precision)) g <- sf::st_set_precision(g, precision)
-  g <- sin_repetidos(g, precision)
+  g <- sin_repetidos(en_la_grilla(g))
   juntas <- tryCatch(con_s2(FALSE, sf::st_make_valid(g)), error = function(e) NULL)
 
   if (is.null(juntas)) {
@@ -565,17 +565,15 @@ reparar <- function(g, familia, dimension, precision = NA) {
 }
 
 # Saca los vertices consecutivos repetidos de las lineas y los anillos, que s2
-# rechaza y GEOS acepta. st_make_valid() los saca solo con GEOS 3.10 o mas
-# nuevo; con uno mas viejo, sf usa otro metodo, que devuelve tal cual lo que
-# GEOS da por valido, con el vertice repetido adentro. Hacerlo aca no depende de
-# la version. Con grilla, cada vertice se lleva antes a ella, para que los que
-# quedan a un nanometro de otro pasen a ser repetidos y tambien salgan. Una
-# geometria a la que alguna linea o anillo le quedaria sin puntos suficientes
-# queda como estaba, y la resuelve -o no- st_make_valid().
-sin_repetidos <- function(g, precision = NA) {
+# rechaza y GEOS acepta. Con GEOS anterior a 3.10, sf repara con otro metodo
+# que devuelve tal cual lo que GEOS da por valido, con el vertice repetido
+# adentro; hacerlo aca no depende de la version. Una geometria a la que alguna
+# linea o anillo le quedaria sin puntos suficientes queda como estaba, y la
+# resuelve -o no- st_make_valid().
+sin_repetidos <- function(g) {
+  if (!length(g)) return(g)
   depurar <- function(m, minimo) {
     if (!nrow(m)) return(m)
-    if (!is.na(precision)) m[, 1:2] <- round(m[, 1:2] * precision) / precision
     # Solo cuentan x e y: los dos motores validan en el plano o en la esfera, y
     # una Z distinta no salva a un vertice repetido.
     xy <- m[, 1:2, drop = FALSE]
@@ -598,8 +596,25 @@ sin_repetidos <- function(g, precision = NA) {
     class(r) <- class(x)
     r
   }
-  sf::st_sfc(lapply(g, una), crs = sf::st_crs(g),
-             precision = sf::st_precision(g))
+  con_atributos(sf::st_sfc(lapply(g, una), crs = sf::st_crs(g)), g)
+}
+
+# Lleva los vertices a la grilla de la precision de g, si tiene: asi, los que
+# quedan a un nanometro de otro pasan a ser repetidos y sin_repetidos() los
+# saca. Va por WKB porque es el mismo redondeo que aplica sf al pasarle las
+# geometrias a GEOS; el de R desempata distinto, y un vertice que cae justo en
+# la mitad terminaria en otro lugar que el que ve GEOS.
+en_la_grilla <- function(g) {
+  if (!length(g) || sf::st_precision(g) == 0) return(g)
+  con_atributos(sf::st_as_sfc(sf::st_as_binary(g), crs = sf::st_crs(g)), g)
+}
+
+# Devuelve r con la precision y la orientacion de g, que reconstruir el sfc
+# pierde.
+con_atributos <- function(r, g) {
+  r <- sf::st_set_precision(r, sf::st_precision(g))
+  attr(r, "oriented") <- attr(g, "oriented")
+  r
 }
 
 # Deja una geometria ya reparada en la dimension que tenia, o NULL si no queda

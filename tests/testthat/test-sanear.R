@@ -209,12 +209,50 @@ test_that("sin_repetidos saca solo los vertices repetidos", {
   expect_identical(sin_repetidos(sf::st_sfc(chico))[[1]], chico)
   expect_identical(sin_repetidos(sf::st_sfc(puntos))[[1]], puntos)
 
-  # Con grilla, el vertice a un nanometro sale y la precision se conserva.
+  # Con grilla, el vertice a un nanometro pasa a ser repetido y sale.
   anillo <- rbind(c(0, 0), c(1, 0), c(1 + 1e-10, 0), c(1, 1), c(0, 0))
   nano <- sf::st_sfc(sf::st_polygon(list(anillo)), precision = 1000)
-  r <- sin_repetidos(nano, 1000)
+  expect_equal(nrow(sin_repetidos(nano)[[1]][[1]]), 5)
+  r <- sin_repetidos(en_la_grilla(nano))
   expect_equal(nrow(r[[1]][[1]]), 4)
   expect_equal(sf::st_precision(r), 1000)
+
+  # La orientacion y el tipo de un sfc vacio no se pierden.
+  o <- sf::st_sfc(sf::st_polygon(list(ext)), crs = 4326, oriented = TRUE)
+  expect_true(attr(sin_repetidos(o), "oriented"))
+  expect_true(attr(en_la_grilla(sf::st_set_precision(o, 1e8)), "oriented"))
+  expect_identical(sin_repetidos(o[0]), o[0])
+})
+
+test_that("la grilla redondea como sf, que desempata distinto que round()", {
+  # sf lleva 575000.0025 a 575000.003 y round() de R a 575000.002. Redondeando
+  # en R, este poligono quedaba con cuatro vertices alineados y no se podia
+  # reparar; con el redondeo de sf se repara, como antes.
+  m <- rbind(c(575000.0015, 6140000), c(575000.0015 + 1e-10, 6140000),
+             c(575000.0025, 6140001), c(575000.0015, 6140002),
+             c(575000.0015, 6140000))
+  a <- sf::st_sf(geometry = sf::st_sfc(sf::st_polygon(list(m)), crs = 32721))
+  skip_if(invalidas_en_4326(a) == 0, "s2 no rechaza este caso en esta version")
+  expect_message(r <- sanear(a, "prueba"), "1 of 1 geometries")
+  expect_equal(invalidas_en_4326(r), 0)
+})
+
+test_that("con el metodo de reparacion de GEOS < 3.10, sanear() repara igual", {
+  skip_if_not(sf::sf_use_s2())
+  # "valid_linework" es el unico metodo que sf usa con GEOS anterior a 3.10.
+  original <- sf::st_make_valid
+  local_mocked_bindings(.package = "sf", st_make_valid = function(x, ...) {
+    original(x, geos_method = "valid_linework")
+  })
+  a <- capa(list(cuadrado(0), repetido(500), mono(1000)))
+  expect_message(r <- sanear(a, "prueba"), "2 of 3 geometries")
+  expect_equal(invalidas_en_4326(r), 0)
+  anillo <- en_lugar(rbind(c(0, 0), c(100, 0), c(100 + 1e-10, 0), c(100, 100),
+                           c(0, 100), c(0, 0)), 0)
+  b <- capa(list(sf::st_polygon(list(anillo))))
+  skip_if(invalidas_en_4326(b) == 0, "s2 no rechaza este caso en esta version")
+  expect_message(r <- sanear(b, "prueba"), "millimetre precision")
+  expect_equal(invalidas_en_4326(r), 0)
 })
 
 test_that("en unidades que no son metros ni grados no se aplica la grilla", {

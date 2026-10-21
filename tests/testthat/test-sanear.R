@@ -227,8 +227,11 @@ test_that("sin_repetidos saca solo los vertices repetidos", {
   expect_equal(nrow(r[[1]][[1]]), 4)
   expect_equal(sf::st_precision(r), 1000)
 
-  # La orientacion y el tipo de un sfc vacio no se pierden.
-  o <- sf::st_sfc(sf::st_polygon(list(ext)), crs = 4326, oriented = TRUE)
+  # La orientacion y el tipo de un sfc vacio no se pierden. El atributo se
+  # pone a mano porque st_sfc() recien acepta oriented desde sf 1.0-18: con
+  # una version anterior, oriented = TRUE se toma como una geometria mas.
+  o <- sf::st_sfc(sf::st_polygon(list(ext)), crs = 4326)
+  attr(o, "oriented") <- TRUE
   expect_true(attr(sin_repetidos(o), "oriented"))
   expect_true(attr(en_la_grilla(sf::st_set_precision(o, 1e8)), "oriented"))
   expect_identical(sin_repetidos(o[0]), o[0])

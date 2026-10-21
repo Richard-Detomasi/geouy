@@ -170,7 +170,10 @@ test_that("sin GEOS 3.10, sanear() igual saca los vertices repetidos", {
   # es valido para s2, los vertices repetidos los saco sanear().
   local_mocked_bindings(st_make_valid = function(x, ...) x, .package = "sf")
   a <- capa(list(cuadrado(0), repetido(500)))
-  expect_message(r <- sanear(a, "prueba"), "1 of 2 geometries")
+  m <- capture_messages(r <- sanear(a, "prueba"))
+  expect_match(m, "1 of 2 geometries")
+  # Un repetido exacto sale en el primer paso, sin la grilla.
+  expect_false(any(grepl("millimetre", m)))
   expect_equal(invalidas_en_4326(r), 0)
   expect_identical(sf::st_geometry(r)[[1]], sf::st_geometry(a)[[1]])
   # Sale solo el vertice de mas: los demas son los publicados.
@@ -183,6 +186,13 @@ test_that("sin GEOS 3.10, sanear() igual saca los vertices repetidos", {
   b <- capa(list(sf::st_polygon(list(anillo))))
   skip_if(invalidas_en_4326(b) == 0, "s2 no rechaza este caso en esta version")
   expect_message(r <- sanear(b, "prueba"), "millimetre precision")
+  expect_equal(invalidas_en_4326(r), 0)
+})
+
+test_that("si sacar los repetidos falla, el resto de la reparacion sigue", {
+  local_mocked_bindings(sin_repetidos = function(g) stop("falla simulada"))
+  a <- capa(list(cuadrado(0), mono(500)))
+  expect_message(r <- sanear(a, "prueba"), "1 of 2 geometries")
   expect_equal(invalidas_en_4326(r), 0)
 })
 

@@ -540,7 +540,9 @@ reparar <- function(g, familia, dimension, precision = NA) {
   # tiene que conservar su propia dimension.
   esperada <- if (is.na(dimension)) sf::st_dimension(g) else rep(dimension, length(g))
   if (!is.na(precision)) g <- sf::st_set_precision(g, precision)
-  g <- sin_repetidos(en_la_grilla(g))
+  # Si sacar los repetidos fallara, se repara igual, como antes de existir
+  # este paso: que una geometria rara no deje sin reparar a todas las demas.
+  g <- tryCatch(sin_repetidos(en_la_grilla(g)), error = function(e) g)
   juntas <- tryCatch(con_s2(FALSE, sf::st_make_valid(g)), error = function(e) NULL)
 
   if (is.null(juntas)) {

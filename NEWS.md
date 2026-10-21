@@ -10,7 +10,8 @@ First version since the package was archived on CRAN in 2025.
   Most census layers had some, and spatial operations in `EPSG:4326` against
   them failed, as did `which_uy()` with `Departamentos`. Only invalid geometries
   are repaired, and a message reports how many; `make_valid = FALSE` skips the
-  repair.
+  repair. Repeated vertices are removed before the repair, because with GEOS
+  older than 3.10 `sf::st_make_valid()` can leave them in place.
 * `load_geouy()` makes up to three attempts at each download or read (a single
   one while `R CMD check` runs), and does not retry errors that retrying cannot
   fix, such as HTTP 404 or a broken certificate. The options `geouy.attempts`

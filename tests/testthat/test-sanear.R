@@ -163,6 +163,108 @@ test_that("la grilla de milimetro se usa solo donde hace falta, y se avisa", {
   expect_message(sanear(capa(list(sf::st_polygon(list(anillo)))), "prueba"), "millimetre precision")
 })
 
+test_that("sin GEOS 3.10, sanear() igual saca los vertices repetidos", {
+  skip_if_not(sf::sf_use_s2())
+  # Con GEOS anterior a 3.10, sf repara con otro metodo, que devuelve tal cual
+  # lo que GEOS da por valido. Este reemplazo hace eso con todo: si lo que sale
+  # es valido para s2, los vertices repetidos los saco sanear().
+  local_mocked_bindings(st_make_valid = function(x, ...) x, .package = "sf")
+  a <- capa(list(cuadrado(0), repetido(500)))
+  m <- capture_messages(r <- sanear(a, "prueba"))
+  expect_match(m, "1 of 2 geometries")
+  # Un repetido exacto sale en el primer paso, sin la grilla.
+  expect_false(any(grepl("millimetre", m)))
+  expect_equal(invalidas_en_4326(r), 0)
+  expect_identical(sf::st_geometry(r)[[1]], sf::st_geometry(a)[[1]])
+  # Sale solo el vertice de mas: los demas son los publicados.
+  expect_equal(sf::st_coordinates(sf::st_geometry(r)[2])[, 1:2],
+               sf::st_coordinates(sf::st_geometry(a)[2])[-3, 1:2])
+
+  # Los que estan a un nanometro pasan a ser repetidos con la grilla, y salen.
+  anillo <- en_lugar(rbind(c(0, 0), c(100, 0), c(100 + 1e-10, 0), c(100, 100),
+                           c(0, 100), c(0, 0)), 0)
+  b <- capa(list(sf::st_polygon(list(anillo))))
+  skip_if(invalidas_en_4326(b) == 0, "s2 no rechaza este caso en esta version")
+  expect_message(r <- sanear(b, "prueba"), "millimetre precision")
+  expect_equal(invalidas_en_4326(r), 0)
+})
+
+test_that("si sacar los repetidos falla, el resto de la reparacion sigue", {
+  local_mocked_bindings(sin_repetidos = function(g) stop("falla simulada"))
+  a <- capa(list(cuadrado(0), mono(500)))
+  expect_message(r <- sanear(a, "prueba"), "1 of 2 geometries")
+  expect_equal(invalidas_en_4326(r), 0)
+})
+
+test_that("sin_repetidos saca solo los vertices repetidos", {
+  # Un MULTIPOLYGON con el vertice repetido en el hueco del segundo poligono.
+  ext <- rbind(c(0, 0), c(10, 0), c(10, 10), c(0, 10), c(0, 0))
+  hueco <- rbind(c(2, 2), c(4, 2), c(4, 2), c(4, 4), c(2, 4), c(2, 2))
+  mp <- sf::st_multipolygon(list(list(ext), list(ext + 20, hueco + 20)))
+  r <- sin_repetidos(sf::st_sfc(mp, crs = 32721))
+  expect_identical(sf::st_crs(r), sf::st_crs(32721))
+  expect_s3_class(r[[1]], "MULTIPOLYGON")
+  expect_identical(unclass(r[[1]])[[1]], unclass(mp)[[1]])
+  expect_identical(r[[1]][[2]][[1]], mp[[2]][[1]])
+  expect_identical(r[[1]][[2]][[2]], mp[[2]][[2]][-3, ])
+
+  # En una linea cuentan x e y: una Z distinta no salva al vertice repetido.
+  l <- sf::st_linestring(rbind(c(0, 0, 1), c(1, 1, 1), c(1, 1, 2), c(2, 0, 1)))
+  expect_identical(unclass(sin_repetidos(sf::st_sfc(l))[[1]]), unclass(l)[-3, ])
+
+  # Un anillo que se quedaria con menos de cuatro puntos, y los puntos: quedan
+  # como estaban.
+  chico <- sf::st_polygon(list(rbind(c(0, 0), c(1, 0), c(1, 0), c(0, 0))))
+  puntos <- sf::st_multipoint(rbind(c(0, 0), c(0, 0)))
+  expect_identical(sin_repetidos(sf::st_sfc(chico))[[1]], chico)
+  expect_identical(sin_repetidos(sf::st_sfc(puntos))[[1]], puntos)
+
+  # Con grilla, el vertice a un nanometro pasa a ser repetido y sale.
+  anillo <- rbind(c(0, 0), c(1, 0), c(1 + 1e-10, 0), c(1, 1), c(0, 0))
+  nano <- sf::st_sfc(sf::st_polygon(list(anillo)), precision = 1000)
+  expect_equal(nrow(sin_repetidos(nano)[[1]][[1]]), 5)
+  r <- sin_repetidos(en_la_grilla(nano))
+  expect_equal(nrow(r[[1]][[1]]), 4)
+  expect_equal(sf::st_precision(r), 1000)
+
+  # La orientacion y el tipo de un sfc vacio no se pierden.
+  o <- sf::st_sfc(sf::st_polygon(list(ext)), crs = 4326, oriented = TRUE)
+  expect_true(attr(sin_repetidos(o), "oriented"))
+  expect_true(attr(en_la_grilla(sf::st_set_precision(o, 1e8)), "oriented"))
+  expect_identical(sin_repetidos(o[0]), o[0])
+})
+
+test_that("la grilla redondea como sf, que desempata distinto que round()", {
+  # sf lleva 575000.0025 a 575000.003 y round() de R a 575000.002. Redondeando
+  # en R, este poligono quedaba con cuatro vertices alineados y no se podia
+  # reparar; con el redondeo de sf se repara, como antes.
+  m <- rbind(c(575000.0015, 6140000), c(575000.0015 + 1e-10, 6140000),
+             c(575000.0025, 6140001), c(575000.0015, 6140002),
+             c(575000.0015, 6140000))
+  a <- sf::st_sf(geometry = sf::st_sfc(sf::st_polygon(list(m)), crs = 32721))
+  skip_if(invalidas_en_4326(a) == 0, "s2 no rechaza este caso en esta version")
+  expect_message(r <- sanear(a, "prueba"), "1 of 1 geometries")
+  expect_equal(invalidas_en_4326(r), 0)
+})
+
+test_that("con el metodo de reparacion de GEOS < 3.10, sanear() repara igual", {
+  skip_if_not(sf::sf_use_s2())
+  # "valid_linework" es el unico metodo que sf usa con GEOS anterior a 3.10.
+  original <- sf::st_make_valid
+  local_mocked_bindings(.package = "sf", st_make_valid = function(x, ...) {
+    original(x, geos_method = "valid_linework")
+  })
+  a <- capa(list(cuadrado(0), repetido(500), mono(1000)))
+  expect_message(r <- sanear(a, "prueba"), "2 of 3 geometries")
+  expect_equal(invalidas_en_4326(r), 0)
+  anillo <- en_lugar(rbind(c(0, 0), c(100, 0), c(100 + 1e-10, 0), c(100, 100),
+                           c(0, 100), c(0, 0)), 0)
+  b <- capa(list(sf::st_polygon(list(anillo))))
+  skip_if(invalidas_en_4326(b) == 0, "s2 no rechaza este caso en esta version")
+  expect_message(r <- sanear(b, "prueba"), "millimetre precision")
+  expect_equal(invalidas_en_4326(r), 0)
+})
+
 test_that("en unidades que no son metros ni grados no se aplica la grilla", {
   # Un moño con un hueco valido de 0,4 m, en un CRS en kilometros. La grilla de
   # "milimetro" calculada como si fueran metros seria de un metro y se llevaria

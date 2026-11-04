@@ -9,8 +9,9 @@
 #' @importFrom dplyr left_join select mutate
 #' @return An \code{sf} object with one row per unit of the \code{unit} layer,
 #'   in the CRS given by \code{crs}. The column \code{link} holds the code or
-#'   name that identifies each unit, and the columns of \code{data} are joined to
-#'   it; units with no match in \code{data} have \code{NA} in those columns.
+#'   name of each unit, which is matched against \code{variable}, and the other
+#'   columns of \code{data} are joined to it; units with no match in \code{data}
+#'   have \code{NA} in those columns.
 #' @details
 #' Disclaimer: This script is not an official INE product.
 #' Aviso: El script no es un producto oficial de INE.

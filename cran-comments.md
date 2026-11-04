@@ -1,4 +1,4 @@
-## Resubmission
+## Resubmission after the review of 2026-11-04
 
 This resubmission addresses the review of 2026-11-04:
 
@@ -9,14 +9,18 @@ This resubmission addresses the review of 2026-11-04:
 In the same spirit, we also:
 
 * rewrote the `\value` of `add_geom()`, which said `data.frame` while the
-  function returns an `sf` object, and corrected the one of `where_uy()`;
-* explained the acronyms of the agencies ('IDE', 'INE', 'MIDES') in the
-  Description field;
+  function returns an `sf` object, and corrected that of `where_uy()`;
+* explained the acronyms of the public institutions ('IDE', 'INE' and
+  'MIDES') in the Description field;
 * fixed the package help page (`geouy.Rd`), which showed a stray `"_PACKAGE"`
   and now has `\docType{package}`;
 * replaced `T` and `F` with `TRUE` and `FALSE` in the tests and the vignette;
-* made the two tests that run on CRAN and checked the folder argument
-  independent of the network, so that they pass without internet access.
+* fixed two tests that run on CRAN and check the `folder` argument: the
+  functions look for an internet connection before checking the folder, so
+  without internet access those tests failed. They now mock that look-up;
+* changed the tests that mocked functions of 'utils', 'curl' and 'sf' so that
+  they mock the bindings imported into geouy instead, without modifying the
+  namespaces of those packages.
 
 ## Resubmission of an archived package
 

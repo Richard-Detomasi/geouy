@@ -58,14 +58,19 @@ incompatible_o_falla <- function(primero, otro, nombre_primero, nombre_otro) {
                   "Please report it."), call. = FALSE)
 }
 
-#' This function allows to Download .jpg or .tif files from the IDEuy tiles repository, according to a 'sf' object bbox.
+#' Download the Orthophotos of an Area
+#'
+#' Downloads the orthophoto tiles (.jpg or .tif files) of the tiles repository
+#' of the Spatial Data Infrastructure of Uruguay (IDE) that cover the bounding
+#' box of an \code{sf} object, and crops them to it.
+#'
 #' @family service
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @param d A single buffer distance around \code{x}, in meters, as
 #'   \code{sf::st_buffer()} interprets it both for projected and for geographic
 #'   coordinates; a \code{units} object is also accepted. Default \code{NA}, which
 #'   means no buffer, except when \code{x} is a single feature, where it defaults to 100.
-#' @param format Format of the archives to download (avaiable: "rgb" and "rgbi"). Default "rgb". Mind the size before asking: one "rgb" tile weighs 3 to 67 MB in the urban flight and around 250 MB in the national one, and one "rgbi" tile weighs about 380 MB and 1.3 GB respectively. The whole tile is downloaded and only then cropped to x.
+#' @param format Format of the archives to download (available: "rgb" and "rgbi"). Default "rgb". Mind the size before asking: one "rgb" tile weighs 3 to 67 MB in the urban flight and around 250 MB in the national one, and one "rgbi" tile weighs about 380 MB and 1.3 GB respectively. The whole tile is downloaded and only then cropped to x.
 #' @param folder Folder where are the files or be download
 #' @param urban logical; If FALSE take orthophotos of national flight with 32cm per pixel, if TRUE take urban flight with 10cm per pixel (available for every locality covered by the urban flight)
 #' @keywords IDE orthophotos Uruguay
@@ -101,18 +106,19 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
   # usan plot_geouy() y which_uy().
   if (!is(x, "sf")) stop("The object you want to process is not class sf")
   if (!is.character(folder) | length(folder) != 1) stop("You must enter a valid directory...")
-  if (!format %in% c("rgb", "rgbi")) stop("The format you want to download is not avaiable")
-  if (!has_internet()) stop("No internet access detected. Please check your connection.")
-   # download ----
+  if (!format %in% c("rgb", "rgbi")) stop("The format you want to download is not available")
   # dir.create() no falla solo cuando el directorio ya existe -que es el caso que
   # el try() queria tapar- sino tambien cuando la ruta existe y es un archivo, o
   # cuando no hay permiso. El try() se tragaba esos dos igual, y la descarga
   # terminaba escribiendo a ningun lado: el usuario recibia un error que culpaba
   # al servidor por algo que estaba de su lado. Se reusa el mensaje de arriba.
+  # Va antes de mirar la conexion: sin red, ese error tapaba este.
   if (!dir.exists(folder)) {
     suppressWarnings(dir.create(folder, recursive = TRUE))
     if (!dir.exists(folder)) stop("You must enter a valid directory...")
   }
+  if (!has_internet()) stop("No internet access detected. Please check your connection.")
+   # download ----
   if (nrow(x) == 1 & is.na(d)) x <- sf::st_buffer(x, dist = 100)
   if (!is.na(d)) x <- sf::st_buffer(x, dist = d)
   # El area de recorte se arma pasando el bbox a geometria: asi no depende del

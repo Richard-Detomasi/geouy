@@ -144,6 +144,7 @@ test_that("una descarga que falla no deja un zip a medias en la carpeta", {
   local_mocked_bindings(has_internet = function() TRUE)
   carpeta <- tempfile()
   dir.create(carpeta)
+  on.exit(unlink(carpeta, recursive = TRUE), add = TRUE)
   # download.file() que escribe un pedazo y devuelve un estado distinto de 0.
   local_mocked_bindings(download.file = function(url, destfile, ...) {
     writeLines("a medias", destfile)
@@ -159,6 +160,7 @@ test_that("un rename que falla da un error que lo dice, y no deja el zip a media
   local_mocked_bindings(renombrar = function(de, a) FALSE)
   carpeta <- tempfile()
   dir.create(carpeta)
+  on.exit(unlink(carpeta, recursive = TRUE), add = TRUE)
   local_mocked_bindings(download.file = function(url, destfile, ...) {
     writeLines("completo", destfile)
     0L
@@ -174,9 +176,9 @@ test_that("una carpeta donde no se puede escribir es un error local, sin bajar n
   dir.create(carpeta)
   Sys.chmod(carpeta, "0555")
   on.exit(Sys.chmod(carpeta, "0755"), add = TRUE)
+  on.exit(unlink(carpeta, recursive = TRUE), add = TRUE)
   # Como root se puede escribir igual, y el test no probaria nada.
   skip_if(file.access(carpeta, 2) == 0, "se puede escribir en la carpeta igual")
-  local_mocked_bindings(has_internet = function() TRUE)
   n <- 0
   local_mocked_bindings(download.file = function(...) { n <<- n + 1; 0L })
   expect_error(load_geouy("Deptos", folder = carpeta), "valid directory")

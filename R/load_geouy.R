@@ -73,7 +73,12 @@ descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
     })
 }
 
-#' This function allows to take oficial uruguayan geometries, as object "sf", from various servers.
+#' Load an Official Geographic Layer of Uruguay
+#'
+#' Downloads or reads an official geographic layer of Uruguay from the server
+#' of the institution that publishes it, and returns it as an \code{sf} object.
+#' The layers available are listed in \code{\link{metadata}}.
+#'
 #' @family service
 #' @param c Define the geometries to download: may be: "Departamentos", "Secciones", "Zonas", etc. View(metadata) for details.
 #' @param crs Define the Coordinate Reference Systems you want the output, default 32721
@@ -105,12 +110,13 @@ descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
 #' @importFrom glue glue
 #' @importFrom utils download.file unzip
 #' @keywords IDE MIDES INE
-#' @return sf object with the requested geometries 
+#' @return An \code{sf} object with the features of the layer \code{c} and all its
+#'   columns, in the CRS given by \code{crs}.
 #' @export
 #' @examples
 #'\donttest{
 #' secc <- try(load_geouy(c = "Secciones"), silent = TRUE)
-#' if (!inherits(secc, "try-error")) head(secc)
+#' if (inherits(secc, "try-error")) message(secc) else head(secc)
 #'}
 
 load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
@@ -128,10 +134,12 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
   if (length(c) != 1 || !c %in% x$capa) {
     stop("The name of the geometry you will load is not correct. Verify in the metadata file")
   }
-  if (!has_internet()) stop("No internet access detected. Please check your connection.")
   x <- x[x$capa == c,]
   enco <- x$enc
-  if (x$formato %in% c("zip", "zip a")) {
+  es_zip <- x$formato %in% c("zip", "zip a")
+  # La carpeta se valida antes de mirar la conexion: es un error del lado del
+  # usuario, y sin red quedaba tapado por "No internet access detected".
+  if (es_zip) {
     if (!is.character(folder) | length(folder) != 1) {
       stop(glue::glue("You must enter a valid directory..."))
     }
@@ -148,9 +156,12 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
     # servidor: sin esta guarda se reintentaba la descarga y el error lo
     # culpaba a el.
     if (file.access(folder, 2) != 0) stop(glue::glue("You must enter a valid directory..."))
+  }
+  if (!has_internet()) stop("No internet access detected. Please check your connection.")
+  if (es_zip) {
     f = glue::glue("{folder}/{x$capa}.zip")
     if (!file.exists(f)) {
-      message(glue::glue("Intentando descargar {x$capa}..."))
+      message(glue::glue("Trying to download {x$capa}..."))
       # El reintento en modo "a" (append) sobre el mismo archivo no aportaba
       # nada -pedia otra vez la misma URL- y ademas es peligroso: cuando el
       # servidor no responde, download.file() con mode = "a" aborta R con un
@@ -199,9 +210,10 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
     archivo <- archivo[which.max(file.info(archivo)$mtime)]
     if(!enco == "UTF-8"){
       a <- descarga_o_falla(
-        sf::st_read(archivo, crs = x$crs, options = glue::glue("ENCODING=", enco)), c, x$url)
+        sf::st_read(archivo, crs = x$crs, options = glue::glue("ENCODING=", enco),
+                    quiet = TRUE), c, x$url)
     } else {
-      a <- descarga_o_falla(sf::st_read(archivo, crs = x$crs), c, x$url)
+      a <- descarga_o_falla(sf::st_read(archivo, crs = x$crs, quiet = TRUE), c, x$url)
     }
   } else if (length(capas_de_la_url(x$url)) > 1) {
     a <- leer_partes(x)
@@ -215,12 +227,17 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
   return(a)
 }
 
+# quiet = TRUE en todas las lecturas y descargas: st_read() y download.file()
+# escriben en la consola por fuera de message() -lo comprobe: suppressMessages()
+# no las calla-, y CRAN pide que la salida se pueda silenciar. Lo que
+# el usuario necesita saber -que se baja una capa, que se reintenta, que se
+# repararon geometrias- ya lo dicen los message() del paquete.
 leer_servicio <- function(url, crs, enco, capa) {
   con_reintentos(function() {
     if (!enco == "UTF-8") {
-      sf::st_read(url, crs = crs, options = glue::glue("ENCODING=", enco))
+      sf::st_read(url, crs = crs, options = glue::glue("ENCODING=", enco), quiet = TRUE)
     } else {
-      sf::st_read(url, crs = crs)
+      sf::st_read(url, crs = crs, quiet = TRUE)
     }
   }, capa, url)
 }
@@ -302,7 +319,7 @@ opcion_espera <- function() {
 bajar_archivo <- function(url, destino) {
   viejo <- options(timeout = max(getOption("timeout"), 3600))
   on.exit(options(viejo), add = TRUE)
-  download.file(url, destino, mode = "wb", method = "libcurl")
+  download.file(url, destino, mode = "wb", method = "libcurl", quiet = TRUE)
 }
 
 # Durante R CMD check, un solo intento: si un servidor esta caido, los ejemplos

@@ -23,6 +23,10 @@ First version since the package was archived on CRAN in 2025.
   one of them without saying so, and now it stops. It also stops with a clear
   message when the name or the folder is wrong, and no longer returns a
   different layer than the one requested when a download fails.
+* `load_geouy()` no longer prints the summary of GDAL and the progress of the
+  download, which `suppressMessages()` could not silence: what it reports goes
+  through `message()`. A wrong `folder` is reported before checking the
+  connection, also in `tiles_geouy()`.
 * `Calles` now includes Montevideo. Its two parts can also be loaded on their
   own, as `Calles del interior` and `Calles de Montevideo`; the joined layer
   keeps the columns of both, adds `id` and `nombre` for all rows, and a `capa`
@@ -72,14 +76,17 @@ First version since the package was archived on CRAN in 2025.
 
 ### Package
 
-* No example can make `R CMD check` fail when a remote service is down, and the
-  example of `plot_geouy()` no longer downloads anything. The validation
+* No example can make `R CMD check` fail when a remote service is down, and
+  when one is, the example says why. The example of `plot_geouy()` no longer
+  downloads anything. The validation
   message of `plot_geouy()` interpolated the whole layer and produced the error
   that got the package archived; it and a similar one in `tiles_geouy()` now
   build a single message.
 * geouy now requires R 4.1.0 or later. It no longer depends on `fs`,
   `ggthemes` and `sp`, and no longer asks for `unrar` or 7-Zip in
   `SystemRequirements`.
+* The help pages have proper titles, and the value of each function says what
+  it returns.
 * The package points to its new repository,
   <https://github.com/Richard-Detomasi/geouy>.
 

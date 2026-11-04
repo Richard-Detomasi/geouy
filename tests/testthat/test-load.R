@@ -51,9 +51,8 @@ test_that("load_geouy culpa al directorio y no al servidor cuando el folder no s
   # lo que se queria tapar- como "no se puede crear". Pasandole un archivo en
   # lugar de un directorio, la descarga fallaba despues y el mensaje decia que
   # el servidor no habia devuelto un zip, que es exactamente al reves.
-  # Sin red, has_internet() cortaria antes que la guarda del directorio, y este
-  # test, que corre en CRAN, fallaria por un motivo ajeno a lo que prueba.
-  local_mocked_bindings(has_internet = function() TRUE)
+  # Corre en CRAN y sin simular la conexion: la carpeta se valida antes de
+  # mirarla, asi que sin red tambien tiene que decir que es el directorio.
   archivo <- tempfile()
   file.create(archivo)
   on.exit(unlink(archivo), add = TRUE)

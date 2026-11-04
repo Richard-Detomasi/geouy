@@ -19,10 +19,12 @@ Authors@R: c(
 Maintainer: Richard Detomasi <richard.detomasi@gmail.com>
 Description: Loads official geographic information of Uruguay, such as
     administrative boundaries, census areas, streets and public services,
-    from the services of public agencies like the 'IDE', the 'INE' and the
-    'MIDES', as 'sf' objects, and provides functions to process them. It also
-    turns addresses into coordinates and back, and downloads the orthophotos
-    of an area, through the services of the Uruguayan 'IDE'
+    from the services of public agencies like the Spatial Data Infrastructure
+    of Uruguay ('IDE'), the National Institute of Statistics ('INE') and the
+    Ministry of Social Development ('MIDES'), as 'sf' objects, and provides
+    functions to process them. It also turns addresses into coordinates and
+    back, and downloads the orthophotos of an area, through the services of
+    the 'IDE'
     <https://www.gub.uy/infraestructura-datos-espaciales/tramites-y-servicios/servicios/servicio-direcciones-geograficas>.
 License: GPL-3
 URL: https://github.com/Richard-Detomasi/geouy

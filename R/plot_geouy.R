@@ -29,7 +29,7 @@ escala_discreta <- function(v, col) {
 #' @name plot_geouy
 #' @title Choropleth Map of a Variable
 #' @description Draws a choropleth map of the variable \code{col} of an
-#'   \code{sf} object with \code{ggplot2}, with a viridis colour scale and the
+#'   \code{sf} object with \code{ggplot2}, with a viridis color scale and the
 #'   theme we suggest.
 #' @family plot
 #' @param x An sf object like load_geouy() results

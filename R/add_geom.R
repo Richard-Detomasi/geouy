@@ -3,7 +3,7 @@
 #' Adds the geometries of a layer of administrative units to a data frame,
 #' matching a variable of the data frame that holds the code or the name of each
 #' unit: departments, census sections, segments or zones, localities,
-#' municipalities or neighbourhoods.
+#' municipalities or neighborhoods.
 #'
 #' @family service
 #' @param data data.frame

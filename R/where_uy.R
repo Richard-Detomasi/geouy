@@ -8,7 +8,9 @@
 #'   the INE codes like "UY-MO", as text.
 #' @param crs Define the Coordinate Reference Systems you want the output, default 32721
 #' @keywords IDE MIDES INE
-#' @return sf object with the geometries of the d ids
+#' @return An \code{sf} object, in the CRS given by \code{crs}, with the
+#'   features of the layer \code{c} whose code or name, as chosen by \code{d},
+#'   is among the values of \code{e}, and all the columns of that layer.
 #' @export
 #' @examples
 #'\donttest{

@@ -19,7 +19,9 @@ the INE codes like "UY-MO", as text.}
 \item{crs}{Define the Coordinate Reference Systems you want the output, default 32721}
 }
 \value{
-sf object with the geometries of the d ids
+An \code{sf} object, in the CRS given by \code{crs}, with the
+  features of the layer \code{c} whose code or name, as chosen by \code{d},
+  is among the values of \code{e}, and all the columns of that layer.
 }
 \description{
 This function return an 'sf' object with the geometry of the consult id or group of ids, of an administrative units in Uruguay.

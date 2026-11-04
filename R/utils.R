@@ -138,6 +138,9 @@ is.uy5382 <- function(x){
 #'
 #' See \code{magrittr::\link[magrittr]{\%>\%}} for details.
 #'
+#' @param lhs A value or the magrittr placeholder.
+#' @param rhs A function call using the magrittr semantics.
+#' @return The result of calling \code{rhs(lhs)}.
 #' @name %>%
 #' @rdname pipe
 #' @keywords internal

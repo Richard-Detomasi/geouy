@@ -2,7 +2,7 @@
 % Please edit documentation in R/tiles_geouy.R
 \name{tiles_geouy}
 \alias{tiles_geouy}
-\title{This function allows to Download .jpg or .tif files from the IDEuy tiles repository, according to a 'sf' object bbox.}
+\title{Download the Orthophotos of an Area}
 \usage{
 tiles_geouy(x, d = NA, format = "rgb", folder = tempdir(), urban = FALSE)
 }
@@ -14,7 +14,7 @@ tiles_geouy(x, d = NA, format = "rgb", folder = tempdir(), urban = FALSE)
 coordinates; a \code{units} object is also accepted. Default \code{NA}, which
 means no buffer, except when \code{x} is a single feature, where it defaults to 100.}
 
-\item{format}{Format of the archives to download (avaiable: "rgb" and "rgbi"). Default "rgb". Mind the size before asking: one "rgb" tile weighs 3 to 67 MB in the urban flight and around 250 MB in the national one, and one "rgbi" tile weighs about 380 MB and 1.3 GB respectively. The whole tile is downloaded and only then cropped to x.}
+\item{format}{Format of the archives to download (available: "rgb" and "rgbi"). Default "rgb". Mind the size before asking: one "rgb" tile weighs 3 to 67 MB in the urban flight and around 250 MB in the national one, and one "rgbi" tile weighs about 380 MB and 1.3 GB respectively. The whole tile is downloaded and only then cropped to x.}
 
 \item{folder}{Folder where are the files or be download}
 
@@ -24,7 +24,10 @@ means no buffer, except when \code{x} is a single feature, where it defaults to 
 A \code{RasterBrick} with the tiles covering \code{x}, cropped to its bounding box.
 }
 \description{
-This function allows to Download .jpg or .tif files from the IDEuy tiles repository, according to a 'sf' object bbox.
+Downloads the orthophoto tiles (.jpg or .tif files) of the tiles repository
+of the Spatial Data Infrastructure of Uruguay (IDE) that intersect the
+geometries of an \code{sf} object, after the buffer given by \code{d}, and
+crops them to the bounding box of those geometries.
 }
 \examples{
 \dontrun{

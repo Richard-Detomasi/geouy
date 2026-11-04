@@ -2,7 +2,7 @@
 % Please edit documentation in R/which_uy.R
 \name{which_uy}
 \alias{which_uy}
-\title{This function allows to add to an 'sf' object its spatial coincidence with one or more administrative units in Uruguay, generating the corresponding variables.}
+\title{Add the Administrative Units Where Geometries Fall}
 \usage{
 which_uy(x, c = c("Localidades pg", "Departamentos"), d = c("cod", "name"))
 }
@@ -14,10 +14,16 @@ which_uy(x, c = c("Localidades pg", "Departamentos"), d = c("cod", "name"))
 \item{d}{A vector who determines the variables to be added, with three options: "cod", "name", or "full". Default c("cod", "name").}
 }
 \value{
-sf object with the x geometries, with d variables requested from c added
+The \code{sf} object \code{x} joined, with \code{sf::st_join()}, to the
+  units of each layer in \code{c} where its geometries fall. With \code{d}
+  \code{"cod"} and \code{"name"}, it adds the code and the name of the unit,
+  as \code{cod_<layer>} and \code{name_<layer>}; with \code{"full"}, all the
+  columns of the layer, the first of them renamed \code{full_<layer>}.
 }
 \description{
-This function allows to add to an 'sf' object its spatial coincidence with one or more administrative units in Uruguay, generating the corresponding variables.
+Adds to an \code{sf} object, as new variables, the code, the name or all the
+variables of the administrative units of Uruguay where each of its
+geometries falls.
 }
 \examples{
 \donttest{
@@ -26,7 +32,7 @@ peajes_x_dpto <- try({
   peajes <- load_geouy("Peajes")
   which_uy(peajes, c = "Deptos")
 }, silent = TRUE)
-if (!inherits(peajes_x_dpto, "try-error")) head(peajes_x_dpto)
+if (inherits(peajes_x_dpto, "try-error")) message(peajes_x_dpto) else head(peajes_x_dpto)
 }
 }
 \seealso{

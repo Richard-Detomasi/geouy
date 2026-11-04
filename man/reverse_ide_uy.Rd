@@ -2,7 +2,7 @@
 % Please edit documentation in R/reverse_ide_uy.R
 \name{reverse_ide_uy}
 \alias{reverse_ide_uy}
-\title{A function to reverse geocoding from coordinates (EPSG 4326) using IDE_uy}
+\title{Reverse Geocode Coordinates with the IDE Service}
 \usage{
 reverse_ide_uy(x, details = FALSE)
 }
@@ -19,7 +19,8 @@ The data frame \code{x}, without the rows whose coordinates are missing,
 postalCode, localidad, departamento, manzana, solar and km)
 }
 \description{
-A function to reverse geocoding from coordinates (EPSG 4326) using IDE_uy
+Turns coordinates in EPSG:4326 (latitude and longitude) into addresses with
+the address service of the Spatial Data Infrastructure of Uruguay (IDE).
 }
 \details{
 https://direcciones.ide.uy/swagger-ui.html#/Geocode
@@ -28,7 +29,7 @@ https://direcciones.ide.uy/swagger-ui.html#/Geocode
 \donttest{
 x <- data.frame(lat = -34.77882, lon = -56.06476)
 direccion <- try(reverse_ide_uy(x), silent = TRUE)
-if (!inherits(direccion, "try-error")) direccion
+if (inherits(direccion, "try-error")) message(direccion) else direccion
 }
 }
 \seealso{

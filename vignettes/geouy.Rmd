@@ -68,7 +68,7 @@ nuevas <- data.frame(cbind(dpto = c("Montevideo", "Salto"),
                            loc = c("Montevideo", "Salto"),
                            dir = c("Cebollati esq. Magallanes",
                                    "15 de noviembre 1310")),
-                     stringsAsFactors = F)
+                     stringsAsFactors = FALSE)
 nuevas_geo <- geocode_ide_uy(nuevas)
 ```	
 	

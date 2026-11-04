@@ -1,3 +1,33 @@
+## Resubmission after the review of 2026-11-04
+
+This resubmission addresses the review of 2026-11-04:
+
+* `pipe.Rd` now has `\value`, as requested, together with `\arguments`. They
+  were added as roxygen2 tags in `R/utils.R` and the `.Rd` files were rendered
+  again with `roxygenize()`.
+
+Following the CRAN Cookbook, we also:
+
+* rewrote the `\value` of `add_geom()`, which said `data.frame` while the
+  function returns an `sf` object, and corrected that of `where_uy()`;
+* explained the acronyms of the public institutions ('IDE', 'INE' and
+  'MIDES') in the Description field;
+* fixed the package help page (`geouy.Rd`), which showed a stray `"_PACKAGE"`
+  and now has `\docType{package}`;
+* replaced `T` and `F` with `TRUE` and `FALSE` in the tests and the vignette;
+* gave the help pages proper titles;
+* made the examples that use remote services report the error with
+  `message()` when a service fails, instead of doing nothing;
+* silenced the output of `sf::st_read()` and `utils::download.file()`, which
+  `suppressMessages()` could not silence; what the functions report goes
+  through `message()`;
+* made `load_geouy()` and `tiles_geouy()` check the `folder` argument before
+  the internet connection. Two tests that run on CRAN check that argument, and
+  without internet access they failed;
+* changed the tests that mocked functions of 'utils', 'curl' and 'sf' so that
+  they mock the bindings imported into geouy instead, without modifying the
+  namespaces of those packages.
+
 ## Resubmission of an archived package
 
 geouy was archived on 2025-08-20, at version 0.2.8; this submission is version
@@ -63,7 +93,7 @@ still run it in the checks with `--run-donttest`.
 
 ## Test environments
 
-* local: Pop!_OS 22.04 (Ubuntu-based), R 4.6.1, with `--as-cran --run-donttest`
+* local: Pop!_OS 22.04 (Ubuntu-based), R 4.6.2, with `--as-cran --run-donttest`
 * GitHub Actions: ubuntu-latest (R-devel, release, oldrel-1), macOS (release)
   and Windows (release), with `--as-cran`, which also runs the examples in
   `\donttest{}`

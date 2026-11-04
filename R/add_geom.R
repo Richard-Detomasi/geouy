@@ -1,13 +1,23 @@
-#' This function allows you to add a geom variable with a code variable of "zona", "barrio", "localidad", "segmentos", "secciones" or "departamentos".
+#' Add Geometries to Data by Administrative Unit
+#'
+#' Adds the geometries of a layer of administrative units to a data frame,
+#' matching a variable of the data frame that holds the code or the name of each
+#' unit: departments, census sections, segments or zones, localities,
+#' municipalities or neighborhoods.
+#'
 #' @family service
 #' @param data data.frame
 #' @param unit spatial unit of data, may be: "Departamentos", "Deptos", "Secciones", "Secc MVD 2004", "Segmentos", "Segm MVD 2004", "Segmentos URB INT 2004", "Zonas", "Zonas MVD 2004", "Zonas URB INT 2004", "Localidades pg", "Municipios" o "Barrios".
 #' @param variable Variable name of unit code (without duplicates)
-#' @param crs Coordinates Refence Sistem, usually in region 32721 or 4326 (default 32721)
+#' @param crs Coordinate reference system of the result, as an EPSG code; usually 32721 or 4326 (default 32721)
 #' @importFrom glue glue
 #' @importFrom rlang .data
 #' @importFrom dplyr left_join select mutate
-#' @return data.frame
+#' @return An \code{sf} object with one row per unit of the \code{unit} layer,
+#'   in the CRS given by \code{crs}. The column \code{link} holds the code or
+#'   name of each unit, which is matched against \code{variable}, and the other
+#'   columns of \code{data} are joined to it; units with no match in \code{data}
+#'   have \code{NA} in those columns.
 #' @details
 #' Disclaimer: This script is not an official INE product.
 #' Aviso: El script no es un producto oficial de INE.
@@ -18,7 +28,7 @@
 #'                Pobreza = c(0.26, 0.27, 0.07, 0.10)))
 #' pobre_x_dpto_geo <- try(add_geom(data = pobre_x_dpto, unit = "Deptos",
 #'                                  variable = "nomdpto"), silent = TRUE)
-#' if (!inherits(pobre_x_dpto_geo, "try-error")) pobre_x_dpto_geo
+#' if (inherits(pobre_x_dpto_geo, "try-error")) message(pobre_x_dpto_geo) else pobre_x_dpto_geo
 #' }
 
 add_geom <- function(data, unit, variable, crs = 32721){
@@ -40,12 +50,12 @@ add_geom <- function(data, unit, variable, crs = 32721){
     # caracteres que viene del metadata: usarlo asi adentro de una seleccion es
     # lo que tidyselect deprecó en su 1.1.0. Hoy avisa; esta anunciado que pasa
     # a error, y ahi add_geom() dejaria de andar sin que toquemos nada.
-    g2 <- g %>% dplyr::select(link = all_of(name)) %>%
+    g2 <- g %>% dplyr::select(link = tidyselect::all_of(name)) %>%
       dplyr::mutate(link = as.character(link))
     data <- dplyr::left_join(g2, data, by = c("link" = variable))
   } else {
     cod <- as.character(md[md$capa == unit, "cod"])
-    g2 <- g %>% dplyr::select(link = all_of(cod)) %>%
+    g2 <- g %>% dplyr::select(link = tidyselect::all_of(cod)) %>%
       dplyr::mutate(link = as.numeric(link))
     # !!! sobre un solo simbolo es rebuscado para lo que hace; .data[[ ]] dice
     # lo mismo y se entiende.

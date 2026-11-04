@@ -1,4 +1,8 @@
-#' This function test if an 'sf' object match with Uruguay at crs = 4326.
+#' Check Whether an sf Object Matches Uruguay in EPSG:4326
+#'
+#' Tests whether an \code{sf} object is in EPSG:4326 and, if it is, which
+#' percentage of its geometries fall in Uruguay.
+#'
 #' @family crs
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @keywords CRS sf Uruguay
@@ -14,11 +18,10 @@
 #'   x <- load_geouy("Peajes")
 #'   is.uy4326(x)
 #' }, silent = TRUE)
-#' if (!inherits(resultado, "try-error")) resultado
+#' if (inherits(resultado, "try-error")) message(resultado) else resultado
 #'}
 
 is.uy4326 <- function(x){
-  md <- geouy::metadata 
   if (!methods::is(x, "sf")) stop("The object you want to process is not class sf")
   y <- geouy::load_geouy("Uruguay", crs = 4326)
   if (sf::st_crs(x) != sf::st_crs(y)) {
@@ -32,7 +35,11 @@ is.uy4326 <- function(x){
   }
 }
 
-#' This function test if an 'sf' object match with Uruguay at crs = 32721.
+#' Check Whether an sf Object Matches Uruguay in EPSG:32721
+#'
+#' Tests whether an \code{sf} object is in EPSG:32721 and, if it is, which
+#' percentage of its geometries fall in Uruguay.
+#'
 #' @family crs
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @keywords CRS sf Uruguay
@@ -48,11 +55,10 @@ is.uy4326 <- function(x){
 #'   x <- load_geouy("Uruguay")
 #'   is.uy32721(x)
 #' }, silent = TRUE)
-#' if (!inherits(resultado, "try-error")) resultado
+#' if (inherits(resultado, "try-error")) message(resultado) else resultado
 #'}
 
 is.uy32721 <- function(x){
-  md <- geouy::metadata 
   if (!methods::is(x, "sf")) stop("The object you want to process is not class sf")
   y <- geouy::load_geouy("Uruguay", crs = 32721)
   if (sf::st_crs(x) != sf::st_crs(y)){
@@ -66,7 +72,11 @@ is.uy32721 <- function(x){
   }
 }
 
-#' This function test if an 'sf' object match with Uruguay at crs = 5381.
+#' Check Whether an sf Object Matches Uruguay in EPSG:5381
+#'
+#' Tests whether an \code{sf} object is in EPSG:5381 and, if it is, which
+#' percentage of its geometries fall in Uruguay.
+#'
 #' @family crs
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @keywords CRS sf Uruguay
@@ -82,11 +92,10 @@ is.uy32721 <- function(x){
 #'   x <- load_geouy("CCZ")
 #'   is.uy5381(x)
 #' }, silent = TRUE)
-#' if (!inherits(resultado, "try-error")) resultado
+#' if (inherits(resultado, "try-error")) message(resultado) else resultado
 #'}
 
 is.uy5381 <- function(x){
-  md <- geouy::metadata 
   if (!methods::is(x, "sf")) stop("The object you want to process is not class sf")
   y <- geouy::load_geouy("Uruguay", crs = 5381)
   if (sf::st_crs(x) != sf::st_crs(y)) {
@@ -100,7 +109,11 @@ is.uy5381 <- function(x){
   }
 }
 
-#' This function test if an 'sf' object match with Uruguay at crs = 5382.
+#' Check Whether an sf Object Matches Uruguay in EPSG:5382
+#'
+#' Tests whether an \code{sf} object is in EPSG:5382 and, if it is, which
+#' percentage of its geometries fall in Uruguay.
+#'
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @family crs
 #' @keywords CRS sf Uruguay
@@ -116,11 +129,10 @@ is.uy5381 <- function(x){
 #'   x <- load_geouy("Uruguay")
 #'   is.uy5382(x)
 #' }, silent = TRUE)
-#' if (!inherits(resultado, "try-error")) resultado
+#' if (inherits(resultado, "try-error")) message(resultado) else resultado
 #'}
 
 is.uy5382 <- function(x){
-  md <- geouy::metadata 
   if (!methods::is(x, "sf")) stop("The object you want to process is not class sf")
   y <- geouy::load_geouy("Uruguay", crs = 5382)
   if (sf::st_crs(x) != sf::st_crs(y)) {
@@ -138,6 +150,9 @@ is.uy5382 <- function(x){
 #'
 #' See \code{magrittr::\link[magrittr]{\%>\%}} for details.
 #'
+#' @param lhs A value or the magrittr placeholder.
+#' @param rhs A function call using the magrittr semantics.
+#' @return The result of calling \code{rhs(lhs)}.
 #' @name %>%
 #' @rdname pipe
 #' @keywords internal

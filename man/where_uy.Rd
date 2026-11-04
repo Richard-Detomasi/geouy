@@ -2,7 +2,7 @@
 % Please edit documentation in R/where_uy.R
 \name{where_uy}
 \alias{where_uy}
-\title{This function return an 'sf' object with the geometry of the consult id or group of ids, of an administrative units in Uruguay.}
+\title{Get Units of a Layer by Code or Name}
 \usage{
 where_uy(c = "Localidades pg", d = "cod", e, crs = 32721)
 }
@@ -13,21 +13,24 @@ where_uy(c = "Localidades pg", d = "cod", e, crs = 32721)
 
 \item{e}{A vector who determines the ids or names to identify. It is matched
 against the column the metadata declares, using that column's own type: a
-numeric code is compared as a number and a textual one, such as `gml_id` or
+numeric code is compared as a number and a textual one, such as \code{gml_id} or
 the INE codes like "UY-MO", as text.}
 
 \item{crs}{Define the Coordinate Reference Systems you want the output, default 32721}
 }
 \value{
-sf object with the geometries of the d ids
+An \code{sf} object, in the CRS given by \code{crs}, with the
+  features of the layer \code{c} whose code or name, as chosen by \code{d},
+  is among the values of \code{e}, and all the columns of that layer.
 }
 \description{
-This function return an 'sf' object with the geometry of the consult id or group of ids, of an administrative units in Uruguay.
+Returns the features of a layer whose code or name is among the given ones,
+such as some departments or localities of Uruguay.
 }
 \examples{
 \donttest{
 x <- try(where_uy(c = "Localidades pg", d = "cod", e = c(1020, 2020)), silent = TRUE)
-if (!inherits(x, "try-error")) x
+if (inherits(x, "try-error")) message(x) else x
 }
 }
 \seealso{

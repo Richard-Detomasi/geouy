@@ -10,7 +10,9 @@ test_that("tiles_geouy no arma el mensaje interpolando el objeto entero", {
 
   # Y el directorio invalido tiene que decir que es el directorio.
   punto <- sf::st_sf(a = 1, geometry = sf::st_sfc(sf::st_point(c(575000, 6140000)), crs = 32721))
+  # Sin simular la conexion: la carpeta se valida antes de mirarla.
   archivo <- tempfile()
   file.create(archivo)
+  on.exit(unlink(archivo), add = TRUE)
   expect_error(tiles_geouy(x = punto, folder = archivo), "valid directory")
 })

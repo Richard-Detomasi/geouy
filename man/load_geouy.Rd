@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_geouy.R
 \name{load_geouy}
 \alias{load_geouy}
-\title{This function allows to take oficial uruguayan geometries, as object "sf", from various servers.}
+\title{Load an Official Geographic Layer of Uruguay}
 \usage{
 load_geouy(c, crs = 32721, folder = tempdir(), make_valid = TRUE)
 }
@@ -27,10 +27,13 @@ the geometries are neither checked nor repaired: apart from the
 transformation to \code{crs}, they are returned as the server publishes them.}
 }
 \value{
-sf object with the requested geometries
+An \code{sf} object with the features of the layer \code{c} and all its
+  columns, in the CRS given by \code{crs}.
 }
 \description{
-This function allows to take oficial uruguayan geometries, as object "sf", from various servers.
+Downloads or reads an official geographic layer of Uruguay from the server
+of the institution that publishes it, and returns it as an \code{sf} object.
+The layers available are listed in \code{\link{metadata}}.
 }
 \details{
 Reading a layer from a web service, or downloading its zip file, is
@@ -47,7 +50,7 @@ Reading a layer from a web service, or downloading its zip file, is
 \examples{
 \donttest{
 secc <- try(load_geouy(c = "Secciones"), silent = TRUE)
-if (!inherits(secc, "try-error")) head(secc)
+if (inherits(secc, "try-error")) message(secc) else head(secc)
 }
 }
 \seealso{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/geocode_ide_uy.R
 \name{geocode_ide_uy}
 \alias{geocode_ide_uy}
-\title{A function to geocoding directions using IDE_uy}
+\title{Geocode Addresses with the IDE Service}
 \usage{
 geocode_ide_uy(x, details = FALSE)
 }
@@ -18,7 +18,8 @@ The data frame \code{x} with the coordinates appended (\code{x} and
   \code{y}). Rows whose address is empty are dropped before querying the service.
 }
 \description{
-A function to geocoding directions using IDE_uy
+Turns addresses into coordinates with the address service of the Spatial
+Data Infrastructure of Uruguay (IDE).
 }
 \details{
 https://direcciones.ide.uy/swagger-ui.html#/geocode,_reverse,_inversa
@@ -28,7 +29,7 @@ https://direcciones.ide.uy/swagger-ui.html#/geocode,_reverse,_inversa
 x <- data.frame(dpto = "Montevideo", loc = "Montevideo",
                 dir = "Av. 18 de julio 1453")
 puntos <- try(geocode_ide_uy(x), silent = TRUE)
-if (!inherits(puntos, "try-error")) puntos
+if (inherits(puntos, "try-error")) message(puntos) else puntos
 }
 }
 \seealso{

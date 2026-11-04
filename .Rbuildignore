@@ -1,4 +1,4 @@
-^GeoUy\.Rproj$
+^geouy\.Rproj$
 ^\.Rproj\.user$
 ^packrat/
 ^\.Rprofile$
@@ -30,3 +30,4 @@
 ^\.gitattributes$
 ^news$
 (^|/)Thumbs\.db$
+^man/figures/GeoUy_hexsticker\.R$

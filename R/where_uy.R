@@ -1,19 +1,25 @@
-#' This function return an 'sf' object with the geometry of the consult id or group of ids, of an administrative units in Uruguay.
+#' Get Units of a Layer by Code or Name
+#'
+#' Returns the features of a layer whose code or name is among the given ones,
+#' such as some departments or localities of Uruguay.
+#'
 #' @family service
 #' @param c Define the geometries to consult: may be: "Departamentos", "Secciones", "Zonas", etc. View(metadata) for details.
 #' @param d A vector who determines the variables to be consult, with two options: "cod" or "name". Default "cod".
 #' @param e A vector who determines the ids or names to identify. It is matched
 #'   against the column the metadata declares, using that column's own type: a
-#'   numeric code is compared as a number and a textual one, such as `gml_id` or
+#'   numeric code is compared as a number and a textual one, such as \code{gml_id} or
 #'   the INE codes like "UY-MO", as text.
 #' @param crs Define the Coordinate Reference Systems you want the output, default 32721
 #' @keywords IDE MIDES INE
-#' @return sf object with the geometries of the d ids
+#' @return An \code{sf} object, in the CRS given by \code{crs}, with the
+#'   features of the layer \code{c} whose code or name, as chosen by \code{d},
+#'   is among the values of \code{e}, and all the columns of that layer.
 #' @export
 #' @examples
 #'\donttest{
 #' x <- try(where_uy(c = "Localidades pg", d = "cod", e = c(1020, 2020)), silent = TRUE)
-#' if (!inherits(x, "try-error")) x
+#' if (inherits(x, "try-error")) message(x) else x
 #'}
 
 where_uy <- function(c = "Localidades pg", d = "cod", e, crs = 32721) {

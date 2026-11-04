@@ -1,4 +1,8 @@
-#' A function to geocoding directions using IDE_uy
+#' Geocode Addresses with the IDE Service
+#'
+#' Turns addresses into coordinates with the address service of the Spatial
+#' Data Infrastructure of Uruguay (IDE).
+#'
 #' @family service
 #' @param x Dataframe with unless 3 variables: dpto = corresponding to the department, loc = city / location, dir = to the address.
 #' @param details Logical. With \code{FALSE}, the default, only the \code{x} and
@@ -15,7 +19,7 @@
 #' x <- data.frame(dpto = "Montevideo", loc = "Montevideo",
 #'                 dir = "Av. 18 de julio 1453")
 #' puntos <- try(geocode_ide_uy(x), silent = TRUE)
-#' if (!inherits(puntos, "try-error")) puntos
+#' if (inherits(puntos, "try-error")) message(puntos) else puntos
 #'}
 
 geocode_ide_uy <- function(x, details = FALSE) {
@@ -23,7 +27,7 @@ geocode_ide_uy <- function(x, details = FALSE) {
   stopifnot(is.character(x$dpto), "dpto" %in% colnames(x), length(x$dpto) >= 1)
   stopifnot(is.character(x$loc), "loc" %in% colnames(x))
   stopifnot(is.character(x$dir), "dir" %in% colnames(x))
-  if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
+  if (!has_internet()) stop("No internet access detected. Please check your connection.")
   x <- x %>% dplyr::mutate(dir = stringr::str_trim(dir)) %>% dplyr::filter(nchar(dir) > 0)
   # seq_len() y no 1:nrow(x): si todas las direcciones venian vacias, el filtro
   # de arriba deja cero filas y 1:0 recorre 1 y 0, que termina en "subindice

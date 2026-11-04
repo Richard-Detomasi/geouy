@@ -39,7 +39,7 @@ test_that("reverse_ide_uy() descarta las filas sin coordenadas y deja lat y lon 
   # consultar, asi que alcanza con que has_internet() diga que hay conexion.
   # Un NaN tambien es una coordenada faltante: antes se mandaba al servicio,
   # que responde 500, y hacia fallar toda la llamada.
-  local_mocked_bindings(has_internet = function() TRUE, .package = "curl")
+  local_mocked_bindings(has_internet = function() TRUE)
   x <- data.frame(lat = c(-34.77882, NA, NaN), lon = c(NA, -56.06476, -56.06476))
   r <- reverse_ide_uy(x)
   expect_equal(nrow(r), 0)

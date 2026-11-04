@@ -23,7 +23,7 @@ geocode_ide_uy <- function(x, details = FALSE) {
   stopifnot(is.character(x$dpto), "dpto" %in% colnames(x), length(x$dpto) >= 1)
   stopifnot(is.character(x$loc), "loc" %in% colnames(x))
   stopifnot(is.character(x$dir), "dir" %in% colnames(x))
-  if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
+  if (!has_internet()) stop("No internet access detected. Please check your connection.")
   x <- x %>% dplyr::mutate(dir = stringr::str_trim(dir)) %>% dplyr::filter(nchar(dir) > 0)
   # seq_len() y no 1:nrow(x): si todas las direcciones venian vacias, el filtro
   # de arriba deja cero filas y 1:0 recorre 1 y 0, que termina en "subindice

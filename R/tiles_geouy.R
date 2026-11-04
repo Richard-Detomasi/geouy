@@ -102,7 +102,7 @@ tiles_geouy <- function(x, d = NA, format = "rgb", folder = tempdir(), urban = F
   if (!is(x, "sf")) stop("The object you want to process is not class sf")
   if (!is.character(folder) | length(folder) != 1) stop("You must enter a valid directory...")
   if (!format %in% c("rgb", "rgbi")) stop("The format you want to download is not avaiable")
-  if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
+  if (!has_internet()) stop("No internet access detected. Please check your connection.")
    # download ----
   # dir.create() no falla solo cuando el directorio ya existe -que es el caso que
   # el try() queria tapar- sino tambien cuando la ruta existe y es un archivo, o

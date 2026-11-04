@@ -22,7 +22,7 @@ reverse_ide_uy <- function(x, details = FALSE) {
   stopifnot(is.data.frame(x))
   stopifnot(is.numeric(x$lat), "lat" %in% colnames(x), length(x$lat) >= 1)
   stopifnot(is.numeric(x$lon), "lon" %in% colnames(x))
-  if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
+  if (!has_internet()) stop("No internet access detected. Please check your connection.")
   # Las coordenadas ya son numeros: alcanza con sacar las filas sin ellas, NA o
   # NaN, antes de consultar el servicio, que con un NaN responde 500.
   x <- x %>% dplyr::filter(!is.na(lat) & !is.na(lon))

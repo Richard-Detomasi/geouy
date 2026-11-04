@@ -141,28 +141,28 @@ test_that("una opcion que no tiene sentido da un error que la nombra", {
 test_that("una descarga que falla no deja un zip a medias en la carpeta", {
   tres_intentos()
   local_mocked_bindings(esperar = function(s) NULL)
-  local_mocked_bindings(has_internet = function() TRUE, .package = "curl")
+  local_mocked_bindings(has_internet = function() TRUE)
   carpeta <- tempfile()
   dir.create(carpeta)
   # download.file() que escribe un pedazo y devuelve un estado distinto de 0.
   local_mocked_bindings(download.file = function(url, destfile, ...) {
     writeLines("a medias", destfile)
     1L
-  }, .package = "utils")
+  })
   expect_error(suppressMessages(load_geouy("Deptos", folder = carpeta)), "after 3 attempts")
   expect_length(list.files(carpeta), 0)
 })
 
 test_that("un rename que falla da un error que lo dice, y no deja el zip a medias", {
   tres_intentos()
-  local_mocked_bindings(has_internet = function() TRUE, .package = "curl")
+  local_mocked_bindings(has_internet = function() TRUE)
   local_mocked_bindings(renombrar = function(de, a) FALSE)
   carpeta <- tempfile()
   dir.create(carpeta)
   local_mocked_bindings(download.file = function(url, destfile, ...) {
     writeLines("completo", destfile)
     0L
-  }, .package = "utils")
+  })
   expect_error(suppressMessages(load_geouy("Deptos", folder = carpeta)), "could not be saved")
   expect_length(list.files(carpeta), 0)
 })
@@ -176,9 +176,9 @@ test_that("una carpeta donde no se puede escribir es un error local, sin bajar n
   on.exit(Sys.chmod(carpeta, "0755"), add = TRUE)
   # Como root se puede escribir igual, y el test no probaria nada.
   skip_if(file.access(carpeta, 2) == 0, "se puede escribir en la carpeta igual")
-  local_mocked_bindings(has_internet = function() TRUE, .package = "curl")
+  local_mocked_bindings(has_internet = function() TRUE)
   n <- 0
-  local_mocked_bindings(download.file = function(...) { n <<- n + 1; 0L }, .package = "utils")
+  local_mocked_bindings(download.file = function(...) { n <<- n + 1; 0L })
   expect_error(load_geouy("Deptos", folder = carpeta), "valid directory")
   expect_equal(n, 0)
 })
@@ -204,7 +204,7 @@ test_that("las descargas tienen una hora de tope, y el timeout vuelve a lo que e
   local_mocked_bindings(download.file = function(url, destfile, ...) {
     visto <<- getOption("timeout")
     0L
-  }, .package = "utils")
+  })
   viejas <- options(timeout = 60)
   on.exit(options(viejas), add = TRUE)
   bajar_archivo("https://x.uy/capa.zip", tempfile())

@@ -60,7 +60,7 @@ test_that("sanear no toca una capa sana ni las geometrias sanas", {
 
 test_that("si la reparacion falla, la capa vuelve como estaba y se avisa", {
   a <- capa(list(cuadrado(0), mono(500)))
-  local_mocked_bindings(st_make_valid = function(...) stop("falla simulada"), .package = "sf")
+  local_mocked_bindings(st_make_valid = function(...) stop("falla simulada"))
   expect_warning(r <- sanear(a, "prueba"), "could not be repaired")
   expect_identical(r, a)
 })
@@ -168,7 +168,7 @@ test_that("sin GEOS 3.10, sanear() igual saca los vertices repetidos", {
   # Con GEOS anterior a 3.10, sf repara con otro metodo, que devuelve tal cual
   # lo que GEOS da por valido. Este reemplazo hace eso con todo: si lo que sale
   # es valido para s2, los vertices repetidos los saco sanear().
-  local_mocked_bindings(st_make_valid = function(x, ...) x, .package = "sf")
+  local_mocked_bindings(st_make_valid = function(x, ...) x)
   a <- capa(list(cuadrado(0), repetido(500)))
   m <- capture_messages(r <- sanear(a, "prueba"))
   expect_match(m, "1 of 2 geometries")
@@ -254,7 +254,7 @@ test_that("con el metodo de reparacion de GEOS < 3.10, sanear() repara igual", {
   skip_if_not(sf::sf_use_s2())
   # "valid_linework" es el unico metodo que sf usa con GEOS anterior a 3.10.
   original <- sf::st_make_valid
-  local_mocked_bindings(.package = "sf", st_make_valid = function(x, ...) {
+  local_mocked_bindings(st_make_valid = function(x, ...) {
     original(x, geos_method = "valid_linework")
   })
   a <- capa(list(cuadrado(0), repetido(500), mono(1000)))

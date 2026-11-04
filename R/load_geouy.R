@@ -101,7 +101,7 @@ descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
 #'   \code{R CMD check} runs, the default is a single attempt, so that a server
 #'   that is down does not make the check slower.
 #' @importFrom curl has_internet
-#' @importFrom sf st_read st_transform
+#' @importFrom sf st_read st_transform st_make_valid
 #' @importFrom glue glue
 #' @importFrom utils download.file unzip
 #' @keywords IDE MIDES INE
@@ -128,7 +128,7 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
   if (length(c) != 1 || !c %in% x$capa) {
     stop("The name of the geometry you will load is not correct. Verify in the metadata file")
   }
-  if (!curl::has_internet()) stop("No internet access detected. Please check your connection.")
+  if (!has_internet()) stop("No internet access detected. Please check your connection.")
   x <- x[x$capa == c,]
   enco <- x$enc
   if (x$formato %in% c("zip", "zip a")) {
@@ -302,7 +302,7 @@ opcion_espera <- function() {
 bajar_archivo <- function(url, destino) {
   viejo <- options(timeout = max(getOption("timeout"), 3600))
   on.exit(options(viejo), add = TRUE)
-  utils::download.file(url, destino, mode = "wb", method = "libcurl")
+  download.file(url, destino, mode = "wb", method = "libcurl")
 }
 
 # Durante R CMD check, un solo intento: si un servidor esta caido, los ejemplos
@@ -543,11 +543,11 @@ reparar <- function(g, familia, dimension, precision = NA) {
   # Si sacar los repetidos fallara, se repara igual, como antes de existir
   # este paso: que una geometria rara no deje sin reparar a todas las demas.
   g <- tryCatch(sin_repetidos(en_la_grilla(g)), error = function(e) g)
-  juntas <- tryCatch(con_s2(FALSE, sf::st_make_valid(g)), error = function(e) NULL)
+  juntas <- tryCatch(con_s2(FALSE, st_make_valid(g)), error = function(e) NULL)
 
   if (is.null(juntas)) {
     return(lapply(seq_along(g), function(i) {
-      r <- tryCatch(con_s2(FALSE, sf::st_make_valid(g[i])), error = function(e) NULL)
+      r <- tryCatch(con_s2(FALSE, st_make_valid(g[i])), error = function(e) NULL)
       if (is.null(r)) NULL else a_su_dimension(r, familia, esperada[i])
     }))
   }

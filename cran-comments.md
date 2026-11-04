@@ -6,7 +6,7 @@ This resubmission addresses the review of 2026-11-04:
   were added as roxygen2 tags in `R/utils.R` and the `.Rd` files were rendered
   again with `roxygenize()`.
 
-In the same spirit, we also:
+Following the CRAN Cookbook, we also:
 
 * rewrote the `\value` of `add_geom()`, which said `data.frame` while the
   function returns an `sf` object, and corrected that of `where_uy()`;
@@ -15,9 +15,15 @@ In the same spirit, we also:
 * fixed the package help page (`geouy.Rd`), which showed a stray `"_PACKAGE"`
   and now has `\docType{package}`;
 * replaced `T` and `F` with `TRUE` and `FALSE` in the tests and the vignette;
-* fixed two tests that run on CRAN and check the `folder` argument: the
-  functions look for an internet connection before checking the folder, so
-  without internet access those tests failed. They now mock that look-up;
+* gave the help pages proper titles;
+* made the examples that use remote services report the error with
+  `message()` when a service fails, instead of doing nothing;
+* silenced the output of `sf::st_read()` and `utils::download.file()`, which
+  `suppressMessages()` could not silence; what the functions report goes
+  through `message()`;
+* made `load_geouy()` and `tiles_geouy()` check the `folder` argument before
+  the internet connection. Two tests that run on CRAN check that argument, and
+  without internet access they failed;
 * changed the tests that mocked functions of 'utils', 'curl' and 'sf' so that
   they mock the bindings imported into geouy instead, without modifying the
   namespaces of those packages.

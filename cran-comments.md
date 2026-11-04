@@ -1,3 +1,23 @@
+## Resubmission
+
+This resubmission addresses the review of 2026-11-04:
+
+* `pipe.Rd` now has `\value`, as requested, together with `\arguments`. They
+  were added as roxygen2 tags in `R/utils.R` and the `.Rd` files were rendered
+  again with `roxygenize()`.
+
+In the same spirit, we also:
+
+* rewrote the `\value` of `add_geom()`, which said `data.frame` while the
+  function returns an `sf` object, and corrected the one of `where_uy()`;
+* explained the acronyms of the agencies ('IDE', 'INE', 'MIDES') in the
+  Description field;
+* fixed the package help page (`geouy.Rd`), which showed a stray `"_PACKAGE"`
+  and now has `\docType{package}`;
+* replaced `T` and `F` with `TRUE` and `FALSE` in the tests and the vignette;
+* made the two tests that run on CRAN and checked the folder argument
+  independent of the network, so that they pass without internet access.
+
 ## Resubmission of an archived package
 
 geouy was archived on 2025-08-20, at version 0.2.8; this submission is version
@@ -63,7 +83,7 @@ still run it in the checks with `--run-donttest`.
 
 ## Test environments
 
-* local: Pop!_OS 22.04 (Ubuntu-based), R 4.6.1, with `--as-cran --run-donttest`
+* local: Pop!_OS 22.04 (Ubuntu-based), R 4.6.2, with `--as-cran --run-donttest`
 * GitHub Actions: ubuntu-latest (R-devel, release, oldrel-1), macOS (release)
   and Windows (release), with `--as-cran`, which also runs the examples in
   `\donttest{}`

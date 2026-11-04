@@ -4,13 +4,13 @@
 \name{geouy}
 \alias{geouy}
 \alias{geouy-package}
-\title{\code{geouy} package}
+\title{geouy: Geographic Information of Uruguay}
 \description{
-The toolbox have functions to load and process geographic information for Uruguay.
+Loads official geographic information of Uruguay, such as administrative boundaries, census areas, streets and public services, as 'sf' objects, from the services of public institutions like the Spatial Data Infrastructure of Uruguay, the National Institute of Statistics and the Ministry of Social Development ('IDE', 'INE' and 'MIDES', by their Spanish initials), and provides functions to process them. It also turns addresses into coordinates and back, through the address service of the 'IDE' \url{https://www.gub.uy/infraestructura-datos-espaciales/tramites-y-servicios/servicios/servicio-direcciones-geograficas}, and downloads the orthophotos of an area.
 }
 \details{
 See the README on
-\href{https://github.com/Richard-Detomasi/geouy/blob/master/README.md}{Github}
+\href{https://github.com/Richard-Detomasi/geouy/blob/master/README.md}{GitHub}.
 }
 \seealso{
 Useful links:

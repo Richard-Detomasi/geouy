@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_geom.R
 \name{add_geom}
 \alias{add_geom}
-\title{This function allows you to add a geom variable with a code variable of "zona", "barrio", "localidad", "segmentos", "secciones" or "departamentos".}
+\title{Add Geometries to Data by Administrative Unit}
 \usage{
 add_geom(data, unit, variable, crs = 32721)
 }
@@ -13,7 +13,7 @@ add_geom(data, unit, variable, crs = 32721)
 
 \item{variable}{Variable name of unit code (without duplicates)}
 
-\item{crs}{Coordinates Refence Sistem, usually in region 32721 or 4326 (default 32721)}
+\item{crs}{Coordinate reference system of the result, as an EPSG code; usually 32721 or 4326 (default 32721)}
 }
 \value{
 An \code{sf} object with one row per unit of the \code{unit} layer,
@@ -23,7 +23,10 @@ An \code{sf} object with one row per unit of the \code{unit} layer,
   have \code{NA} in those columns.
 }
 \description{
-This function allows you to add a geom variable with a code variable of "zona", "barrio", "localidad", "segmentos", "secciones" or "departamentos".
+Adds the geometries of a layer of administrative units to a data frame,
+matching a variable of the data frame that holds the code or the name of each
+unit: departments, census sections, segments or zones, localities,
+municipalities or neighbourhoods.
 }
 \details{
 Disclaimer: This script is not an official INE product.
@@ -35,7 +38,7 @@ pobre_x_dpto <- as.data.frame(cbind(nomdpto = c("ARTIGAS", "DURAZNO", "FLORIDA",
                Pobreza = c(0.26, 0.27, 0.07, 0.10)))
 pobre_x_dpto_geo <- try(add_geom(data = pobre_x_dpto, unit = "Deptos",
                                  variable = "nomdpto"), silent = TRUE)
-if (!inherits(pobre_x_dpto_geo, "try-error")) pobre_x_dpto_geo
+if (inherits(pobre_x_dpto_geo, "try-error")) message(pobre_x_dpto_geo) else pobre_x_dpto_geo
 }
 }
 \seealso{

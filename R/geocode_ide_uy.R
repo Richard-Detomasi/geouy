@@ -1,4 +1,8 @@
-#' A function to geocoding directions using IDE_uy
+#' Geocode Addresses with the IDE Service
+#'
+#' Turns addresses into coordinates with the address service of the Spatial
+#' Data Infrastructure of Uruguay (IDE).
+#'
 #' @family service
 #' @param x Dataframe with unless 3 variables: dpto = corresponding to the department, loc = city / location, dir = to the address.
 #' @param details Logical. With \code{FALSE}, the default, only the \code{x} and
@@ -15,7 +19,7 @@
 #' x <- data.frame(dpto = "Montevideo", loc = "Montevideo",
 #'                 dir = "Av. 18 de julio 1453")
 #' puntos <- try(geocode_ide_uy(x), silent = TRUE)
-#' if (!inherits(puntos, "try-error")) puntos
+#' if (inherits(puntos, "try-error")) message(puntos) else puntos
 #'}
 
 geocode_ide_uy <- function(x, details = FALSE) {

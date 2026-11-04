@@ -27,8 +27,10 @@ escala_discreta <- function(v, col) {
 }
 
 #' @name plot_geouy
-#' @title plot_geouy
-#' @description This function allows you to set ggplot2 theme in our suggested format.
+#' @title Choropleth Map of a Variable
+#' @description Draws a choropleth map of the variable \code{col} of an
+#'   \code{sf} object with \code{ggplot2}, with a viridis colour scale and the
+#'   theme we suggest.
 #' @family plot
 #' @param x An sf object like load_geouy() results
 #' @param col Variable of "x" to plot (character)
@@ -39,7 +41,8 @@ escala_discreta <- function(v, col) {
 #'
 #' @keywords ggplot2 sf maps
 #' @import ggplot2
-#' @return ggplot object of a choropleth map with x geometries and col values.
+#' @return A \code{ggplot} object with the choropleth map of \code{col} over the
+#'   geometries of \code{x}.
 #' @export
 #'
 #' @examples
@@ -86,7 +89,7 @@ plot_geouy <- function(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...){
       msg = glue::glue("The variable '{other_lab}' given in other_lab is not in x. ",
                        "Available: {listar(disponibles)}"))
   }
-  if (!is.null(l) && l %in% "%" & is.numeric(x[[col]]) & sum(x[[col]] > 1, na.rm = TRUE) == 0) {
+  if (isTRUE(l %in% "%") && is.numeric(x[[col]]) && sum(x[[col]] > 1, na.rm = TRUE) == 0) {
       x[[col]] <- x[[col]] * 100
     }
 

@@ -1,4 +1,8 @@
-#' A function to reverse geocoding from coordinates (EPSG 4326) using IDE_uy
+#' Reverse Geocode Coordinates with the IDE Service
+#'
+#' Turns coordinates in EPSG:4326 (latitude and longitude) into addresses with
+#' the address service of the Spatial Data Infrastructure of Uruguay (IDE).
+#'
 #' @family service
 #' @param x Dataframe with unless 2 variables: lat = latitud in EPSG:4326 & longitud in EPSG:4326.
 #' @param details Logical. With \code{FALSE}, the default, the address fields listed
@@ -15,7 +19,7 @@
 #'\donttest{
 #' x <- data.frame(lat = -34.77882, lon = -56.06476)
 #' direccion <- try(reverse_ide_uy(x), silent = TRUE)
-#' if (!inherits(direccion, "try-error")) direccion
+#' if (inherits(direccion, "try-error")) message(direccion) else direccion
 #'}
 
 reverse_ide_uy <- function(x, details = FALSE) {

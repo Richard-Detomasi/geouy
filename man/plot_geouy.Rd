@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_geouy.R
 \name{plot_geouy}
 \alias{plot_geouy}
-\title{plot_geouy}
+\title{Choropleth Map of a Variable}
 \usage{
 plot_geouy(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...)
 }
@@ -20,10 +20,13 @@ plot_geouy(x, col, viri_opt = "D", l = NULL, other_lab = NULL, ...)
 \item{...}{Further arguments passed to \code{ggplot2::theme()}, applied after the default theme so they override it.}
 }
 \value{
-ggplot object of a choropleth map with x geometries and col values.
+A \code{ggplot} object with the choropleth map of \code{col} over the
+  geometries of \code{x}.
 }
 \description{
-This function allows you to set ggplot2 theme in our suggested format.
+Draws a choropleth map of the variable \code{col} of an
+  \code{sf} object with \code{ggplot2}, with a viridis colour scale and the
+  theme we suggest.
 }
 \examples{
 # Six zones built by hand, so the example does not depend on any remote

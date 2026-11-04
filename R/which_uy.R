@@ -1,10 +1,16 @@
-#' This function allows to add to an 'sf' object its spatial coincidence with one or more administrative units in Uruguay, generating the corresponding variables.
+#' Add the Administrative Units Where Geometries Fall
+#'
+#' Adds to an \code{sf} object, as new variables, the code or the name of the
+#' administrative units of Uruguay where each of its geometries falls.
+#'
 #' @family service
 #' @param x An 'sf' object with the same crs as the homonym parameter
 #' @param c Define the geometries to download: may be: "Departamentos", "Secciones", "Zonas", etc. View(metadata) for details.
 #' @param d A vector who determines the variables to be added, with three options: "cod", "name", or "full". Default c("cod", "name").
 #' @keywords IDE MIDES INE
-#' @return sf object with the x geometries, with d variables requested from c added
+#' @return The \code{sf} object \code{x}, with one variable added for each layer in
+#'   \code{c} and each of \code{d}, holding the code or the name of the unit
+#'   where each geometry falls.
 #' @export
 #' @examples
 #'\donttest{
@@ -13,7 +19,7 @@
 #'   peajes <- load_geouy("Peajes")
 #'   which_uy(peajes, c = "Deptos")
 #' }, silent = TRUE)
-#' if (!inherits(peajes_x_dpto, "try-error")) head(peajes_x_dpto)
+#' if (inherits(peajes_x_dpto, "try-error")) message(peajes_x_dpto) else head(peajes_x_dpto)
 #'}
 
 which_uy <- function(x, c = c("Localidades pg", "Departamentos"), d = c("cod", "name")){

@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{is.uy4326}
 \alias{is.uy4326}
-\title{This function test if an 'sf' object match with Uruguay at crs = 4326.}
+\title{Check Whether an sf Object Matches Uruguay in EPSG:4326}
 \usage{
 is.uy4326(x)
 }
@@ -14,7 +14,8 @@ A character string. If \code{x} is not in the CRS being tested it says so;
   otherwise it gives the percentage of its geometries that fall in Uruguay.
 }
 \description{
-This function test if an 'sf' object match with Uruguay at crs = 4326.
+Tests whether an \code{sf} object is in EPSG:4326 and, if it is, which
+percentage of its geometries fall in Uruguay.
 }
 \examples{
 \donttest{
@@ -25,7 +26,7 @@ resultado <- try({
   x <- load_geouy("Peajes")
   is.uy4326(x)
 }, silent = TRUE)
-if (!inherits(resultado, "try-error")) resultado
+if (inherits(resultado, "try-error")) message(resultado) else resultado
 }
 }
 \seealso{

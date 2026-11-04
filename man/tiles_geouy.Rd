@@ -25,8 +25,9 @@ A \code{RasterBrick} with the tiles covering \code{x}, cropped to its bounding b
 }
 \description{
 Downloads the orthophoto tiles (.jpg or .tif files) of the tiles repository
-of the Spatial Data Infrastructure of Uruguay (IDE) that cover the bounding
-box of an \code{sf} object, and crops them to it.
+of the Spatial Data Infrastructure of Uruguay (IDE) that intersect the
+geometries of an \code{sf} object, after the buffer given by \code{d}, and
+crops them to the bounding box of those geometries.
 }
 \examples{
 \dontrun{

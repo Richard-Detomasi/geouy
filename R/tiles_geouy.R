@@ -61,8 +61,9 @@ incompatible_o_falla <- function(primero, otro, nombre_primero, nombre_otro) {
 #' Download the Orthophotos of an Area
 #'
 #' Downloads the orthophoto tiles (.jpg or .tif files) of the tiles repository
-#' of the Spatial Data Infrastructure of Uruguay (IDE) that cover the bounding
-#' box of an \code{sf} object, and crops them to it.
+#' of the Spatial Data Infrastructure of Uruguay (IDE) that intersect the
+#' geometries of an \code{sf} object, after the buffer given by \code{d}, and
+#' crops them to the bounding box of those geometries.
 #'
 #' @family service
 #' @param x An 'sf' object with the same crs as the homonym parameter

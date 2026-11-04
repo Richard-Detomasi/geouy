@@ -14,13 +14,16 @@ which_uy(x, c = c("Localidades pg", "Departamentos"), d = c("cod", "name"))
 \item{d}{A vector who determines the variables to be added, with three options: "cod", "name", or "full". Default c("cod", "name").}
 }
 \value{
-The \code{sf} object \code{x}, with one variable added for each layer in
-  \code{c} and each of \code{d}, holding the code or the name of the unit
-  where each geometry falls.
+The \code{sf} object \code{x} joined, with \code{sf::st_join()}, to the
+  units of each layer in \code{c} where its geometries fall. With \code{d}
+  \code{"cod"} and \code{"name"}, it adds the code and the name of the unit,
+  as \code{cod_<layer>} and \code{name_<layer>}; with \code{"full"}, all the
+  columns of the layer, the first of them renamed \code{full_<layer>}.
 }
 \description{
-Adds to an \code{sf} object, as new variables, the code or the name of the
-administrative units of Uruguay where each of its geometries falls.
+Adds to an \code{sf} object, as new variables, the code, the name or all the
+variables of the administrative units of Uruguay where each of its
+geometries falls.
 }
 \examples{
 \donttest{

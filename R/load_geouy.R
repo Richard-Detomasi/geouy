@@ -95,6 +95,13 @@ descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
 #'   they are. With \code{FALSE}
 #'   the geometries are neither checked nor repaired: apart from the
 #'   transformation to \code{crs}, they are returned as the server publishes them.
+#' @param cache Logical. With \code{TRUE}, the layer is saved in the cache
+#'   folder of the user the first time it is loaded, and read from there
+#'   afterwards; see Details. The default is \code{FALSE}, or the value of
+#'   \code{options(geouy.cache = )}.
+#' @param refresh Logical. With \code{cache = TRUE}, \code{TRUE} downloads the
+#'   layer again and replaces the saved copy; if the download fails, it is an
+#'   error and the copy is kept. It has no effect without \code{cache}.
 #' @details Reading a layer from a web service, or downloading its zip file, is
 #'   retried when it fails: up to three attempts in all, waiting 5 and then 10
 #'   seconds, with a message before each new attempt. Failures that waiting
@@ -105,6 +112,27 @@ descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
 #'   up to 30 seconds (a longer first wait is kept as it is). While
 #'   \code{R CMD check} runs, the default is a single attempt, so that a server
 #'   that is down does not make the check slower.
+#'
+#'   With \code{cache = TRUE}, the layer is saved in
+#'   \code{tools::R_user_dir("geouy", "cache")}, or in the folder given in
+#'   \code{options(geouy.cache_dir = )}, as it was read from the server:
+#'   \code{crs} and \code{make_valid} apply to the copy as they do to the
+#'   downloaded layer. A layer made of several, such as \code{Calles}, is saved
+#'   already joined. A layer that comes back without features, or with one of
+#'   its parts empty, is not saved, and if the copy cannot be saved a warning
+#'   says so and the layer is returned anyway.
+#'
+#'   While the copy is less than 30 days old, \code{load_geouy()} reads it
+#'   instead of asking the server, also without an internet connection, and a
+#'   message says when it was saved. \code{options(geouy.cache_days = )}
+#'   changes the number of days, and with \code{Inf} the copy never expires.
+#'   After that, the layer is downloaded again and the copy is replaced; if
+#'   the download fails, the old copy is used, with a warning. A copy is only
+#'   used if \code{\link{metadata}} defines the layer as when it was saved
+#'   (its address, CRS, encoding and declared columns), and if the checksum of
+#'   its data is the one recorded when it was saved.
+#'   \code{\link{cache_geouy}()} lists the saved copies and
+#'   \code{\link{clear_cache_geouy}()} deletes them.
 #' @importFrom curl has_internet
 #' @importFrom sf st_read st_transform st_make_valid
 #' @importFrom glue glue
@@ -119,9 +147,12 @@ descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
 #' if (inherits(secc, "try-error")) message(secc) else head(secc)
 #'}
 
-load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
+load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE,
+                       cache = getOption("geouy.cache", FALSE), refresh = FALSE){
   x <- geouy::metadata 
-  folder <- normalizePath(folder,"/")
+  # mustWork = FALSE: la carpeta puede no existir todavia -se crea mas abajo,
+  # si hace falta bajar-, y sin esto cada llamada avisaba que no existe.
+  folder <- normalizePath(folder, "/", mustWork = FALSE)
   # Sin try(): envolver un stop() propio en try() lo atrapa, la funcion sigue
   # con el nombre equivocado y el usuario termina viendo "argumento tiene
   # longitud cero" unas lineas mas abajo, cuando el filtro no deja ninguna fila.
@@ -135,19 +166,49 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
     stop("The name of the geometry you will load is not correct. Verify in the metadata file")
   }
   x <- x[x$capa == c,]
+  es_zip <- x$formato %in% c("zip", "zip a")
+  if (es_zip && (!is.character(folder) | length(folder) != 1)) {
+    stop(glue::glue("You must enter a valid directory..."))
+  }
+  if (!isTRUE(cache) && !isFALSE(cache)) stop("cache must be TRUE or FALSE.", call. = FALSE)
+  if (!isTRUE(refresh) && !isFALSE(refresh)) stop("refresh must be TRUE or FALSE.", call. = FALSE)
+  # Con cache, la capa puede salir de la copia guardada sin pasar por la red;
+  # la logica esta en cache.R. Sin cache, que es lo que pasa por omision, todo
+  # sigue como antes. Cuando la cache decide bajar, tiene que ser una descarga
+  # de verdad: un zip que quedo en la carpeta de antes no es la capa de hoy.
+  a <- if (cache) {
+    cargar_con_cache(x, function() bajar_capa(x, folder, de_nuevo = TRUE), refresh)
+  } else {
+    bajar_capa(x, folder)
+  }
+  # Antes de transformar: se valida en el CRS en que se publico la capa, que es
+  # donde el organismo la dibujo.
+  if (isTRUE(make_valid)) a <- sanear(a, c)
+  a <- a %>% sf::st_transform(crs)
+  return(a)
+}
+
+# Trae la capa del servidor: baja y descomprime el zip, o lee el servicio. Lo
+# que devuelve es la capa tal como se publico, sin reparar ni transformar. Esta
+# aparte de load_geouy() para que la cache pueda decidir si hace falta llamarla.
+#
+# Un zip que ya esta en la carpeta no se vuelve a bajar, como siempre. Con
+# de_nuevo = TRUE si: lo pide la cache, que si no fecharia como de hoy una
+# copia hecha con un zip de quien sabe cuando.
+bajar_capa <- function(x, folder, de_nuevo = FALSE) {
+  c <- x$capa
   enco <- x$enc
   es_zip <- x$formato %in% c("zip", "zip a")
   # La carpeta se valida antes de mirar la conexion: es un error del lado del
-  # usuario, y sin red quedaba tapado por "No internet access detected".
+  # usuario, y sin red quedaba tapado por "No internet access detected". Va
+  # aca y no en load_geouy() porque solo hace falta para bajar: con una copia
+  # en la cache no se necesita ni se crea.
   if (es_zip) {
-    if (!is.character(folder) | length(folder) != 1) {
-      stop(glue::glue("You must enter a valid directory..."))
-    }
     # download ----
     # Mismo caso que en tiles_geouy(): el try() tapaba tanto "ya existe" como
     # "no se puede crear". Pasandole un archivo en vez de un directorio, la
     # descarga fallaba despues y el mensaje culpaba al servidor. Se reusa el
-    # mensaje de la guarda de arriba, sin agregar uno nuevo.
+    # mensaje de la guarda de load_geouy(), sin agregar uno nuevo.
     if (!dir.exists(folder)) {
       suppressWarnings(dir.create(folder, recursive = TRUE))
       if (!dir.exists(folder)) stop(glue::glue("You must enter a valid directory..."))
@@ -157,10 +218,12 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
     # culpaba a el.
     if (file.access(folder, 2) != 0) stop(glue::glue("You must enter a valid directory..."))
   }
-  if (!has_internet()) stop("No internet access detected. Please check your connection.")
+  if (!has_internet()) {
+    stop("No internet access detected. Please check your connection.", call. = FALSE)
+  }
   if (es_zip) {
     f = glue::glue("{folder}/{x$capa}.zip")
-    if (!file.exists(f)) {
+    if (de_nuevo || !file.exists(f)) {
       message(glue::glue("Trying to download {x$capa}..."))
       # El reintento en modo "a" (append) sobre el mismo archivo no aportaba
       # nada -pedia otra vez la misma URL- y ademas es peligroso: cuando el
@@ -220,11 +283,7 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
   } else {
     a <- leer_servicio(x$url, x$crs, enco, c)
   }
-  # Antes de transformar: se valida en el CRS en que se publico la capa, que es
-  # donde el organismo la dibujo.
-  if (isTRUE(make_valid)) a <- sanear(a, c)
-  a <- a %>% sf::st_transform(crs)
-  return(a)
+  a
 }
 
 # quiet = TRUE en todas las lecturas y descargas: st_read() y download.file()

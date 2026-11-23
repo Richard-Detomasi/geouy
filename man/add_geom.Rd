@@ -43,6 +43,7 @@ if (inherits(pobre_x_dpto_geo, "try-error")) message(pobre_x_dpto_geo) else pobr
 }
 \seealso{
 Other service:
+\code{\link[=cache_geouy]{cache_geouy()}},
 \code{\link[=geocode_ide_uy]{geocode_ide_uy()}},
 \code{\link[=load_geouy]{load_geouy()}},
 \code{\link[=reverse_ide_uy]{reverse_ide_uy()}},

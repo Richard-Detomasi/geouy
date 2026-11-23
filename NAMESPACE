@@ -2,6 +2,8 @@
 
 export("%>%")
 export(add_geom)
+export(cache_geouy)
+export(clear_cache_geouy)
 export(geocode_ide_uy)
 export(is.uy32721)
 export(is.uy4326)

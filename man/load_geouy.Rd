@@ -4,7 +4,14 @@
 \alias{load_geouy}
 \title{Load an Official Geographic Layer of Uruguay}
 \usage{
-load_geouy(c, crs = 32721, folder = tempdir(), make_valid = TRUE)
+load_geouy(
+  c,
+  crs = 32721,
+  folder = tempdir(),
+  make_valid = TRUE,
+  cache = getOption("geouy.cache", FALSE),
+  refresh = FALSE
+)
 }
 \arguments{
 \item{c}{Define the geometries to download: may be: "Departamentos", "Secciones", "Zonas", etc. View(metadata) for details.}
@@ -25,6 +32,15 @@ which neither engine can evaluate, and geometry collections are left as
 they are. With \code{FALSE}
 the geometries are neither checked nor repaired: apart from the
 transformation to \code{crs}, they are returned as the server publishes them.}
+
+\item{cache}{Logical. With \code{TRUE}, the layer is saved in the cache
+folder of the user the first time it is loaded, and read from there
+afterwards; see Details. The default is \code{FALSE}, or the value of
+\code{options(geouy.cache = )}.}
+
+\item{refresh}{Logical. With \code{cache = TRUE}, \code{TRUE} downloads the
+layer again and replaces the saved copy; if the download fails, it is an
+error and the copy is kept. It has no effect without \code{cache}.}
 }
 \value{
 An \code{sf} object with the features of the layer \code{c} and all its
@@ -46,6 +62,27 @@ Reading a layer from a web service, or downloading its zip file, is
   up to 30 seconds (a longer first wait is kept as it is). While
   \code{R CMD check} runs, the default is a single attempt, so that a server
   that is down does not make the check slower.
+
+  With \code{cache = TRUE}, the layer is saved in
+  \code{tools::R_user_dir("geouy", "cache")}, or in the folder given in
+  \code{options(geouy.cache_dir = )}, as it was read from the server:
+  \code{crs} and \code{make_valid} apply to the copy as they do to the
+  downloaded layer. A layer made of several, such as \code{Calles}, is saved
+  already joined. A layer that comes back without features, or with one of
+  its parts empty, is not saved, and if the copy cannot be saved a warning
+  says so and the layer is returned anyway.
+
+  While the copy is less than 30 days old, \code{load_geouy()} reads it
+  instead of asking the server, also without an internet connection, and a
+  message says when it was saved. \code{options(geouy.cache_days = )}
+  changes the number of days, and with \code{Inf} the copy never expires.
+  After that, the layer is downloaded again and the copy is replaced; if
+  the download fails, the old copy is used, with a warning. A copy is only
+  used if \code{\link{metadata}} defines the layer as when it was saved
+  (its address, CRS, encoding and declared columns), and if the checksum of
+  its data is the one recorded when it was saved.
+  \code{\link{cache_geouy}()} lists the saved copies and
+  \code{\link{clear_cache_geouy}()} deletes them.
 }
 \examples{
 \donttest{
@@ -56,6 +93,7 @@ if (inherits(secc, "try-error")) message(secc) else head(secc)
 \seealso{
 Other service:
 \code{\link[=add_geom]{add_geom()}},
+\code{\link[=cache_geouy]{cache_geouy()}},
 \code{\link[=geocode_ide_uy]{geocode_ide_uy()}},
 \code{\link[=reverse_ide_uy]{reverse_ide_uy()}},
 \code{\link[=tiles_geouy]{tiles_geouy()}},

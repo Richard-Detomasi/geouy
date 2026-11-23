@@ -282,7 +282,11 @@ podar_cache <- function(carpeta = carpeta_cache()) {
   md <- geouy::metadata
   al_dia <- vapply(seq_len(nrow(copias)), function(i) {
     x <- md[md$capa == copias$capa[i], ]
-    nrow(x) == 1 && identical(copias$huella[i], huella_capa(x))
+    if (nrow(x) != 1) return(FALSE)
+    huella <- huella_capa(x)
+    # Si la huella no se pudo calcular no se sabe si la copia sirve, y se deja:
+    # sacarla seria vaciar la cache por un tropiezo al leer un archivo.
+    is.na(huella) || identical(copias$huella[i], huella)
   }, logical(1))
   for (i in which(!al_dia)) {
     # Se vuelve a leer la ficha: si otra sesion acaba de guardar ahi una copia

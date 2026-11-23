@@ -700,6 +700,21 @@ test_that("la poda del primer uso es por carpeta, aunque dos se nombren igual", 
   }
 })
 
+test_that("si la huella de una capa no se puede calcular, la poda no saca su copia", {
+  p <- cache_de_prueba()
+  on.exit(p$cerrar(), add = TRUE)
+  n <- bajar_falsa()
+  load_geouy("Secciones", cache = TRUE)
+  antes <- list.files(p$carpeta)
+  # tools::md5sum() devuelve NA cuando no puede leer el archivo, y la huella
+  # sale de ahi.
+  with_mocked_bindings(expect_equal(podar_cache(), character()),
+                       suma_md5 = function(archivo) NA_character_)
+  expect_identical(list.files(p$carpeta), antes)
+  expect_message(load_geouy("Secciones", cache = TRUE), "Using the copy")
+  expect_equal(n$n, 1)
+})
+
 test_that("lo que deja una escritura cortada se saca, pero no antes de un dia", {
   p <- cache_de_prueba()
   on.exit(p$cerrar(), add = TRUE)

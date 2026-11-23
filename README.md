@@ -235,6 +235,8 @@ This package arises from the conjugation of own ideas with an eye on the region.
 
 This walk on the shoulders of giants, allows this package focused on this small country (my beautiful Uruguay), to have its own particularities although it tries to fit especially to [geobr](https://github.com/ipea/geobr) in its structure and with a view to complementing [ech](https://github.com/calcita/ech).
 
+The introduction of this README and the script that draws the logo (`man/figures/GeoUy_hexsticker.R`) were adapted from the ones of [geobr](https://github.com/ipea/geobr), which is distributed under the MIT license (© 2019 Ipea).
+
 ## Community contributions [es](https://github.com/Richard-Detomasi/geouy/issues/1)
 
 This package intends to incorporate any function of general requirements that use the geographic data of Uruguay as a base. All contributions in this regard are welcome.

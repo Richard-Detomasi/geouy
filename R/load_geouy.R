@@ -135,7 +135,6 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
     stop("The name of the geometry you will load is not correct. Verify in the metadata file")
   }
   x <- x[x$capa == c,]
-  enco <- x$enc
   es_zip <- x$formato %in% c("zip", "zip a")
   # La carpeta se valida antes de mirar la conexion: es un error del lado del
   # usuario, y sin red quedaba tapado por "No internet access detected".
@@ -157,7 +156,23 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
     # culpaba a el.
     if (file.access(folder, 2) != 0) stop(glue::glue("You must enter a valid directory..."))
   }
-  if (!has_internet()) stop("No internet access detected. Please check your connection.")
+  a <- bajar_capa(x, folder)
+  # Antes de transformar: se valida en el CRS en que se publico la capa, que es
+  # donde el organismo la dibujo.
+  if (isTRUE(make_valid)) a <- sanear(a, c)
+  a <- a %>% sf::st_transform(crs)
+  return(a)
+}
+
+# Trae la capa del servidor: baja y descomprime el zip, o lee el servicio. Lo
+# que devuelve es la capa tal como se publico, sin reparar ni transformar.
+bajar_capa <- function(x, folder) {
+  c <- x$capa
+  enco <- x$enc
+  es_zip <- x$formato %in% c("zip", "zip a")
+  if (!has_internet()) {
+    stop("No internet access detected. Please check your connection.", call. = FALSE)
+  }
   if (es_zip) {
     f = glue::glue("{folder}/{x$capa}.zip")
     if (!file.exists(f)) {
@@ -220,11 +235,7 @@ load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
   } else {
     a <- leer_servicio(x$url, x$crs, enco, c)
   }
-  # Antes de transformar: se valida en el CRS en que se publico la capa, que es
-  # donde el organismo la dibujo.
-  if (isTRUE(make_valid)) a <- sanear(a, c)
-  a <- a %>% sf::st_transform(crs)
-  return(a)
+  a
 }
 
 # quiet = TRUE en todas las lecturas y descargas: st_read() y download.file()

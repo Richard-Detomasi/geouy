@@ -62,6 +62,11 @@
 #'   \item{Loc_agr_13}{code of the "Localidades agrupadas" (2013)}
 #'   \item{cat_loc_agr}{Tipical categories of "Localidades"}
 #' }
+#' @source National Institute of Statistics of Uruguay (INE): the localities of
+#'   the 2011 Census, with their population and density, and its grouping of
+#'   localities of 2013. The column \code{cat_loc_agr} was built for this
+#'   package from the other columns; the script that does it is
+#'   \code{data-raw/loc_agr_ine.R}, in the repository of the package.
 "loc_agr_ine"
 
 #' Uruguay Departments grid
@@ -75,6 +80,10 @@
 #'   \item{row}{row position in the grid}
 #'   \item{col}{col position in the grid}
 #' }
+#' @source Layout made for this package, with the codes the National Institute
+#'   of Statistics (INE) gives to the departments. The same layout is in the
+#'   collection of grids of the \pkg{geofacet} package, as
+#'   \code{uy_departamentos_grid2}.
 "uy_deptos_grid"
 
 #' Montevideo barrios grid
@@ -88,4 +97,7 @@
 #'   \item{row}{row position in the grid}
 #'   \item{col}{col position in the grid}
 #' }
+#' @source Layout made for this package. The names and the codes of the
+#'   neighborhoods are the ones of the National Institute of Statistics (INE),
+#'   as published in the layer \code{"Barrios"} of \code{\link{metadata}}.
 "mvd_barrios_grid"

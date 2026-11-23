@@ -17,6 +17,13 @@ A data frame with 615 rows and 8 variables:
   \item{cat_loc_agr}{Tipical categories of "Localidades"}
 }
 }
+\source{
+National Institute of Statistics of Uruguay (INE): the localities of
+  the 2011 Census, with their population and density, and its grouping of
+  localities of 2013. The column \code{cat_loc_agr} was built for this
+  package from the other columns; the script that does it is
+  \code{data-raw/loc_agr_ine.R}, in the repository of the package.
+}
 \usage{
 data(loc_agr_ine)
 }

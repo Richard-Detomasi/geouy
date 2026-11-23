@@ -13,6 +13,12 @@ A data frame with 19 rows and 4 variables:
   \item{col}{col position in the grid}
 }
 }
+\source{
+Layout made for this package, with the codes the National Institute
+  of Statistics (INE) gives to the departments. The same layout is in the
+  collection of grids of the \pkg{geofacet} package, as
+  \code{uy_departamentos_grid2}.
+}
 \usage{
 data(uy_deptos_grid)
 }

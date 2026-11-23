@@ -35,6 +35,7 @@ if (inherits(direccion, "try-error")) message(direccion) else direccion
 \seealso{
 Other service:
 \code{\link[=add_geom]{add_geom()}},
+\code{\link[=cache_geouy]{cache_geouy()}},
 \code{\link[=geocode_ide_uy]{geocode_ide_uy()}},
 \code{\link[=load_geouy]{load_geouy()}},
 \code{\link[=tiles_geouy]{tiles_geouy()}},

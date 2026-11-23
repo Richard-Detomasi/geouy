@@ -35,6 +35,7 @@ if (inherits(puntos, "try-error")) message(puntos) else puntos
 \seealso{
 Other service:
 \code{\link[=add_geom]{add_geom()}},
+\code{\link[=cache_geouy]{cache_geouy()}},
 \code{\link[=load_geouy]{load_geouy()}},
 \code{\link[=reverse_ide_uy]{reverse_ide_uy()}},
 \code{\link[=tiles_geouy]{tiles_geouy()}},

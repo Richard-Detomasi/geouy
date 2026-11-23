@@ -45,6 +45,7 @@ tiles_geouy(x, urban = TRUE)
 \seealso{
 Other service:
 \code{\link[=add_geom]{add_geom()}},
+\code{\link[=cache_geouy]{cache_geouy()}},
 \code{\link[=geocode_ide_uy]{geocode_ide_uy()}},
 \code{\link[=load_geouy]{load_geouy()}},
 \code{\link[=reverse_ide_uy]{reverse_ide_uy()}},

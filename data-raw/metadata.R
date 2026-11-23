@@ -83,8 +83,12 @@ metadata <- tibble::tribble(
   "Escuelas", "CEIP", "MIDES", 32721, "wfs", 2020, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Escuelas_UY", NA, NA, "UTF-8",
   "Escuelas con N3", "CEIP", "MIDES", 32721, "zip", 2020, "https://mapas.mides.gub.uy/2shp/out/escuelaspublicascomunesconnivel3.zip", NA, NA, "UTF-8",
   "Educacion especial", "CEIP", "MIDES", 32721, "zip a", 2020, "https://mapas.mides.gub.uy/2shp/out/educacionespecial.zip", NA, NA, "UTF-8",
-  "Educacion secundaria", "CEIP", "MIDES", 32721, "zip a", 2020, "https://mapas.mides.gub.uy/2shp/out/liceos.zip", NA, NA, "UTF-8",
-  "UTU", "ANEP", "MIDES", 32721, "zip", 2020, "https://mapas.mides.gub.uy/2shp/out/utu.zip", NA, NA, "UTF-8",
+  # Estas dos se leian de /2shp/out/, que no es un servicio: es la carpeta donde
+  # el portal del MIDES deja lo que alguien exporta, y los zip aparecen y se
+  # borran. El WFS publica los liceos y las UTU con el esquema de la guia de
+  # recursos; id es unico en cada una.
+  "Educacion secundaria", "CEIP", "MIDES", 32721, "wfs", 2026, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Liceos_UY", "id", "nombre", "UTF-8",
+  "UTU", "ANEP", "MIDES", 32721, "wfs", 2026, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Utu_UY", "id", "nombre", "UTF-8",
   # Sumadas por el #76. Las sirve el MIDES en su guia de recursos, con el mismo
   # esquema que las de arriba; ID es unico en cada una. La oficina de victimas
   # se atribuye a ASSE por el correo que trae el dato.

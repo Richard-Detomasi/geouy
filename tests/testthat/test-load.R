@@ -75,3 +75,23 @@ test_that("las capas de la guia de recursos sumadas por el #76 traen el codigo y
     expect_gte(nrow(where_uy(capa, d = "name", e = a[[fila$name]][1])), 1)
   }
 })
+
+test_that("Educacion secundaria y UTU, que se leen del WFS, traen el codigo y el nombre declarados", {
+  skip_if_offline()
+  skip_on_cran()
+  md <- geouy::metadata
+  for (capa in c("Educacion secundaria", "UTU")) {
+    fila <- md[md$capa == capa, ]
+    a <- load_geouy(capa)
+    # Hay liceos y UTU en los 19 departamentos: menos de 100 filas seria otra
+    # capa, o una respuesta cortada.
+    expect_gt(nrow(a), 100)
+    expect_true(all(sf::st_geometry_type(a) == "POINT"), info = capa)
+    expect_true(all(c(fila$cod, fila$name) %in% names(a)), info = capa)
+    expect_equal(anyDuplicated(a[[fila$cod]]), 0, info = capa)
+    # Con el codigo y el nombre declarados, where_uy() encuentra el primero. El
+    # nombre puede repetirse; el codigo no.
+    expect_equal(nrow(where_uy(capa, d = "cod", e = a[[fila$cod]][1])), 1, info = capa)
+    expect_gte(nrow(where_uy(capa, d = "name", e = a[[fila$name]][1])), 1)
+  }
+})

@@ -148,8 +148,8 @@ secc <- load_geouy("Secciones")
 | `"Escuelas con N3"` | `"CEIP"` | MIDES | 2020 | zip |
 | `"Escuelas"` | `"CEIP"` | MIDES | 2020 | wfs |
 | `"Educacion especial"` | `"CEIP"` | MIDES | 2020 | zip | 
-| `"Educacion secundaria"` | `"CEIP"` | MIDES | 2020 |  zip |
-| `"UTU"` | `"ANEP"` | MIDES | 2020 |  zip |
+| `"Educacion secundaria"` | `"CEIP"` | MIDES | 2026 | wfs |
+| `"UTU"` | `"ANEP"` | MIDES | 2026 | wfs |
 |`"Centros de lenguas extranjeras"`| `"ANEP"` | MIDES | 2026 | zip |
 |`"Centros educativos comunitarios"`| `"ANEP"` | MIDES | 2026 | zip |
 |`"Atencion al usuario del MSP"`| `"MSP"` | MIDES | 2026 | zip |

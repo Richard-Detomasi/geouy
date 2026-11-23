@@ -62,7 +62,6 @@ secc <- load_geouy("Secciones")
 |`"Segm MVD 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Segmentos URB INT 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Zonas MVD 2004"`| `"INE"` | MIDES | 2004 | wfs |
-|`"Zonas URB INT 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Localidades pg"`| `"INE"` | MIDES | 2023 | wfs |
 |`"Localidades pt"`| `"INE"` | MIDES | 2023 | zip |
 |`"Centros poblados pg"`| `"SGM"` | IGM | 2011 | wfs |

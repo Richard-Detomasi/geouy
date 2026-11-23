@@ -22,7 +22,9 @@ metadata <- tibble::tribble(
   "Segm MVD 2004", "INE", "MIDES", 32721, "wfs", 2004, "https://mapas.mides.gub.uy/geoserver/INECenso2004/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=INECenso2004:mvdseg04", "CODSEG","SEGMENTO", "UTF-8",
   "Zonas MVD 2004", "INE", "MIDES", 32721, "wfs", 2004, "https://mapas.mides.gub.uy/geoserver/INECenso2004/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=INECenso2004:zonas04mvd", "CODCOMP","ZONA", "UTF-8",
   "Segmentos URB INT 2004", "INE", "MIDES", 32721, "wfs", 2004, "https://mapas.mides.gub.uy/geoserver/INECenso2004/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=INECenso2004:seg04_int", "CODSEG","SEGMENTO", "UTF-8",
-  "Zonas URB INT 2004", "INE", "MIDES", 32721, "wfs", 2004, "https://mapas.mides.gub.uy/geoserver/INECenso2004/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=INECenso2004:zonas04_int", "CODCOMP","ZONA", "UTF-8",
+  # "Zonas URB INT 2004" (INECenso2004:zonas04_int) se saco: el servidor trae 6
+  # zonas de un solo segmento de Salto, contra los 2.404 segmentos urbanos del
+  # interior de ese censo, y no publica otra capa con las zonas completas.
   "Localidades pg", "INE", "MIDES", 32721, "wfs", 2023, "https://mapas.mides.gub.uy:443/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=INECenso:Localidades_pg", "CODLOC","NOMBLOC", "UTF-8",
   "Localidades pt", "INE", "MIDES", 32721, "zip", 2023, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=INECenso:Localidades_pt&outputFormat=SHAPE-ZIP", "CODLOC","NOMLOC", "UTF-8",
   "DeptoHog11", "INE", "IDE", 32721, "zip", 2011, "https://mapas.ide.uy/geoserver-vectorial/INE_NO_SEGURO/wfs?service=WFS&request=GetFeature&version=1.0.0&outputFormat=shape-zip&typeName=depto_hog11", "depto", "nombre", "WINDOWS-1252", 

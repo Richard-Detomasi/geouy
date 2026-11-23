@@ -39,6 +39,14 @@ The syntax of all `geouy` functions operate one the same logic so it becomes int
 secc <- load_geouy("Secciones")
 ```
 
+With `cache = TRUE`, the layer is saved on your computer the first time, and read from there the following ones, also without an internet connection:
+
+```R
+secc <- load_geouy("Secciones", cache = TRUE)
+```
+
+The copy is used for 30 days; after that, the layer is downloaded again, and if the server does not answer, the old copy is used, with a warning. `refresh = TRUE` downloads it again at any time, and stops with an error if it cannot. `cache_geouy()` lists the saved copies and `clear_cache_geouy()` deletes them. `options(geouy.cache = TRUE)` turns the cache on for the whole session.
+
 #### Available datasets:
 
 

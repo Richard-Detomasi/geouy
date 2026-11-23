@@ -306,6 +306,11 @@ podar_cache <- function(carpeta = carpeta_cache()) {
 # la sesion: asi lo que quedo viejo se va aunque no se guarde nada nuevo.
 estado_cache <- new.env(parent = emptyenv())
 podar_una_vez <- function(carpeta = carpeta_cache()) {
+  # Una carpeta que todavia no existe no tiene nada para sacar, y no se anota:
+  # su camino completo recien es siempre el mismo cuando existe. Antes puede
+  # escribirse distinto -en macOS la carpeta temporal esta detras de un enlace,
+  # en Windows puede venir con nombres cortos- y se podaria dos veces.
+  if (!dir.exists(carpeta)) return(invisible())
   # Con el camino completo: "cache" es otra carpeta si cambio el directorio de
   # trabajo.
   cual <- normalizePath(carpeta, mustWork = FALSE)

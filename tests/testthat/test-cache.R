@@ -700,6 +700,34 @@ test_that("la poda del primer uso es por carpeta, aunque dos se nombren igual", 
   }
 })
 
+test_that("la poda del primer uso corre una sola vez, aunque el camino de la carpeta se escriba distinto antes de que exista", {
+  # En Windows crear un enlace simbolico pide permisos que el usuario comun no
+  # tiene.
+  skip_on_os("windows")
+  p <- cache_de_prueba()
+  on.exit(p$cerrar(), add = TRUE)
+  # Una carpeta detras de un enlace, como la temporal de macOS: mientras no
+  # existe, su camino completo no se puede resolver y queda con el enlace.
+  real <- tempfile("real-")
+  enlace <- tempfile("enlace-")
+  dir.create(real)
+  on.exit(unlink(c(enlace, real), recursive = TRUE), add = TRUE)
+  skip_if_not(file.symlink(real, enlace), "no se pudo crear el enlace")
+  options(geouy.cache_dir = file.path(enlace, "cache"))
+  bajar_falsa()
+  podas <- 0
+  with_mocked_bindings({
+    load_geouy("Secciones", cache = TRUE)
+    suppressMessages(load_geouy("Secciones", cache = TRUE))
+    suppressMessages(load_geouy("Secciones", cache = TRUE))
+  }, podar_cache = function(...) {
+    podas <<- podas + 1
+    invisible(character())
+  })
+  # La de guardar la copia y la del primer uso de la carpeta, ya creada.
+  expect_equal(podas, 2)
+})
+
 test_that("si la huella de una capa no se puede calcular, la poda no saca su copia", {
   p <- cache_de_prueba()
   on.exit(p$cerrar(), add = TRUE)

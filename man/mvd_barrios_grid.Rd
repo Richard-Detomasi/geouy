@@ -13,6 +13,11 @@ A data frame with 62 rows and 4 variables:
   \item{col}{col position in the grid}
 }
 }
+\source{
+Layout made for this package. The names and the codes of the
+  neighborhoods are the ones of the National Institute of Statistics (INE),
+  as published in the layer \code{"Barrios"} of \code{\link{metadata}}.
+}
 \usage{
 data(mvd_barrios_grid)
 }

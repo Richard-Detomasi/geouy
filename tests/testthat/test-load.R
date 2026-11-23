@@ -59,6 +59,31 @@ test_that("load_geouy culpa al directorio y no al servidor cuando el folder no s
   expect_error(load_geouy("Deptos", folder = archivo), "valid directory")
 })
 
+test_that("load_geouy crea la carpeta que todavia no existe, sin avisar que no existe", {
+  # normalizePath() avisaba que la carpeta no existia justo antes de que la
+  # funcion la creara. Sin red: lo que se baja no es un zip, y alcanza.
+  local_mocked_bindings(has_internet = function() TRUE)
+  local_mocked_bindings(download.file = function(url, destfile, ...) {
+    writeLines("no es un zip", destfile)
+    0L
+  })
+  raiz <- tempfile("carpeta-nueva-")
+  on.exit(unlink(raiz, recursive = TRUE), add = TRUE)
+  carpeta <- file.path(raiz, "capas")
+  avisos <- character()
+  expect_error(
+    withCallingHandlers(
+      suppressMessages(load_geouy("Deptos", folder = carpeta)),
+      warning = function(w) {
+        avisos <<- c(avisos, conditionMessage(w))
+        invokeRestart("muffleWarning")
+      }),
+    "not with a zip containing a shapefile")
+  expect_true(dir.exists(carpeta))
+  # El aviso de normalizePath() nombraba la carpeta; el de unzip(), no.
+  expect_false(any(grepl(basename(raiz), avisos, fixed = TRUE)))
+})
+
 test_that("las capas de la guia de recursos sumadas por el #76 traen el codigo y el nombre declarados", {
   skip_if_offline()
   skip_on_cran()

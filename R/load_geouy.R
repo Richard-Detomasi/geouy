@@ -121,7 +121,9 @@ descarga_o_falla <- function(expr, capa, url, accion = "read", intentos = 1L) {
 
 load_geouy <- function(c, crs = 32721, folder = tempdir(), make_valid = TRUE){
   x <- geouy::metadata 
-  folder <- normalizePath(folder,"/")
+  # mustWork = FALSE: la carpeta puede no existir todavia -se crea mas abajo,
+  # si hace falta bajar-, y sin esto cada llamada avisaba que no existe.
+  folder <- normalizePath(folder, "/", mustWork = FALSE)
   # Sin try(): envolver un stop() propio en try() lo atrapa, la funcion sigue
   # con el nombre equivocado y el usuario termina viendo "argumento tiene
   # longitud cero" unas lineas mas abajo, cuando el filtro no deja ninguna fila.

@@ -9,7 +9,7 @@
 #'   \item{productor}{name of the institution produced the data}
 #'   \item{repositor}{name of the institution that serves the data}
 #'   \item{crs}{Coordinate Reference Systems of data}
-#'   \item{formato}{format in which the layer is served: \code{wfs}, \code{zip} or \code{zip a}}
+#'   \item{formato}{format in which the layer is served: \code{wfs} or \code{zip}}
 #'   \item{anio}{year of data production}
 #'   \item{url}{url of the service. When it asks for several layers of the same
 #'   service, as \code{Calles} does, \code{load_geouy()} reads each one, which

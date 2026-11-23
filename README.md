@@ -62,7 +62,6 @@ secc <- load_geouy("Secciones")
 |`"Segm MVD 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Segmentos URB INT 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Zonas MVD 2004"`| `"INE"` | MIDES | 2004 | wfs |
-|`"Zonas URB INT 2004"`| `"INE"` | MIDES | 2004 | wfs |
 |`"Localidades pg"`| `"INE"` | MIDES | 2023 | wfs |
 |`"Localidades pt"`| `"INE"` | MIDES | 2023 | zip |
 |`"Centros poblados pg"`| `"SGM"` | IGM | 2011 | wfs |
@@ -143,17 +142,9 @@ secc <- load_geouy("Secciones")
 | Layer | Productor | Source | Year | Format |
 |-----|-----|-----|-----|-----|
 | `"OTs"` | `"MIDES"` | MIDES | 2022 | wfs |
-| `"Jardines de infantes"` | `"CEIP"` | MIDES | 2020 | zip |
-| `"Colegios privados N0a3"` | `"CEIP"` | MIDES | 2020 | zip |
-| `"Escuelas con N3"` | `"CEIP"` | MIDES | 2020 | zip |
 | `"Escuelas"` | `"CEIP"` | MIDES | 2020 | wfs |
-| `"Educacion especial"` | `"CEIP"` | MIDES | 2020 | zip | 
-| `"Educacion secundaria"` | `"CEIP"` | MIDES | 2020 |  zip |
-| `"UTU"` | `"ANEP"` | MIDES | 2020 |  zip |
-|`"Centros de lenguas extranjeras"`| `"ANEP"` | MIDES | 2026 | zip |
-|`"Centros educativos comunitarios"`| `"ANEP"` | MIDES | 2026 | zip |
-|`"Atencion al usuario del MSP"`| `"MSP"` | MIDES | 2026 | zip |
-|`"Atencion a victimas del terrorismo de Estado"`| `"ASSE"` | MIDES | 2026 | zip |
+| `"Educacion secundaria"` | `"CEIP"` | MIDES | 2026 | wfs |
+| `"UTU"` | `"ANEP"` | MIDES | 2026 | wfs |
 | `"Instituciones deportivas"` | `"IDE"` | MIDES | 2015 | wfs |
 | `"Playas"`| `"DINAMA"` | MVOTMA | 2007 | zip |
 

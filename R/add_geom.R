@@ -7,7 +7,7 @@
 #'
 #' @family service
 #' @param data data.frame
-#' @param unit spatial unit of data, may be: "Departamentos", "Deptos", "Secciones", "Secc MVD 2004", "Segmentos", "Segm MVD 2004", "Segmentos URB INT 2004", "Zonas", "Zonas MVD 2004", "Zonas URB INT 2004", "Localidades pg", "Municipios" o "Barrios".
+#' @param unit spatial unit of data, may be: "Departamentos", "Deptos", "Secciones", "Secc MVD 2004", "Segmentos", "Segm MVD 2004", "Segmentos URB INT 2004", "Zonas", "Zonas MVD 2004", "Localidades pg", "Municipios" o "Barrios".
 #' @param variable Variable name of unit code (without duplicates)
 #' @param crs Coordinate reference system of the result, as an EPSG code; usually 32721 or 4326 (default 32721)
 #' @importFrom glue glue
@@ -71,4 +71,4 @@ add_geom <- function(data, unit, variable, crs = 32721){
 # nombre real y aceptaba uno que load_geouy() no encuentra.
 unidades_add_geom <- c("Departamentos", "Deptos", "Secciones", "Secc MVD 2004", "Segmentos",
                        "Segm MVD 2004", "Segmentos URB INT 2004", "Zonas", "Zonas MVD 2004",
-                       "Zonas URB INT 2004", "Localidades pg", "Municipios", "Barrios")
+                       "Localidades pg", "Municipios", "Barrios")

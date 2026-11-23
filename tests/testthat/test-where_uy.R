@@ -70,7 +70,7 @@ test_that("where_uy avisa cuando la consulta no puede funcionar", {
 
   # Una capa sin cod declarado tiene que decir eso, y no reventar mas abajo con
   # un error de tidyselect.
-  expect_error(where_uy(c = "Educacion especial", d = "cod", e = 1),
+  expect_error(where_uy(c = "OTs", d = "cod", e = 1),
                "have not still a variable")
 })
 

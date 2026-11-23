@@ -59,21 +59,10 @@ test_that("load_geouy culpa al directorio y no al servidor cuando el folder no s
   expect_error(load_geouy("Deptos", folder = archivo), "valid directory")
 })
 
-test_that("las capas de la guia de recursos sumadas por el #76 traen el codigo y el nombre declarados", {
-  skip_if_offline()
-  skip_on_cran()
-  md <- geouy::metadata
-  for (capa in c("Centros de lenguas extranjeras", "Centros educativos comunitarios",
-                 "Atencion al usuario del MSP", "Atencion a victimas del terrorismo de Estado")) {
-    fila <- md[md$capa == capa, ]
-    a <- load_geouy(capa)
-    expect_true(all(c(fila$cod, fila$name) %in% names(a)), info = capa)
-    expect_equal(anyDuplicated(a[[fila$cod]]), 0, info = capa)
-    # Con el codigo y el nombre declarados, where_uy() encuentra el primero. El
-    # nombre puede repetirse; el codigo no.
-    expect_equal(nrow(where_uy(capa, d = "cod", e = a[[fila$cod]][1])), 1, info = capa)
-    expect_gte(nrow(where_uy(capa, d = "name", e = a[[fila$name]][1])), 1)
-  }
+test_that("ninguna capa se lee de la carpeta de exportaciones del MIDES", {
+  # /2shp/out/ es donde el portal deja lo que alguien exporta: los zip aparecen
+  # y se borran. Diez capas apuntaban ahi y dejaron de responder todas juntas.
+  expect_false(any(grepl("/2shp/out/", geouy::metadata$url, fixed = TRUE)))
 })
 
 test_that("Educacion secundaria y UTU, que se leen del WFS, traen el codigo y el nombre declarados", {

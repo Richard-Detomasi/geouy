@@ -78,24 +78,20 @@ metadata <- tibble::tribble(
   "Peajes", "MTOP", "MTOP", 4326, "wfs", 2019, "https://geoservicios.mtop.gub.uy/geoserver/inf_tte_ttelog_terrestre/peajes/ows?service=WFS&request=GetFeature&typeName=peajes", "gml_id", "nombre", "UTF-8",
   "Instituciones deportivas", "IDE", "MIDES", 32721, "wfs", 2015, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:inst_deportivas_2015", "gml_id", "nombre", "UTF-8",
   "OTs", "MIDES", "MIDES", 32721, "wfs", 2022, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Otes_UY", NA, NA, "UTF-8",
-  "Colegios privados N0a3", "CEIP", "MIDES", 32721, "zip", 2020,"https://mapas.mides.gub.uy/2shp/out/colegiosprivadosconniveles0a3.zip", NA, NA, "UTF-8",
-  "Jardines de infantes", "CEIP", "MIDES", 32721, "zip a", 2020, "https://mapas.mides.gub.uy/2shp/out/jardinesdeinfantes.zip",  NA, NA, "UTF-8",
   "Escuelas", "CEIP", "MIDES", 32721, "wfs", 2020, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Escuelas_UY", NA, NA, "UTF-8",
-  "Escuelas con N3", "CEIP", "MIDES", 32721, "zip", 2020, "https://mapas.mides.gub.uy/2shp/out/escuelaspublicascomunesconnivel3.zip", NA, NA, "UTF-8",
-  "Educacion especial", "CEIP", "MIDES", 32721, "zip a", 2020, "https://mapas.mides.gub.uy/2shp/out/educacionespecial.zip", NA, NA, "UTF-8",
   # Estas dos se leian de /2shp/out/, que no es un servicio: es la carpeta donde
   # el portal del MIDES deja lo que alguien exporta, y los zip aparecen y se
   # borran. El WFS publica los liceos y las UTU con el esquema de la guia de
   # recursos; id es unico en cada una.
   "Educacion secundaria", "CEIP", "MIDES", 32721, "wfs", 2026, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Liceos_UY", "id", "nombre", "UTF-8",
   "UTU", "ANEP", "MIDES", 32721, "wfs", 2026, "https://mapas.mides.gub.uy/geoserver/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=IDE:Utu_UY", "id", "nombre", "UTF-8",
-  # Sumadas por el #76. Las sirve el MIDES en su guia de recursos, con el mismo
-  # esquema que las de arriba; ID es unico en cada una. La oficina de victimas
-  # se atribuye a ASSE por el correo que trae el dato.
-  "Centros de lenguas extranjeras", "ANEP", "MIDES", 32721, "zip", 2026, "https://mapas.mides.gub.uy/2shp/out/centrodelenguasextranjeras.zip", "ID", "NOMBRE", "UTF-8",
-  "Centros educativos comunitarios", "ANEP", "MIDES", 32721, "zip", 2026, "https://mapas.mides.gub.uy/2shp/out/centroseducativoscomunitarioscec.zip", "ID", "NOMBRE", "UTF-8",
-  "Atencion al usuario del MSP", "MSP", "MIDES", 32721, "zip", 2026, "https://mapas.mides.gub.uy/2shp/out/oficinadeatencionalusuarioadelministeriodesaludms.zip", "ID", "NOMBRE", "UTF-8",
-  "Atencion a victimas del terrorismo de Estado", "ASSE", "MIDES", 32721, "zip", 2026, "https://mapas.mides.gub.uy/2shp/out/oficinadeatencionavictimasdeterrorismodeestado.zip", "ID", "NOMBRE", "UTF-8",
+  # De /2shp/out/ salian otras ocho capas, que se sacaron: colegios privados
+  # con niveles 0 a 3, jardines de infantes, escuelas con nivel 3, educacion
+  # especial, y las cuatro de la guia de recursos que se habian sumado por el
+  # #76 (centros de lenguas extranjeras, centros educativos comunitarios,
+  # atencion al usuario del MSP y atencion a victimas del terrorismo de
+  # Estado). La carpeta dejo de tenerlas y el WFS no publica nada que las
+  # reemplace. Si el MIDES las vuelve a publicar, se suman de nuevo.
   "Postes Kilometros", "MTOP", "MTOP", 32721, "wfs", 2019, "https://geoservicios.mtop.gub.uy/geoserver/inf_tte_ttelog_terrestre/postes_km/ows?service=WFS&request=GetFeature&typeName=postes_km", NA, NA, "UTF-8",
   "Grilla ortofotos urbana", "IDE", "IDE", 5381, "wfs", 2019, "https://mapas.ide.uy/geoserver-raster/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ortofotos:grilla_urbana", "gml_id","nombre", "UTF-8",
   "Grilla ortofotos nacional", "IDE", "IDE", 5381, "wfs", 2019, "https://mapas.ide.uy/geoserver-raster/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=ortofotos:grilla_nacional", "gml_id","nombre", "UTF-8",

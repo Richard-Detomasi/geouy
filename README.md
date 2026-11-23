@@ -143,17 +143,9 @@ secc <- load_geouy("Secciones")
 | Layer | Productor | Source | Year | Format |
 |-----|-----|-----|-----|-----|
 | `"OTs"` | `"MIDES"` | MIDES | 2022 | wfs |
-| `"Jardines de infantes"` | `"CEIP"` | MIDES | 2020 | zip |
-| `"Colegios privados N0a3"` | `"CEIP"` | MIDES | 2020 | zip |
-| `"Escuelas con N3"` | `"CEIP"` | MIDES | 2020 | zip |
 | `"Escuelas"` | `"CEIP"` | MIDES | 2020 | wfs |
-| `"Educacion especial"` | `"CEIP"` | MIDES | 2020 | zip | 
 | `"Educacion secundaria"` | `"CEIP"` | MIDES | 2026 | wfs |
 | `"UTU"` | `"ANEP"` | MIDES | 2026 | wfs |
-|`"Centros de lenguas extranjeras"`| `"ANEP"` | MIDES | 2026 | zip |
-|`"Centros educativos comunitarios"`| `"ANEP"` | MIDES | 2026 | zip |
-|`"Atencion al usuario del MSP"`| `"MSP"` | MIDES | 2026 | zip |
-|`"Atencion a victimas del terrorismo de Estado"`| `"ASSE"` | MIDES | 2026 | zip |
 | `"Instituciones deportivas"` | `"IDE"` | MIDES | 2015 | wfs |
 | `"Playas"`| `"DINAMA"` | MVOTMA | 2007 | zip |
 
